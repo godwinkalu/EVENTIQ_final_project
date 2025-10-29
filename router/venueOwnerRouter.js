@@ -40,9 +40,6 @@ const upload = require('../middleware/multer')
  *                 type: string
  *                 format: password
  *                 example: StrongPass123
- *               phoneNumber:
- *                 type: string
- *                 example: "08123456789"
  *     responses:
  *       201:
  *         description: Venue owner created successfully
