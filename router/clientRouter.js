@@ -236,7 +236,7 @@ router.get('/client/:id', getAclient);
  * /clients/{id}:
  *   patch:
  *     summary: Update a client profile
- *     tags: [Clients]
+ *     tags: [Client]
  *     security:
  *       - bearerAuth: []
  *     consumes:
@@ -274,7 +274,7 @@ router.patch('/updateclient/:id',  upload.single('profilePicture'), updateClient
  * /api/v1/clients/{id}:
  *   delete:
  *     summary: Delete a client
- *     tags: [Clients]
+ *     tags: [Client]
  *     security:
  *       - bearerAuth: []
  *     parameters:
