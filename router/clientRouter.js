@@ -30,10 +30,6 @@ const upload = require('../middleware/multer')
  *                 type: string
  *                 example: Silver
  *                 description: Client's surname
- *               phoneNumber:
- *                 type: string
- *                 example: "+2348012345678"
- *                 description: Client's valid phone number
  *               email:
  *                 type: string
  *                 format: email
