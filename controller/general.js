@@ -94,15 +94,25 @@ exports.resendOtp = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body
-  try {
-    const user =
-      (await venueOwnerModel.findOne({ email: email.toLowerCase() })) ||
-      (await clientModel.findOne({ email: email.toLowerCase() })) ||
-      (await adminModel.findOne({ email: email.toLowerCase() }))
 
+
+  try {
+    const venue =await venueOwnerModel.findOne({ email: email.toLowerCase() })
+
+
+    const client =await clientModel.findOne({ email: email.toLowerCase() })
+
+    const admin =await adminModel.findOne({ email: email.toLowerCase() })
+    const user = venue ||client  || admin 
+      console.log(user)
     if (!user) {
       return res.status(404).json({
-        message: 'Account not found',
+        message: 'Invaild Credentials',
+      })
+    }
+    if (user.isVerified === false) {
+      return res.status(404).json({
+        message: 'Go and verified',
       })
     }
 
