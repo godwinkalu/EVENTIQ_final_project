@@ -13,11 +13,11 @@ const upload = require('../middleware/multer')
  *     summary: Create a new venue owner
  *     description: Registers a new venue owner. The system checks if the email already exists, hashes the password, generates an OTP, uploads a default profile image to Cloudinary, and sends a verification email via Brevo.
  *     tags:
- *       - Venue Owners
+ *       - Venue Owner
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         application/json:
  *           schema:
  *             type: object
  *             required:
@@ -121,7 +121,7 @@ router.post('/venueOwner', createVenueOwner)
  * /venueowners:
  *   get:
  *     summary: Get all venue owners
- *     tags: [VenueOwner]
+ *     tags: [Venue Owner]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -137,7 +137,7 @@ router.get('/getallvenue',  getAllVenueOwners);
  * /venueowners/{id}:
  *   get:
  *     summary: Get a single venue owner by ID
- *     tags: [VenueOwner]
+ *     tags: [Venue Owner]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -160,7 +160,7 @@ router.get('/getvenue/:id',  getVenueOwners);
  * /venueowners/{id}:
  *   patch:
  *     summary: Update a venue owner
- *     tags: [VenueOwner]
+ *     tags: [Venue Owner]
  *     security:
  *       - bearerAuth: []
  *     consumes:
@@ -201,7 +201,7 @@ router.put('/updateVenue/:id', upload.single('profilePicture'), updateVenueOwner
  * /venueowners/{id}:
  *   delete:
  *     summary: Delete a venue owner
- *     tags: [VenueOwner]
+ *     tags: [Venue Owner]
  *     security:
  *       - bearerAuth: []
  *     parameters:
