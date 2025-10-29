@@ -19,10 +19,6 @@ const venueOwnerSchema = new mongoose.Schema(
       unique: true,
       lowercase: true
     },
-    phoneNumber: {
-      type: String,
-      trim: true,
-    },
     password: {
       type: String,
       required: true,
