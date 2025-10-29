@@ -19,7 +19,6 @@ const upload = require('../middleware/multer')
  *             required:
  *               - firstName
  *               - surname
- *               - phoneNumber
  *               - email
  *               - password
  *             properties:
