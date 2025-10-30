@@ -8,7 +8,7 @@ const cors = require('cors')
 const app = express()
 
 app.use(express.json())
-app.use(cors({ origin: '*' }))
+app.use(cors( {origin: '*'}))
 const clientRouter = require('./router/clientRouter');
 const adminRouter = require('./router/adminRouter')
 const generalRouter = require('./router/general')
@@ -25,13 +25,13 @@ app.use('/api/v1/', venueRouter)
 app.use('/api/v1/', venueOwnerRouter)
 app.use('/api/v1/', venuebookingRouter)
 app.use('/api/v1/', paymentRouter)
-app.use('/api/v1/', bankDetailRouter);
+app.use('/api/v1',bankDetailRouter)
 
 app.use((error, req, res, next) => {
   if (error) {
-    return res.status(error.status || 500).json(error.message || 'Something went wrong')
+     return res.status(error.status || 500).json(error.message || 'Something went wrong')
   }
-  next()
+ next()
 })
 
 const swaggerDefinition = {
@@ -55,7 +55,7 @@ const swaggerDefinition = {
       description: 'Development server',
     }
   ],
-  components: {
+   components: {
     securitySchemes: {
       bearerAuth: {
         type: 'http',
