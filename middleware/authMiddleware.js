@@ -20,6 +20,7 @@ exports.authentication = async (req, res, next) => {
       (await clientModel.findById(decoded.id)) ||
       (await venueOwnerModel.findById(decoded.id)) ||
       (await adminModel.findById(decoded.id))
+      
     if (!user) {
       return res.status(404).json({
         message: 'Authentication failed, User not found',

@@ -1,9 +1,8 @@
-const { createVenueOwner, getAllVenueOwners, getVenueOwner, getVenueOwners, updateVenueOwner, deleteVenueOwner } = require("../controller/venueOwnerController")
+const { createVenueOwner, getAllVenueOwners, getVenueOwner, updateVenueOwner, deleteVenueOwner } = require("../controller/venueOwnerController")
 
-const router = require('express').Router()
+const router = require('express').Router();
+
 const upload = require('../middleware/multer')
-
-
 
 
 /**
@@ -106,10 +105,6 @@ const upload = require('../middleware/multer')
  *                   type: string
  *                   example: Internal server error
  */
-
-
-
-
 router.post('/venueOwner', createVenueOwner)
 
 /**
@@ -126,11 +121,11 @@ router.post('/venueOwner', createVenueOwner)
  *       500:
  *         description: Server error
  */
-router.get('/getallvenue',  getAllVenueOwners);
+router.get('/venueowners',  getAllVenueOwners);
 
 /**
  * @swagger
- * /venueowners/{id}:
+ * /venueowner/{id}:
  *   get:
  *     summary: Get a single venue owner by ID
  *     tags: [Venue Owner]
@@ -149,7 +144,7 @@ router.get('/getallvenue',  getAllVenueOwners);
  *       404:
  *         description: Venue owner not found
  */
-router.get('/getvenue/:id',  getVenueOwners);
+router.get('/venueowner/:id',  getVenueOwner);
 
 /**
  * @swagger

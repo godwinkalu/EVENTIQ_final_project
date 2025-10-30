@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const subscriptionSchema = mongoose.Schema({
+const subscriptionSchema = new mongoose.Schema({
   venueOwnerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'venueOwners',
@@ -25,8 +25,7 @@ const subscriptionSchema = mongoose.Schema({
     enum: ['1 month(s)', '3 month(s)', '6 month(s)']
   },
   subscriptionExpiresAt: {
-    type: Number,
-    default: 0
+    type: Number
   }
 }, { timestamps: true });
 

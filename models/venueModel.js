@@ -65,11 +65,9 @@ const venueSchema = new mongoose.Schema(
       {
         url: {
           type: String,
-          
         },
         publicId: {
           type: String,
-        
         },
       },
     ],

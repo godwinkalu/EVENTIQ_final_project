@@ -6,10 +6,10 @@ const { emailSender } = require('../middleware/nodemalier')
 const Brevo = require('@getbrevo/brevo')
 
 exports.createVenueOwner = async (req, res, next) => {
-  const { firstName, surname,email, password } = req.body
+  const { firstName, surname, email, password } = req.body
   try {
     const existVenueOwner = await venueOwnerModel.findOne({ email: email.toLowerCase() })
-     const existClient  =    await     venueOwnerModel.findOne({ email: email.toLowerCase() })
+    const existClient = await venueOwnerModel.findOne({ email: email.toLowerCase() })
 
     if (existVenueOwner) {
       return res.status(404).json({
@@ -17,7 +17,7 @@ exports.createVenueOwner = async (req, res, next) => {
       })
     }
 
-     if (existClient) {
+    if (existClient) {
       return res.status(404).json({
         message: 'Account already exist as a client, log in to your account',
       })
@@ -29,8 +29,7 @@ exports.createVenueOwner = async (req, res, next) => {
       .toString()
       .padStart(6, '0')
 
-    const imgUrl =
-      'https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=1024x1024&w=is&k=20&c=oGqYHhfkz_ifeE6-dID6aM7bLz38C6vQTy1YcbgZfx8='
+    const imgUrl = 'https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=1024x1024&w=is&k=20&c=oGqYHhfkz_ifeE6-dID6aM7bLz38C6vQTy1YcbgZfx8=';
 
     const response = await cloudinary.uploader.upload(imgUrl)
 
@@ -57,7 +56,7 @@ exports.createVenueOwner = async (req, res, next) => {
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
 
     sendSmtpEmail.htmlContent = signUpTemplate(otp, venueOwner.firstName)
-    
+
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     await venueOwner.save()
 
@@ -72,7 +71,7 @@ exports.createVenueOwner = async (req, res, next) => {
 }
 exports.getAllVenueOwners = async (req, res, next) => {
   try {
-    const owners = await venueOwnerModel.find().select('-password -otp'); 
+    const owners = await venueOwnerModel.find().select('-password -otp');
     res.status(200).json({
       message: 'All venue owners retrieved successfully',
       data: owners,
@@ -82,7 +81,7 @@ exports.getAllVenueOwners = async (req, res, next) => {
   }
 };
 
-exports.getVenueOwners = async (req, res, next) => {
+exports.getVenueOwner = async (req, res, next) => {
   try {
     const { id } = req.params;
     const owner = await venueOwnerModel.findById(id).select('-password -otp');
@@ -114,7 +113,6 @@ exports.updateVenueOwner = async (req, res, next) => {
 
     let profilePicture = owner.profilePicture;
     if (req.file) {
-  
       if (owner.profilePicture && owner.profilePicture.publicId) {
         await cloudinary.uploader.destroy(owner.profilePicture.publicId);
       }
