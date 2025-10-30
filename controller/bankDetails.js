@@ -34,6 +34,7 @@ exports.registerBank = async (req, res, next) => {
     };
 
     const bankDetail = new bankDetailModel({
+      venueOwnerId: venueOwner._id,
       bankName,
       accountName,
       accountType,
