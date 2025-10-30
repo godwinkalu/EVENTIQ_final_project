@@ -12,16 +12,16 @@ const { authentication } = require('../middleware/authMiddleware')
 
 const upload = require('../middleware/multer')
 
-
 /**
  * @swagger
  * /list-venue:
  *   post:
  *     summary: Create a new venue listing
- *     description: This endpoint allows an authenticated venue owner to upload venue details with one or more images.
- *     tags: [Venues]
+ *     description: Allows a verified venue owner to create a new venue with full details such as location, capacity, and amenities.
+ *     tags:
+ *       - Venue
  *     security:
- *       - bearerAuth: []   # Requires JWT authentication
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -29,56 +29,63 @@ const upload = require('../middleware/multer')
  *           schema:
  *             type: object
  *             required:
- *               - name
+ *               - venuename
  *               - description
  *               - capacity
  *               - price
  *               - type
- *               - cautionfee
- *               - openhours
  *               - street
  *               - city
  *               - state
- *               - image
  *             properties:
- *               name:
+ *               venuename:
  *                 type: string
- *                 example: "The Grand Event Center"
+ *                 example: "Grand Royale Event Hall"
  *               description:
  *                 type: string
- *                 example: "Spacious event center with AC, parking, and stage facilities."
+ *                 example: "Spacious hall perfect for weddings, conferences, and parties."
  *               capacity:
- *                 type: integer
- *                 example: 300
+ *                 type: number
+ *                 example: 500
  *               price:
  *                 type: number
- *                 example: 150000
+ *                 example: 250000
  *               type:
  *                 type: string
- *                 example: "Indoor"
+ *                 example: "indoor"
+ *               amenities:
+ *                 type: string
+ *                 example: "Parking Space, Air Conditioning, WiFi"
  *               cautionfee:
  *                 type: number
- *                 example: 25000
- *               openhours:
+ *                 example: 50000
+ *               openingtime:
  *                 type: string
- *                 example: "08:00 AM - 10:00 PM"
- *               amenities:
- *                 type: array
- *                 items:
- *                   type: string
- *                 example: ["Air Conditioning", "Parking", "WiFi"]
+ *                 example: "08:00 AM"
+ *               closingtime:
+ *                 type: string
+ *                 example: "11:00 PM"
+ *               hallsize:
+ *                 type: string
+ *                 example: "200 sqm"
  *               street:
  *                 type: string
- *                 example: "12 Unity Close"
+ *                 example: "45 Freedom Street"
  *               city:
  *                 type: string
- *                 example: "Ikeja"
+ *                 example: "Lagos"
  *               state:
  *                 type: string
  *                 example: "Lagos"
+ *               image:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: "Upload up to 5 venue images"
  *     responses:
  *       201:
- *         description: Venue created successfully
+ *         description: Venue uploaded successfully
  *         content:
  *           application/json:
  *             schema:
@@ -89,22 +96,11 @@ const upload = require('../middleware/multer')
  *                   example: "Venue uploaded successfully"
  *                 data:
  *                   type: object
- *                   properties:
- *                     _id:
- *                       type: string
- *                       example: "67203016a93b8b86d94e2321"
- *                     name:
- *                       type: string
- *                       example: "The Grand Event Center"
- *                     description:
- *                       type: string
- *                       example: "Spacious event center with AC, parking, and stage facilities."
- *                     price:
- *                       type: number
- *                       example: 150000
- *                     capacity:
- *                       type: integer
- *                       example: 300
+ *                   example:
+ *                     _id: "66a345ffebd9083412d45b21"
+ *                     name: "Grand Royale Event Hall"
+ *                     capacity: 500
+ *                     price: 250000
  *                     location:
  *                       type: object
  *                       properties:
@@ -117,8 +113,19 @@ const upload = require('../middleware/multer')
  *                         state:
  *                           type: string
  *                           example: "Lagos"
+ *                     image:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           url:
+ *                             type: string
+ *                             example: "https://res.cloudinary.com/demo/image/upload/v1729342/venue1.jpg"
+ *                           publicId:
+ *                             type: string
+ *                             example: "Event/Venues/abc123xyz"
  *       400:
- *         description: Invalid request or duplicate venue
+ *         description: Venue already exists in this city
  *         content:
  *           application/json:
  *             schema:
@@ -138,7 +145,7 @@ const upload = require('../middleware/multer')
  *                   type: string
  *                   example: "Venue owner not found, can't create venue"
  *       500:
- *         description: Server error while creating venue
+ *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
@@ -148,7 +155,7 @@ const upload = require('../middleware/multer')
  *                   type: string
  *                   example: "Internal server error"
  */
-router.post('/list-venue', authentication, createVenue)
+router.post('/list-venue', authentication, upload.array('image', 5), createVenue)
 
 /**
  * @swagger

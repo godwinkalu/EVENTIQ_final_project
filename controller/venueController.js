@@ -7,7 +7,7 @@ exports.createVenue = async (req, res, next) => {
 
   try {
     const {
-      name,
+      venuename,
       description,
       capacity,
       price,
@@ -31,7 +31,7 @@ exports.createVenue = async (req, res, next) => {
     }
 
     const existingVenue = await venueModel.findOne({
-      name: name?.trim(),
+      venuenamename: venuename?.trim(),
       'location.street': street?.trim(),
     })
 
@@ -50,7 +50,7 @@ exports.createVenue = async (req, res, next) => {
 
     const newVenue = new venueModel({
       venueOwnerId: venueOwner._id,
-      name,
+      venuename,
       description,
       location,
       price,
