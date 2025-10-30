@@ -20,7 +20,6 @@ const bankSchema = new mongoose.Schema({
   accountType: {
     type: String,
     trim: true,
-    lowercase: true,
     enum: ['Savings', 'Current', 'Fixed']
   },
   accountName: {
