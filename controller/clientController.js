@@ -7,7 +7,7 @@ const { emailSender } = require('../middleware/nodemalier')
 const Brevo = require('@getbrevo/brevo')
 
 exports.signUp = async (req, res, next) => {
-  const { firstName, surname, phoneNumber, email, password } = req.body
+  const { firstName, surname, email, password } = req.body
   try {
     const existClient = await clientModel.findOne({ email: email.toLowerCase() }) 
     const existVenueOwner = await clientModel.findOne({ email: email.toLowerCase() }) 
@@ -39,7 +39,6 @@ exports.signUp = async (req, res, next) => {
     const client = new clientModel({
       firstName,
       surname,
-      phoneNumber,
       email,
       password: hashedPassword,
       otp: otp,
@@ -63,11 +62,15 @@ exports.signUp = async (req, res, next) => {
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     await client.save()
+
+
+    console.log(client)
     return res.status(201).json({
       message: 'Client created successfully',
       data: client,
     })
   } catch (error) {
+    console.log(error)
     next(error)
   }
 }

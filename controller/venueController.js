@@ -4,15 +4,6 @@ const cloudinary = require('../config/cloudinary')
 const fs = require('fs')
 
 exports.createVenue = async (req, res, next) => {
-  const files = req.files || []
-
-  const cleanupLocalFiles = (files) => {
-    for (const file of files) {
-      if (fs.existsSync(file.path)) {
-        fs.unlinkSync(file.path)
-      }
-    }
-  }
 
   try {
     const {
@@ -20,10 +11,12 @@ exports.createVenue = async (req, res, next) => {
       description,
       capacity,
       price,
-      type,
+      type, 
       amenities,
       cautionfee,
-      openhours,
+      openingtime,
+      closingtime,
+      hallsize,
       street,
       city,
       state,
@@ -32,7 +25,6 @@ exports.createVenue = async (req, res, next) => {
 
     const venueOwner = await venueOwnerModel.findById(id)
     if (!venueOwner) {
-      if (files && Array.isArray(files)) cleanupLocalFiles(files)
       return res.status(404).json({
         message: "Venue owner not found, can't create venue",
       })
@@ -55,27 +47,6 @@ exports.createVenue = async (req, res, next) => {
       state: state ? state.trim() : '',
     }
 
-    let uploadedImages
-
-    if (files.length === 0) {
-      return res.status(400).json({ message: 'At least one image is required' })
-    } else {
-      uploadedImages = []
-      for (const file of files) {
-        const cloudImage = await cloudinary.uploader.upload(file.path, {
-          folder: 'Event/Venues',
-          use_filename: true,
-          transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
-        })
-
-        uploadedImages.push({
-          url: cloudImage.secure_url,
-          publicId: cloudImage.public_id,
-        })
-
-        fs.existsSync(file.path) && fs.unlinkSync(file.path)
-      }
-    }
 
     const newVenue = new venueModel({
       venueOwnerId: venueOwner._id,
@@ -83,11 +54,12 @@ exports.createVenue = async (req, res, next) => {
       description,
       location,
       price,
-      openhours,
+      openingtime,
+      closingtime,
+      hallsize,
       type,
       cautionfee,
       amenities,
-      image: uploadedImages,
       capacity,
     })
 
@@ -98,7 +70,7 @@ exports.createVenue = async (req, res, next) => {
       data: newVenue,
     })
   } catch (error) {
-    if (files && Array.isArray(files)) cleanupLocalFiles(files)
+    
     next(error)
   }
 }
@@ -194,7 +166,7 @@ exports.uploadDocument = async (req, res, next) => {
   }
 }
 
-exports.getAllVenues = async (req, res, next) => {
+exports.getAllVenues = async (req, res, next) => {    
   try {
     const venues = await venueModel.find()
 

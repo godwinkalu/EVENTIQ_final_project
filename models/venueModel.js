@@ -7,7 +7,7 @@ const venueSchema = new mongoose.Schema(
       ref: 'venueOwners',
       required: true,
     },
-    name: {
+    venuename: {
       type: String,
       required: true,
       trim: true,
@@ -30,7 +30,11 @@ const venueSchema = new mongoose.Schema(
         required: true,
       },
     },
-    openhours: {
+    openingtime: {
+      type: String,
+      required: true,
+    },
+    closingtime: {
       type: String,
       required: true,
     },
@@ -39,6 +43,10 @@ const venueSchema = new mongoose.Schema(
       required: true,
     },
     capacity: {
+      type: Number,
+      required: true,
+    },
+    hallsize: {
       type: Number,
       required: true,
     },
@@ -57,11 +65,11 @@ const venueSchema = new mongoose.Schema(
       {
         url: {
           type: String,
-          required: true,
+          
         },
         publicId: {
           type: String,
-          required: true,
+        
         },
       },
     ],
@@ -84,10 +92,6 @@ const venueSchema = new mongoose.Schema(
     isfeatured: {
       type: Boolean,
       default: false,
-    },
-    rating: {
-      type: Number,
-      default: 0,
     },
     isavailable: {
       type: Boolean,
