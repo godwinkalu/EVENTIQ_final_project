@@ -25,7 +25,7 @@ const upload = require('../middleware/multer')
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         application/json:
  *           schema:
  *             type: object
  *             required:
@@ -76,12 +76,6 @@ const upload = require('../middleware/multer')
  *               state:
  *                 type: string
  *                 example: "Lagos"
- *               image:
- *                 type: array
- *                 items:
- *                   type: string
- *                   format: binary
- *                 description: "Upload up to 5 venue images"
  *     responses:
  *       201:
  *         description: Venue created successfully
@@ -123,17 +117,6 @@ const upload = require('../middleware/multer')
  *                         state:
  *                           type: string
  *                           example: "Lagos"
- *                     image:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           url:
- *                             type: string
- *                             example: "https://res.cloudinary.com/demo/image/upload/v1729342/venue1.jpg"
- *                           publicId:
- *                             type: string
- *                             example: "Event/Venues/abc123xyz"
  *       400:
  *         description: Invalid request or duplicate venue
  *         content:
@@ -165,7 +148,7 @@ const upload = require('../middleware/multer')
  *                   type: string
  *                   example: "Internal server error"
  */
-router.post('/list-venue', authentication, upload.array('image', 5), createVenue)
+router.post('/list-venue', authentication, createVenue)
 
 /**
  * @swagger
