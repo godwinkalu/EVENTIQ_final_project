@@ -105,7 +105,7 @@ exports.updateBank = async (req, res, next) => {
 
     const bankDetail = await bankDetailModel.findOne({ venueOwnerId: venueOwner._id });
 
-    if (bankDetail) {
+    if (!bankDetail) {
       return res.status(404).json({
         message: 'No bank info found'
       })
