@@ -65,11 +65,9 @@ const venueSchema = new mongoose.Schema(
       {
         url: {
           type: String,
-          
         },
         publicId: {
           type: String,
-        
         },
       },
     ],
@@ -96,6 +94,10 @@ const venueSchema = new mongoose.Schema(
     isavailable: {
       type: Boolean,
       default: true,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false
     },
      status: {
       type: String,

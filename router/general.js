@@ -2,12 +2,6 @@ const router = require('express').Router()
 const { verify, resendOtp, login, changePassword, forgotPassword, resetPassword } = require('../controller/general')
 const { authentication } = require('../middleware/authMiddleware')
 
-/**
- * @swagger
- * tags:
- *   name: Authentication
- *   description: Authentication and account management endpoints
- */
 
 /**
  * @swagger
@@ -145,7 +139,7 @@ router.post('/login', login)
  *         description: User not found
  */
 
-router.post('/changePassword', authentication,changePassword)
+router.post('/changePassword', authentication, changePassword)
 
 /**
  * @swagger

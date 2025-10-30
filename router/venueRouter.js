@@ -12,22 +12,16 @@ const { authentication } = require('../middleware/authMiddleware')
 
 const upload = require('../middleware/multer')
 
-/**
- * @swagger
- * tags:
- *   name: Venues
- *   description: API endpoints for managing event venues
- */
 
 /**
  * @swagger
  * /list-venue:
  *   post:
- *     summary: Create a new venue
- *     description: Allows a verified venue owner to list a new venue with images.
+ *     summary: Create a new venue listing
+ *     description: This endpoint allows an authenticated venue owner to upload venue details with one or more images.
  *     tags: [Venues]
  *     security:
- *       - bearerAuth: []
+ *       - bearerAuth: []   # Requires JWT authentication
  *     requestBody:
  *       required: true
  *       content:
@@ -40,45 +34,137 @@ const upload = require('../middleware/multer')
  *               - capacity
  *               - price
  *               - type
+ *               - cautionfee
+ *               - openhours
+ *               - street
+ *               - city
+ *               - state
  *               - image
  *             properties:
  *               name:
  *                 type: string
+ *                 example: "The Grand Event Center"
  *               description:
  *                 type: string
+ *                 example: "Spacious event center with AC, parking, and stage facilities."
  *               capacity:
- *                 type: number
+ *                 type: integer
+ *                 example: 300
  *               price:
  *                 type: number
+ *                 example: 150000
  *               type:
  *                 type: string
- *               amenities:
- *                 type: string
- *                 example: Wifi, Parking, Chairs
+ *                 example: "Indoor"
  *               cautionfee:
  *                 type: number
+ *                 example: 25000
  *               openhours:
  *                 type: string
+ *                 example: "08:00 AM - 10:00 PM"
+ *               amenities:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["Air Conditioning", "Parking", "WiFi"]
  *               street:
  *                 type: string
+ *                 example: "12 Unity Close"
  *               city:
  *                 type: string
+ *                 example: "Ikeja"
  *               state:
  *                 type: string
+ *                 example: "Lagos"
  *               image:
  *                 type: array
  *                 items:
  *                   type: string
  *                   format: binary
+ *                 description: "Upload up to 5 venue images"
  *     responses:
  *       201:
- *         description: Venue uploaded successfully
+ *         description: Venue created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Venue uploaded successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: "67203016a93b8b86d94e2321"
+ *                     name:
+ *                       type: string
+ *                       example: "The Grand Event Center"
+ *                     description:
+ *                       type: string
+ *                       example: "Spacious event center with AC, parking, and stage facilities."
+ *                     price:
+ *                       type: number
+ *                       example: 150000
+ *                     capacity:
+ *                       type: integer
+ *                       example: 300
+ *                     location:
+ *                       type: object
+ *                       properties:
+ *                         street:
+ *                           type: string
+ *                           example: "12 Unity Close"
+ *                         city:
+ *                           type: string
+ *                           example: "Ikeja"
+ *                         state:
+ *                           type: string
+ *                           example: "Lagos"
+ *                     image:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           url:
+ *                             type: string
+ *                             example: "https://res.cloudinary.com/demo/image/upload/v1729342/venue1.jpg"
+ *                           publicId:
+ *                             type: string
+ *                             example: "Event/Venues/abc123xyz"
  *       400:
- *         description: Invalid input or missing images
+ *         description: Invalid request or duplicate venue
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Venue already exists in this city"
  *       404:
  *         description: Venue owner not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Venue owner not found, can't create venue"
+ *       500:
+ *         description: Server error while creating venue
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error"
  */
-
 router.post('/list-venue', authentication, upload.array('image', 5), createVenue)
 
 /**

@@ -95,19 +95,12 @@ exports.resendOtp = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   const { email, password } = req.body
 
-
   try {
-    const venue =await venueOwnerModel.findOne({ email: email.toLowerCase() })
-
-
-    const client =await clientModel.findOne({ email: email.toLowerCase() })
-
-    const admin =await adminModel.findOne({ email: email.toLowerCase() })
-    const user = venue ||client  || admin 
-      console.log(user)
+    const user = await venueOwnerModel.findOne({ email: email.toLowerCase() }) || await clientModel.findOne({ email: email.toLowerCase() }) ||await adminModel.findOne({ email: email.toLowerCase() })
+   
     if (!user) {
       return res.status(404).json({
-        message: 'Invaild Credentials',
+        message: 'User not found',
       })
     }
     if (user.isVerified === false) {
@@ -206,6 +199,9 @@ exports.forgotPassword = async (req, res, next) => {
     user.otp = newOtp
     user.otpExpiredat = Date.now() + 2 * 60 * 1000
     await user.save()
+
+    console.log("Hosted url",`${req.protocol}://${req.get('host')}`);
+    
 
     if (`${req.protocol}://${req.get('host')}`.startsWith('http://localhost')) {
       const emailOptions = {
