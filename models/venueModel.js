@@ -93,6 +93,10 @@ const venueSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isFeatured: {
+      type: Boolean,
+      default: false
+    },
      status: {
       type: String,
       enum:['pending', 'unverified', 'verified'],
