@@ -47,7 +47,7 @@ const venueSchema = new mongoose.Schema(
       required: true,
     },
     hallsize: {
-      type: Number,
+      type: String,
       required: true,
     },
     price: {
