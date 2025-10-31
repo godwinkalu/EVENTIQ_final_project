@@ -117,6 +117,12 @@ exports.login = async (req, res, next) => {
       })
     }
 
+    if (user.isLoggedIn === true) {
+      return res.status(400).json({
+        message: 'User is already logged in',
+      })
+    }
+
     user.isLoggedIn = true
     const token = jwt.sign(
       { id: user._id, isLoggedIn: user.isLoggedIn, role: user.role },

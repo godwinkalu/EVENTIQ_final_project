@@ -1,4 +1,5 @@
 const venueOwnerModel = require('../models/venueOwnerModel')
+const dashboardModel = require('../models/dashboardModel');
 const cloudinary = require('../config/cloudinary')
 const bcrypt = require('bcrypt')
 const { signUpTemplate } = require('../utils/emailTemplate')
@@ -47,6 +48,10 @@ exports.createVenueOwner = async (req, res, next) => {
         publicId: response.public_id,
       },
     })
+    
+    const dashboard = new dashboardModel({
+      venueOwnerId: venueOwner._id
+    });
 
     const apikey = process.env.brevo
     const apiInstance = new Brevo.TransactionalEmailsApi()
@@ -61,8 +66,7 @@ exports.createVenueOwner = async (req, res, next) => {
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     await venueOwner.save()
-
-    await venueOwner.save()
+    await dashboard.save()
     res.status(201).json({
       message: 'venueOwner created successfully',
       data: venueOwner,

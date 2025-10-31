@@ -7,34 +7,42 @@ const dashboardSchema = new mongoose.Schema({
   },
   totalVenues: {
     total: {
-      type: Number
+      type: Number,
+      default: 0
     },
     stat: {
-      type: String
+      type: Number,
+      default: 0
     }
   },
   activeBooking: {
-    total: {
-      type: Number
+    confirmed: {
+      type: Number,
+      default: 0
     },
-    stat: {
-      type: String
+    pending: {
+      type: Number,
+      default: 0
     }
   },
   revenue: {
     total: {
-      type: Number
+      type: Number,
+      default: 0
     },
     stat: {
-      type: String
+      type: Number,
+      default: 0
     }
   },
   occupancyRate: {
     total: {
-      type: Number
+      type: Number,
+      default: 0
     },
     stat: {
-      type: String
+      type: Number,
+      default: 0
     }
   }
 }, {timestamps: true});
