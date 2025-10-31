@@ -88,6 +88,7 @@ venueOwnerSchema.post('save', async function (doc, next) {
   }
 
   await dashboard.save()
+   next();
 })
 
 const venueOwnerModel = mongoose.model('venueOwners', venueOwnerSchema)
