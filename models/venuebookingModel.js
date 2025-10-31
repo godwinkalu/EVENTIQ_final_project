@@ -11,7 +11,6 @@ const venuebookingSchema =  new mongoose.Schema({
     ref: 'clients',
     required: true
   },
-
    date:{
     type: String,
     required:true

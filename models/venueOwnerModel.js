@@ -1,3 +1,7 @@
+const venueModel = require('../models/venueModel');
+const venuebookingModel = require('../models/venuebookingModel');
+const dashboardModel = require('../models/dashboardModel');
+const moment = require('moment');
 const mongoose = require('mongoose')
 
 const venueOwnerSchema = new mongoose.Schema(
@@ -38,11 +42,11 @@ const venueOwnerSchema = new mongoose.Schema(
     },
     otp: {
       type: String,
-      
+
     },
     otpExpiredat: {
       type: Number,
-      
+
     },
     isVerified: {
       type: Boolean,
@@ -52,13 +56,39 @@ const venueOwnerSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-   role: {
+    role: {
       type: String,
       default: 'venue-owner'
     },
   },
   { timestamps: true }
 );
+
+venueOwnerSchema.post('save', async function (doc, next) {
+  const venues = await venueModel.find({ venueOwnerId: doc._id });
+  const venuebookings = await venuebookingModel.find({ venueId: venues[0]?._id });
+  const dashboard = await dashboardModel.findOne({ venueOwnerId: this._id })
+
+
+  const startOfMonth = moment().startOf('month').toDate();
+  const endOfMonth = moment().endOf('month').toDate();
+
+  const newVenuesThisMonth = await venueModel.countDocuments({
+    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+  });
+
+  dashboard.totalVenues = {
+    total: venues.length,
+    stat: newVenuesThisMonth
+  }
+
+  dashboard.activeBooking = {
+    confirmed: venuebookings.length,
+    pending: venuebookings.filter((e)=> e.bookingstatus === 'pending').length
+  }
+
+  await dashboard.save()
+})
 
 const venueOwnerModel = mongoose.model('venueOwners', venueOwnerSchema)
 
