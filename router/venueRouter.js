@@ -75,7 +75,13 @@ const upload = require('../middleware/multer')
  *                 example: "Lagos"
  *               state:
  *                 type: string
- *                 example: "Lagos State"
+ *                 example: "Lagos"
+ *               image:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: "Upload up to 5 venue images"
  *     responses:
  *       201:
  *         description: Venue uploaded successfully
@@ -95,10 +101,28 @@ const upload = require('../middleware/multer')
  *                     capacity: 500
  *                     price: 250000
  *                     location:
- *                       street: "45 Freedom Street"
- *                       city: "Lagos"
- *                       state: "Lagos State"
- *                     type: "Event Hall"
+ *                       type: object
+ *                       properties:
+ *                         street:
+ *                           type: string
+ *                           example: "12 Unity Close"
+ *                         city:
+ *                           type: string
+ *                           example: "Ikeja"
+ *                         state:
+ *                           type: string
+ *                           example: "Lagos"
+ *                     image:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           url:
+ *                             type: string
+ *                             example: "https://res.cloudinary.com/demo/image/upload/v1729342/venue1.jpg"
+ *                           publicId:
+ *                             type: string
+ *                             example: "Event/Venues/abc123xyz"
  *       400:
  *         description: Venue already exists in this city
  *         content:
@@ -130,7 +154,7 @@ const upload = require('../middleware/multer')
  *                   type: string
  *                   example: "Internal server error"
  */
-router.post('/list-venue', authentication, upload.array('image', 5), createVenue)
+router.post('/list-venue', authentication, createVenue)
 
 
 /**
@@ -139,7 +163,7 @@ router.post('/list-venue', authentication, upload.array('image', 5), createVenue
  *   get:
  *     summary: Get all venues
  *     description: Retrieve all venues listed in the platform.
- *     tags: [Venue]
+ *     tags: [Venues]
  *     responses:
  *       200:
  *         description: List of all venues retrieved successfully
@@ -152,7 +176,7 @@ router.get('/allvenues', getAllVenues)
  *   get:
  *     summary: Get one venue by ID
  *     description: Retrieve details of a specific venue.
- *     tags: [Venue]
+ *     tags: [Venues]
  *     parameters:
  *       - in: path
  *         name: id
@@ -260,7 +284,7 @@ router.put('/upload-docs', authentication, upload.fields([
  *   put:
  *     summary: Update a venue
  *     description: Allows a venue owner to update their venue details.
- *     tags: [Venue]
+ *     tags: [Venues]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -294,7 +318,7 @@ router.put('/updatedvenue/:id', authentication, upload.array('image', 5), update
  *   delete:
  *     summary: Delete a venue
  *     description: Allows a venue owner to delete a venue.
- *     tags: [Venue]
+ *     tags: [Venues]
  *     security:
  *       - bearerAuth: []
  *     parameters:
