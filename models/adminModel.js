@@ -29,6 +29,10 @@ const adminSchema = new mongoose.Schema(
     },
     isVerified: {
       type: Boolean,
+      default: true,
+    },
+    isLoggedIn: {
+      type: Boolean,
       default: false,
     },
     role: {

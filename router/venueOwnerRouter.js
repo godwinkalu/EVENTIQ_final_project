@@ -1,4 +1,6 @@
-const { createVenueOwner, getAllVenueOwners, getVenueOwner, updateVenueOwner, deleteVenueOwner } = require("../controller/venueOwnerController")
+const { createVenueOwner, getAllVenueOwners, getVenueOwner, updatePhoneNumber, deleteVenueOwner, updateProfile } = require("../controller/venueOwnerController");
+
+const { authentication } = require("../middleware/authMiddleware");
 
 const router = require('express').Router();
 
@@ -121,7 +123,7 @@ router.post('/venueOwner', createVenueOwner)
  *       500:
  *         description: Server error
  */
-router.get('/venueowners',  getAllVenueOwners);
+router.get('/venueowners', getAllVenueOwners);
 
 /**
  * @swagger
@@ -144,48 +146,118 @@ router.get('/venueowners',  getAllVenueOwners);
  *       404:
  *         description: Venue owner not found
  */
-router.get('/venueowner/:id',  getVenueOwner);
+router.get('/venueowner/:id', getVenueOwner);
 
 /**
  * @swagger
- * /venueowners/{id}:
- *   patch:
- *     summary: Update a venue owner
+ * /update-phoneNumber:
+ *   put:
+ *     summary: Update venue owner's phone number
  *     tags: [Venue Owner]
  *     security:
  *       - bearerAuth: []
- *     consumes:
- *       - multipart/form-data
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: Venue owner ID
- *         schema:
- *           type: string
- *       - in: formData
- *         name: profilePicture
- *         type: file
- *         description: Upload new profile picture
- *       - in: formData
- *         name: firstName
- *         type: string
- *       - in: formData
- *         name: surname
- *         type: string
- *       - in: formData
- *         name: businessName
- *         type: string
- *       - in: formData
- *         name: phoneNumber
- *         type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "+2349133063508"
  *     responses:
  *       200:
- *         description: Venue owner updated successfully
+ *         description: Phone number updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Phone number updated successfully
+ *       400:
+ *         description: Session expired or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Session expired, login to continue
  *       404:
  *         description: Venue owner not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Venue owner not found
+ *       500:
+ *         description: Internal server error
  */
-router.put('/updateVenue/:id', upload.single('profilePicture'), updateVenueOwner);
+router.put('/update-phoneNumber', authentication, updatePhoneNumber);
+
+
+/**
+ * @swagger
+ * /update-profile:
+ *   put:
+ *     summary: Update venue owner's profile picture
+ *     tags: [Venue Owner]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profilePicture:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file for profile picture
+ *     responses:
+ *       200:
+ *         description: Profile picture updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Profile picture updated successfully
+ *       400:
+ *         description: Session expired or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Session expired, login to continue
+ *       404:
+ *         description: Venue owner not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Venue owner not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/update-profile', authentication, updateProfile);
+
 
 /**
  * @swagger
@@ -208,5 +280,6 @@ router.put('/updateVenue/:id', upload.single('profilePicture'), updateVenueOwner
  *       404:
  *         description: Venue owner not found
  */
-router.delete('/delete/:id',  deleteVenueOwner);
+router.delete('/delete/:id', deleteVenueOwner);
+
 module.exports = router
