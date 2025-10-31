@@ -1,12 +1,11 @@
 const router = require('express').Router()
 const {
   createVenue,
-  uploadCac,
-  uploadDocument,
   getAllVenues,
   getOnevenue,
   updateVenue,
   deleteVenue,
+  uploadDoc,
 } = require('../controller/venueController')
 const { authentication } = require('../middleware/authMiddleware')
 
@@ -131,67 +130,8 @@ const upload = require('../middleware/multer')
  *                   type: string
  *                   example: "Internal server error"
  */
+router.post('/list-venue', authentication, upload.array('image', 5), createVenue)
 
-router.post('/list-venue', authentication, createVenue)
-
-/**
- * @swagger
- * /venues/uploadCAC:
- *   post:
- *     summary: Upload CAC document for a venue
- *     description: Allows a venue owner to upload their CAC certificate.
- *     tags: [Venues]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             required:
- *               - cac
- *             properties:
- *               cac:
- *                 type: string
- *                 format: binary
- *     responses:
- *       201:
- *         description: CAC uploaded successfully
- *       404:
- *         description: Venue or venue owner not found
- */
-
-router.post('/uploadCAC', authentication, upload.single('cac'), uploadCac)
-
-/**
- * @swagger
- * /venues/upload:
- *   post:
- *     summary: Upload legal document for a venue
- *     description: Allows a venue owner to upload additional legal documents (like ownership proof).
- *     tags: [Venues]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             required:
- *               - document
- *             properties:
- *               document:
- *                 type: string
- *                 format: binary
- *     responses:
- *       201:
- *         description: Document uploaded successfully
- *       404:
- *         description: Venue or venue owner not found
- */
-router.post('/upload', authentication, upload.single('document'), uploadDocument)
 
 /**
  * @swagger
@@ -228,6 +168,91 @@ router.get('/allvenues', getAllVenues)
  */
 
 router.get('/getOneVenue/:id', getOnevenue)
+
+
+/**
+ * @swagger
+ * /upload-docs:
+ *   put:
+ *     summary: Upload venue documents (images, CAC, and supporting doc)
+ *     description: |
+ *       Allows an authenticated venue owner to upload their venue-related documents:
+ *       - Up to 5 images of the venue
+ *       - 1 CAC document (proof of business registration)
+ *       - 1 supporting document (PDF, DOC, etc.)
+ *     tags:
+ *       - Venue
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Up to 5 venue images (JPEG, PNG)
+ *               cac:
+ *                 type: string
+ *                 format: binary
+ *                 description: CAC registration document (PDF or image)
+ *               doc:
+ *                 type: string
+ *                 format: binary
+ *                 description: Supporting document (PDF, DOC, DOCX)
+ *     responses:
+ *       201:
+ *         description: Documents uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Documents uploaded successfully
+ *       400:
+ *         description: Missing files or invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All required files (images, CAC, doc) must be provided
+ *       404:
+ *         description: Venue owner or venue not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Venue owner not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.put('/upload-docs', authentication, upload.fields([
+  { name: 'images', maxCount: 5 },
+  { name: 'cac', maxCount: 1 },
+  { name: 'doc', maxCount: 1 },
+]), uploadDoc)
+
 
 /**
  * @swagger

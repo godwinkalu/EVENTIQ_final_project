@@ -13,15 +13,15 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+  if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('application/') || file.mimetype.startsWith('video/')) {
     cb(null, true)
   } else {
-    throw new Error('Invalid file format: Images only')
+    throw new Error('Invalid file format: images, videos, pdfs, docs files only')
   }
 };
 
 const limits = {
-  fileSize: 1024 * 1024 * 50
+  fileSize: 1024 * 1024 * 20
 };
 
 const uploads = multer({
