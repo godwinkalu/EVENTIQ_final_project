@@ -194,7 +194,84 @@ router.get('/allvenues', getAllVenues)
 router.get('/getOneVenue/:id', getOnevenue)
 
 
-router.put('/upload-docs', upload.fields([
+/**
+ * @swagger
+ * /upload-docs:
+ *   put:
+ *     summary: Upload venue documents (images, CAC, and supporting doc)
+ *     description: |
+ *       Allows an authenticated venue owner to upload their venue-related documents:
+ *       - Up to 5 images of the venue
+ *       - 1 CAC document (proof of business registration)
+ *       - 1 supporting document (PDF, DOC, etc.)
+ *     tags:
+ *       - Venue
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Up to 5 venue images (JPEG, PNG)
+ *               cac:
+ *                 type: string
+ *                 format: binary
+ *                 description: CAC registration document (PDF or image)
+ *               doc:
+ *                 type: string
+ *                 format: binary
+ *                 description: Supporting document (PDF, DOC, DOCX)
+ *     responses:
+ *       201:
+ *         description: Documents uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Documents uploaded successfully
+ *       400:
+ *         description: Missing files or invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All required files (images, CAC, doc) must be provided
+ *       404:
+ *         description: Venue owner or venue not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Venue owner not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.put('/upload-docs', authentication, upload.fields([
   { name: 'images', maxCount: 5 },
   { name: 'cac', maxCount: 1 },
   { name: 'doc', maxCount: 1 },
