@@ -101,7 +101,6 @@ exports.uploadDoc = async (req, res, next) => {
     const venue = await venueModel.findOne({ venueOwnerId: venueOwner._id })
 
     if (!venue) {
-      fs.unlinkSync(file.path)
       return res.status(404).json({
         message: 'Venue not found',
       })
