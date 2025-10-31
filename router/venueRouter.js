@@ -163,7 +163,7 @@ router.post('/list-venue', authentication, createVenue)
  *   get:
  *     summary: Get all venues
  *     description: Retrieve all venues listed in the platform.
- *     tags: [Venues]
+ *     tags: [Venue]
  *     responses:
  *       200:
  *         description: List of all venues retrieved successfully
@@ -176,7 +176,7 @@ router.get('/allvenues', getAllVenues)
  *   get:
  *     summary: Get one venue by ID
  *     description: Retrieve details of a specific venue.
- *     tags: [Venues]
+ *     tags: [Venue]
  *     parameters:
  *       - in: path
  *         name: id
@@ -284,7 +284,7 @@ router.put('/upload-docs', authentication, upload.fields([
  *   put:
  *     summary: Update a venue
  *     description: Allows a venue owner to update their venue details.
- *     tags: [Venues]
+ *     tags: [Venue]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -318,7 +318,7 @@ router.put('/updatedvenue/:id', authentication, upload.array('image', 5), update
  *   delete:
  *     summary: Delete a venue
  *     description: Allows a venue owner to delete a venue.
- *     tags: [Venues]
+ *     tags: [Venue]
  *     security:
  *       - bearerAuth: []
  *     parameters:
