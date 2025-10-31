@@ -1,7 +1,7 @@
 const venueModel = require('../models/venueModel');
 const venuebookingModel = require('../models/venuebookingModel');
 const dashboardModel = require('../models/dashboardModel');
-const moment = require('moment');
+const moment =  require('moment')
 const mongoose = require('mongoose')
 
 const venueOwnerSchema = new mongoose.Schema(
