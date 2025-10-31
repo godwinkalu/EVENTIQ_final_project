@@ -19,7 +19,7 @@ const router = express.Router()
 
 /**
  * @swagger
- * /bookings/booking/{venueId}:
+ * /booking/{venueId}:
  *   post:
  *     summary: Create a new venue booking
  *     description: Allows a client to create a booking for a selected venue.
@@ -62,7 +62,7 @@ router.post('/booking/:venueId', authentication, createvenuebooking)
 
 /**
  * @swagger
- * /bookings/mybooking:
+ * /mybooking:
  *   get:
  *     summary: Get client’s bookings
  *     description: Retrieve all bookings made by the logged-in client.
@@ -79,7 +79,7 @@ router.get('/mybooking', authentication, getMyBookings)
 
 /**
  * @swagger
- * /bookings/pendingbooking:
+ * /pendingbooking:
  *   get:
  *     summary: Get all pending bookings
  *     description: Retrieve all pending bookings for a venue owner.
@@ -95,7 +95,7 @@ router.get('/mybooking', authentication, getMyBookings)
 router.get('/pendingbooking', authentication, getAllPendingBookings)
 /**
  * @swagger
- * /bookings/confirmedbooking:
+ * /confirmedbooking:
  *   get:
  *     summary: Get all confirmed or pending bookings
  *     description: Retrieve all confirmed and pending bookings for a venue owner.
@@ -112,7 +112,7 @@ router.get('/confirmedbooking', authentication, getAllConfirmedBookings)
 
 /**
  * @swagger
- * /bookings/accept/{clientId}:
+ * /accept/{clientId}:
  *   post:
  *     summary: Accept a booking and notify the client
  *     description: Sends a confirmation email to the client when their booking is accepted.
@@ -137,7 +137,7 @@ router.get('/accepectbooking', authentication, acceptedBooking)
 
 /**
  * @swagger
- * /bookings/reject/{clientId}:
+ * /reject/{clientId}:
  *   post:
  *     summary: Reject a booking and notify the client
  *     description: Sends an email to the client when their booking is rejected, including a reason.

@@ -5,12 +5,13 @@ const cloudinary = require('../config/cloudinary')
 const { signUpTemplate } = require('../utils/emailTemplate')
 const { emailSender } = require('../middleware/nodemalier')
 const Brevo = require('@getbrevo/brevo')
+const venueModel = require('../models/venueModel')
 
 exports.signUp = async (req, res, next) => {
   const { firstName, surname, email, password } = req.body
   try {
     const existClient = await clientModel.findOne({ email: email.toLowerCase() }) 
-    const existVenueOwner = await clientModel.findOne({ email: email.toLowerCase() }) 
+    const existVenueOwner = await venueModel.findOne({ email: email.toLowerCase() }) 
 
     if (existClient) {
       return res.status(404).json({
