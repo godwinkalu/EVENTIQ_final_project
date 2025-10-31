@@ -39,7 +39,7 @@ const venuebookingSchema =  new mongoose.Schema({
   },
   bookingstatus:{
     type:String,
-    enum:['pending','accepted','rejected'],
+    enum:['pending','confirmed','rejected'],
     default:'pending'
   },
   numberofguests:{

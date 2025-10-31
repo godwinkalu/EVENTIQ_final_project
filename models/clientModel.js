@@ -32,19 +32,6 @@ const clientSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    bookings: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'VenueBooking', // or 'HallBooking' depending on your model
-      },
-    ],
-    notifications: [
-      {
-        title: { type: String, required: true },
-        message: { type: String, required: true },
-        isRead: { type: Boolean, default: false },
-      },
-    ],
     profilePicture: {
       url: {
         type: String,
@@ -66,7 +53,6 @@ const clientSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ['client', 'admin'],
       default: 'client',
     },
   },

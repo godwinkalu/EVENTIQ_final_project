@@ -1,4 +1,6 @@
 const clientModel = require('../models/clientModel')
+const venueOwnerModelModel = require('../models/venueOwnerModel')
+const venuebookingModel = require('../models/venuebookingModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const cloudinary = require('../config/cloudinary')
@@ -6,11 +8,12 @@ const { signUpTemplate } = require('../utils/emailTemplate')
 const { emailSender } = require('../middleware/nodemalier')
 const Brevo = require('@getbrevo/brevo')
 
+
 exports.signUp = async (req, res, next) => {
   const { firstName, surname, email, password } = req.body
   try {
-    const existClient = await clientModel.findOne({ email: email.toLowerCase() }) 
-    const existVenueOwner = await clientModel.findOne({ email: email.toLowerCase() }) 
+    const existClient = await clientModel.findOne({ email: email.toLowerCase() })
+    const existVenueOwner = await venueOwnerModelModel.findOne({ email: email.toLowerCase() })
 
     if (existClient) {
       return res.status(404).json({
@@ -31,9 +34,7 @@ exports.signUp = async (req, res, next) => {
       .toString()
       .padStart(6, '0')
 
-    const imgUrl =
-      'https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=1024x1024&w=is&k=20&c=oGqYHhfkz_ifeE6-dID6aM7bLz38C6vQTy1YcbgZfx8='
-
+    const imgUrl = 'https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=1024x1024&w=is&k=20&c=oGqYHhfkz_ifeE6-dID6aM7bLz38C6vQTy1YcbgZfx8=';
     const response = await cloudinary.uploader.upload(imgUrl)
 
     const client = new clientModel({
@@ -63,8 +64,6 @@ exports.signUp = async (req, res, next) => {
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     await client.save()
 
-
-    console.log(client)
     return res.status(201).json({
       message: 'Client created successfully',
       data: client,
@@ -75,22 +74,21 @@ exports.signUp = async (req, res, next) => {
   }
 }
 
-exports.fetch = async (req, res, next) => {
+exports.getClients = async (req, res, next) => {
   try {
-    const client = await clientModel
-      .find()
-      .select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v')
+    const clients = await clientModel.find().select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v')
 
     res.status(200).json({
       message: 'Clients fetched',
-      data: client,
+      data: clients,
     })
   } catch (error) {
     next(error)
   }
 }
 
-exports.getAclient = async (req, res, next) => {
+
+exports.getClient = async (req, res, next) => {
   try {
     const { id } = req.params
     const client = await clientModel
@@ -98,7 +96,9 @@ exports.getAclient = async (req, res, next) => {
       .select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v')
 
     if (!client) {
-      return res.status(404).json(`Client with the ID: ${id} not found`)
+      return res.status(404).json({
+        message: 'Client not found'
+      })
     }
 
     res.status(200).json({
@@ -110,43 +110,33 @@ exports.getAclient = async (req, res, next) => {
   }
 }
 
-exports.updateClient = async (req, res, next) => {
+
+exports.getAllClientBooking = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const updates = req.body;
+    const {id} = req.user;
+    const client = await clientModel.findById(id);
 
-    if (req.file) {
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'client_profiles',
-      });
-      updates.profilePicture = {
-        url: uploadResult.secure_url,
-        publicId: uploadResult.public_id,
-      };
-    }
-
-    delete updates.password;
-
-    const updatedClient = await clientModel.findByIdAndUpdate(
-      id,
-      updates,
-      { new: true}
-    ).select('-password -otp -otpExpiredat -__v');
-
-    if (!updatedClient) {
+    if (!client) {
       return res.status(404).json({
-        message: 'Client not found',
-      });
-    }
+        message: 'Client not found'
+      })
+    };
 
+    const bookings = await venuebookingModel.find({clientId: client._id,  bookingstatus: { $in: ['confirmed', 'pending'] } });
     res.status(200).json({
-      message: 'Client updated successfully',
-      data: updatedClient,
-    });
+      message: 'All client bookings',
+      data: bookings
+    })
   } catch (error) {
-    next(error);
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error)
   }
-};
+}
+
 
 exports.deleteClient = async (req, res, next) => {
   try {

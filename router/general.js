@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { verify, resendOtp, login, changePassword, forgotPassword, resetPassword } = require('../controller/general')
+const { verify, resendOtp, login, changePassword, forgotPassword, resetPassword, updatePhoneNumber, updateProfile } = require('../controller/general')
 const { authentication } = require('../middleware/authMiddleware')
 
 
@@ -207,5 +207,116 @@ router.post('/forgotPassword', forgotPassword)
  */
 
 router.post('/resetPassword', resetPassword)
+
+
+/**
+ * @swagger
+ * /update-phoneNumber:
+ *   put:
+ *     summary: Update user's phone number
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "+2349133063508"
+ *     responses:
+ *       200:
+ *         description: Phone number updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Phone number updated successfully
+ *       400:
+ *         description: Session expired or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Session expired, login to continue
+ *       404:
+ *         description: Venue owner not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Venue owner not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/update-phoneNumber', authentication, updatePhoneNumber);
+
+
+/**
+ * @swagger
+ * /update-profile:
+ *   put:
+ *     summary: Update user's profile picture
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profilePicture:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file for profile picture
+ *     responses:
+ *       200:
+ *         description: Profile picture updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Profile picture updated successfully
+ *       400:
+ *         description: Session expired or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Session expired, login to continue
+ *       404:
+ *         description: Venue owner not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Venue owner not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/update-profile', authentication, updateProfile);
 
 module.exports = router
