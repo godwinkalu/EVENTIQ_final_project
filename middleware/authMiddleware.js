@@ -27,6 +27,12 @@ exports.authentication = async (req, res, next) => {
       })
     }
 
+    if (user.isLoggedIn === false) {
+      return res.status(404).json({
+        message: 'Authentication failed: Please login',
+      })
+    }
+
     req.user = decoded
     next()
   } catch (error) {

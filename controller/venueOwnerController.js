@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt')
 const { signUpTemplate } = require('../utils/emailTemplate')
 const { emailSender } = require('../middleware/nodemalier')
 const Brevo = require('@getbrevo/brevo')
+const jwt = require('jsonwebtoken')
+const fs = require('fs')
 
 exports.createVenueOwner = async (req, res, next) => {
   const { firstName, surname, email, password } = req.body
@@ -100,42 +102,70 @@ exports.getVenueOwner = async (req, res, next) => {
   }
 };
 
-exports.updateVenueOwner = async (req, res, next) => {
+exports.updatePhoneNumber = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.user;
+    const venueOwner = await venueOwnerModel.findById(id);
+    const { phoneNumber } = req.body;
 
-    const owner = await venueOwnerModel.findById(id);
-    if (!owner) {
+    if (!venueOwner) {
       return res.status(404).json({
         message: 'Venue owner not found',
       });
-    }
+    };
 
-    let profilePicture = owner.profilePicture;
-    if (req.file) {
-      if (owner.profilePicture && owner.profilePicture.publicId) {
-        await cloudinary.uploader.destroy(owner.profilePicture.publicId);
-      }
-
-      const uploadResponse = await cloudinary.uploader.upload(req.file.path);
-      profilePicture = {
-        url: uploadResponse.secure_url,
-        publicId: uploadResponse.public_id,
-      };
-    }
-
-    const { password, ...updates } = req.body;
-    updates.profilePicture = profilePicture;
-
-    const updatedOwner = await venueOwnerModel.findByIdAndUpdate(id, updates, {
-      new: true,
-    }).select('-password -otp');
-
+    venueOwner.phoneNumber = phoneNumber ?? venueOwner.phoneNumber;
+    await venueOwner.save();
     res.status(200).json({
-      message: 'Venue owner updated successfully',
-      data: updatedOwner,
+      message: 'Phone number updated successfully',
     });
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error);
+  }
+};
+
+
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const venueOwner = await venueOwnerModel.findById(id);
+    const file = req.file;
+
+    if (!venueOwner) {
+      return res.status(404).json({
+        message: 'Venue owner not found',
+      });
+    };
+
+    let profilePicture = venueOwner.profilePicture;
+
+    if (file && file.path) {
+      const response = await cloudinary.uploader.upload(file.path);
+      fs.unlinkSync(file.path)
+      profilePicture = {
+        url: response.secure_url,
+        publicId: response.public_id
+      }
+    }
+
+    Object.assign(venueOwner, {
+      profilePicture
+    });
+    await venueOwner.save();
+    res.status(200).json({
+      message: 'Profile picture updated successfully',
+    });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
     next(error);
   }
 };

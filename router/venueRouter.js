@@ -280,7 +280,7 @@ router.put('/upload-docs', authentication, upload.fields([
 
 /**
  * @swagger
- * /venues/updatedvenue/{id}:
+ * /updatedvenue/{id}:
  *   put:
  *     summary: Update a venue
  *     description: Allows a venue owner to update their venue details.
