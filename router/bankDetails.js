@@ -164,7 +164,7 @@ router.get('/bank-detail', authentication, getBankDetail);
  *     summary: Update registered bank details
  *     description: Allows an authenticated venue owner to update their registered bank information.
  *     tags:
- *       - Bank
+ *       - Bank Details
  *     security:
  *       - bearerAuth: []
  *     requestBody:

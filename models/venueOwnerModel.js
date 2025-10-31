@@ -24,6 +24,10 @@ const venueOwnerSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    phoneNumber: {
+      type: String,
+      default: ''
+    },
     profilePicture: {
       url: {
         type: String,
@@ -44,13 +48,17 @@ const venueOwnerSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isLoggedIn: {
+      type: Boolean,
+      default: false,
+    },
    role: {
       type: String,
       default: 'venue-owner'
     },
   },
   { timestamps: true }
-)
+);
 
 const venueOwnerModel = mongoose.model('venueOwners', venueOwnerSchema)
 
