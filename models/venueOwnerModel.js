@@ -16,7 +16,7 @@ const venueOwnerSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    businessemail: {
+    email: {
       type: String,
       required: true,
       trim: true,
