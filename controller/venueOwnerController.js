@@ -49,7 +49,7 @@ exports.createVenueOwner = async (req, res, next) => {
       },
     })
     
-    const dashboard = new dashboardModel({
+    const dashboard = await dashboardModel.create({
       venueOwnerId: venueOwner._id
     });
 
@@ -66,12 +66,11 @@ exports.createVenueOwner = async (req, res, next) => {
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     await venueOwner.save()
-    await dashboard.save()
     res.status(201).json({
       message: 'venueOwner created successfully',
       data: venueOwner,
     })
-  } catch (error) {
+  } catch (error) {  
     next(error)
   }
 }
