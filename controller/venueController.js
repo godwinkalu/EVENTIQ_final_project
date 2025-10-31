@@ -11,7 +11,7 @@ exports.createVenue = async (req, res, next) => {
       description,
       capacity,
       price,
-      type, 
+      type,
       amenities,
       cautionfee,
       openingtime,
@@ -21,9 +21,11 @@ exports.createVenue = async (req, res, next) => {
       city,
       state,
     } = req.body
+
     const id = req.user.id
 
     const venueOwner = await venueOwnerModel.findById(id)
+
     if (!venueOwner) {
       return res.status(404).json({
         message: "Venue owner not found, can't create venue",
@@ -64,24 +66,30 @@ exports.createVenue = async (req, res, next) => {
     })
 
     await newVenue.save()
-
     res.status(201).json({
       message: 'Venue uploaded successfully ',
       data: newVenue,
     })
   } catch (error) {
-    
+
     next(error)
   }
 }
 
-exports.uploadCac = async (req, res, next) => {
-  const file = req.file
+exports.uploadDoc = async (req, res, next) => {
+  const { images, cac, doc } = req.files || []
+
+  const cleanupLocalFiles = (files) => {
+    for (const file of files) {
+      if (fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path)
+      }
+    }
+  }
 
   try {
     const { id } = req.user
     const venueOwner = await venueOwnerModel.findById(id)
-    const venue = await venueModel.findOne({ venueOwnerId: venueOwner._id })
 
     if (!venueOwner) {
       fs.unlinkSync(file.path)
@@ -90,83 +98,66 @@ exports.uploadCac = async (req, res, next) => {
       })
     }
 
-    if (!venue) {
-      fs.unlinkSync(file.path)
-      return res.status(404).json({
-        message: 'Venue not found',
-      })
-    }
-    if (!file) {
-      fs.unlinkSync(file.path)
-      return res.status(400).json({ message: 'Please upload your CAC to continue' })
-    }
-
-    const response = await cloudinary.uploader.upload(file.path)
-    fs.unlinkSync(file.path)
-
-    const result = {
-      url: response.secure_url,
-      publicId: response.public_id,
-    }
-
-    venue.cac = result
-    await venue.save()
-    res.status(201).json({
-      message: 'CAC uploaded successfully ',
-    })
-  } catch (error) {
-    fs.unlinkSync(file.path)
-    next(error)
-  }
-}
-
-exports.uploadDocument = async (req, res, next) => {
-  const file = req.file
-
-  try {
-    const { id } = req.user
-    const venueOwner = await venueOwnerModel.findById(id)
     const venue = await venueModel.findOne({ venueOwnerId: venueOwner._id })
 
-    if (!venueOwner) {
-      fs.unlinkSync(file.path)
-      return res.status(404).json({
-        message: 'Venue owner not found',
-      })
-    }
-
     if (!venue) {
       fs.unlinkSync(file.path)
       return res.status(404).json({
         message: 'Venue not found',
       })
     }
-    if (!file) {
-      fs.unlinkSync(file.path)
-      return res.status(400).json({ message: 'Please upload your Document to continue' })
+
+    if (!images?.length || !cac?.length || !doc?.length) {
+      return res.status(400).json({
+        message: 'All required files (images, CAC, doc) must be provided',
+      });
     }
 
-    const response = await cloudinary.uploader.upload(file.path)
-    fs.unlinkSync(file.path)
+    const uploadedImages = await Promise.all(
+      images.map(async (file) => {
+        const uploadRes = await cloudinary.uploader.upload(file.path, {
+          folder: 'Event/Venues',
+          use_filename: true,
+          transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
+        });
+        return { url: uploadRes.secure_url, publicId: uploadRes.public_id };
+      })
+    );
 
-    const result = {
-      url: response.secure_url,
-      publicId: response.public_id,
-    }
+    const uploadCAC = await cloudinary.uploader.upload(cac[0].path, {
+      folder: 'Event/Venues',
+      use_filename: true,
+      transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
+    });
 
-    venue.document = result
-    venue.status = 'pending'
+    const uploadDoc = await cloudinary.uploader.upload(doc[0].path, {
+      folder: 'Event/Venues',
+      use_filename: true,
+      transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
+    });
+
+    cleanupLocalFiles(images);
+    fs.unlinkSync(cac[0].path)
+    fs.unlinkSync(doc[0].path)
+    Object.assign(venue, {
+      documents: {
+        images: uploadedImages,
+        cac: { url: uploadCAC.secure_url, publicId: uploadCAC.public_id },
+        doc: { url: uploadDoc.secure_url, publicId: uploadDoc.public_id },
+      },
+    })
     await venue.save()
     res.status(201).json({
-      message: 'Document uploaded successfully ',
+      message: 'Documents uploaded successfully ',
     })
   } catch (error) {
-    fs.unlinkSync(file.path)
+    if (files && Array.isArray(files)) cleanupLocalFiles(files)
     next(error)
   }
 }
 
-exports.getAllVenues = async (req, res, next) => {    
+
+exports.getAllVenues = async (req, res, next) => {
   try {
     const venues = await venueModel.find()
 
@@ -211,7 +202,7 @@ exports.updateVenue = async (req, res, next) => {
     const { id } = req.params
     const userId = req.user.id
     const { description, price, openhours, type, cautionfee, amenities } = req.body
- 
+
     const venueOwner = await venueOwnerModel.findById(userId)
     const venue = await venueModel.findById(id)
     if (!venueOwner) {
@@ -227,7 +218,7 @@ exports.updateVenue = async (req, res, next) => {
       })
     }
 
-    let uploadedImages = venue.image  
+    let uploadedImages = venue.image
     let newUploadedImage;
 
     if (files.length === 0) {
@@ -235,7 +226,7 @@ exports.updateVenue = async (req, res, next) => {
     } else {
       newUploadedImage = []
 
-      for(const path of uploadedImages){
+      for (const path of uploadedImages) {
         await cloudinary.uploader.destroy(path.publicId)
       }
 
@@ -296,9 +287,9 @@ exports.deleteVenue = async (req, res, next) => {
     const deleted = await venueModel.findByIdAndDelete(venue._id)
 
     if (deleted) {
-      for(path of venue.image){
+      for (path of venue.image) {
         console.log(path);
-        
+
         await cloudinary.uploader.destroy(path.publicId)
       }
     }
