@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken')
 const fs = require('fs')
 
 exports.createVenueOwner = async (req, res, next) => {
-  const { firstName, surname, email, password } = req.body
+  const { firstName, surname, businessemail, password } = req.body
   try {
     const existVenueOwner = await venueOwnerModel.findOne({ email: email.toLowerCase() })
     const existClient = await venueOwnerModel.findOne({ email: email.toLowerCase() })
@@ -39,7 +39,7 @@ exports.createVenueOwner = async (req, res, next) => {
     const venueOwner = new venueOwnerModel({
       firstName,
       surname,
-      email,
+      businessemail,
       password: hashedPassword,
       otp: otp,
       otpExpiredat: Date.now() + 1000 * 60,
