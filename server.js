@@ -17,6 +17,7 @@ const venueOwnerRouter = require('./router/venueOwnerRouter')
 const venuebookingRouter = require('./router/venuebookingRouter')
 const paymentRouter = require('./router/paymentRouter')
 const bankDetailRouter = require('./router/bankDetails')
+const businessinfoRouter = require('./router/businessinformationModel')
 
 app.use('/api/v1/', clientRouter)
 app.use('/api/v1/', adminRouter)
@@ -26,6 +27,7 @@ app.use('/api/v1/', venueOwnerRouter)
 app.use('/api/v1/', venuebookingRouter)
 app.use('/api/v1/', paymentRouter)
 app.use('/api/v1',bankDetailRouter)
+app.use('/api/v1/',businessinfoRouter)
 
 app.use((error, req, res, next) => {
   if (error) {
