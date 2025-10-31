@@ -64,7 +64,7 @@ const upload = require('../middleware/multer')
  *                     surname:
  *                       type: string
  *                       example: Doe
- *                     email:
+ *                     businessemail:
  *                       type: string
  *                       example: johndoe@example.com
  *                     phoneNumber:
