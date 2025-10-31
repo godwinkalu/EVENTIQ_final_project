@@ -96,8 +96,8 @@ exports.login = async (req, res, next) => {
   const { email, password } = req.body
 
   try {
-    const user = await venueOwnerModel.findOne({ email: email.toLowerCase() }) || await clientModel.findOne({ email: email.toLowerCase() }) ||await adminModel.findOne({ email: email.toLowerCase() })
-   
+    const user = await venueOwnerModel.findOne({ email: email.toLowerCase() }) || await clientModel.findOne({ email: email.toLowerCase() }) || await adminModel.findOne({ email: email.toLowerCase() })
+
     if (!user) {
       return res.status(404).json({
         message: 'User not found',
@@ -114,12 +114,6 @@ exports.login = async (req, res, next) => {
     if (!correctPassword) {
       return res.status(400).json({
         message: 'Invaild Credentials',
-      })
-    }
-
-    if (user.isLoggedIn === true) {
-      return res.status(400).json({
-        message: 'User is already logged in',
       })
     }
 
@@ -142,6 +136,40 @@ exports.login = async (req, res, next) => {
     next(error)
   }
 }
+
+
+exports.logout = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const user = await clientModel.findById(id) || await venueOwnerModel.findById(id) || await adminModel.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found'
+      })
+    };
+
+    if (user.isLoggedIn === false) {
+      return res.status(400).json({
+        message: 'User is already logged out'
+      })
+    };
+
+    user.isLoggedIn = false;
+    await user.save();
+    res.status(200).json({
+      message: 'Logged out successful'
+    })
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error)
+  }
+}
+
 
 exports.changePassword = async (req, res, next) => {
   const { id } = req.user
@@ -181,6 +209,11 @@ exports.changePassword = async (req, res, next) => {
       message: 'Password changed successfully',
     })
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
     next(error)
   }
 }
@@ -206,8 +239,8 @@ exports.forgotPassword = async (req, res, next) => {
     user.otpExpiredat = Date.now() + 2 * 60 * 1000
     await user.save()
 
-    console.log("Hosted url",`${req.protocol}://${req.get('host')}`);
-    
+    console.log("Hosted url", `${req.protocol}://${req.get('host')}`);
+
 
     if (`${req.protocol}://${req.get('host')}`.startsWith('http://localhost')) {
       const emailOptions = {
@@ -259,3 +292,78 @@ exports.resetPassword = async (req, res, next) => {
     next(error)
   }
 }
+
+
+exports.updatePhoneNumber = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const user =
+      (await venueOwnerModel.findById(id)) ||
+      (await clientModel.findById(id)) ||
+      (await adminModel.findById(id))
+    const { phoneNumber } = req.body;
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'Venue owner not found',
+      });
+    };
+
+    user.phoneNumber = phoneNumber ?? user.phoneNumber;
+    await user.save();
+    res.status(200).json({
+      message: 'Phone number updated successfully',
+    });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error);
+  }
+};
+
+
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const user =
+      (await venueOwnerModel.findById(id)) ||
+      (await clientModel.findById(id)) ||
+      (await adminModel.findById(id))
+    const file = req.file;
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'Venue owner not found',
+      });
+    };
+
+    let profilePicture = user.profilePicture;
+
+    if (file && file.path) {
+      const response = await cloudinary.uploader.upload(file.path);
+      fs.unlinkSync(file.path)
+      profilePicture = {
+        url: response.secure_url,
+        publicId: response.public_id
+      }
+    }
+
+    Object.assign(user, {
+      profilePicture
+    });
+    await user.save();
+    res.status(200).json({
+      message: 'Profile picture updated successfully',
+    });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error);
+  }
+};

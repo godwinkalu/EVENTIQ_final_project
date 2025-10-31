@@ -1,14 +1,15 @@
-const {signUp, fetch, getAclient, updateClient, deleteClient} = require('../controller/clientController')
+const {signUp, getClients, getClient, deleteClient, getAllClientBooking} = require('../controller/clientController');
+const { authentication } = require('../middleware/authMiddleware');
 
 const router = require('express').Router();
 const upload = require('../middleware/multer')
+
 
 /**
  * @swagger
  * /register-client:
  *   post:
  *     summary: Register a new client
- *     description: Creates a new client account, hashes the password, uploads a default profile image to Cloudinary, generates an OTP, sends a welcome email, and saves client information to the database.
  *     tags: [Client]
  *     requestBody:
  *       required: true
@@ -24,25 +25,21 @@ const upload = require('../middleware/multer')
  *             properties:
  *               firstName:
  *                 type: string
- *                 example: Precious
- *                 description: Client's first name
+ *                 example: John
  *               surname:
  *                 type: string
- *                 example: Silver
- *                 description: Client's surname
+ *                 example: Doe
  *               email:
  *                 type: string
  *                 format: email
- *                 example: precioussilver988@gmail.com
- *                 description: Client's unique email address
+ *                 example: johndoe@example.com
  *               password:
  *                 type: string
  *                 format: password
- *                 example: iamstronger12#
- *                 description: Client's account password (will be hashed)
+ *                 example: Password123!
  *     responses:
  *       201:
- *         description: Client created successfully
+ *         description: Client account created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -53,39 +50,28 @@ const upload = require('../middleware/multer')
  *                   example: Client created successfully
  *                 data:
  *                   type: object
- *                   properties:
- *                     _id:
- *                       type: string
- *                       example: 652f8f6b45e6b2457d9f1234
- *                     firstName:
- *                       type: string
- *                       example: Precious
- *                     surname:
- *                       type: string
- *                       example: Silver
- *                     phoneNumber:
- *                       type: string
- *                       example: "+2348012345678"
- *                     email:
- *                       type: string
- *                       example: precioussilver988@gmail.com
- *                     otp:
- *                       type: string
- *                       example: "123456"
- *                     otpExpiredat:
- *                       type: string
- *                       example: "2025-10-27T12:30:00.000Z"
+ *                   example:
+ *                     _id: 6710e47fdbaab8e3e66e9cf4
+ *                     firstName: John
+ *                     surname: Doe
+ *                     email: johndoe@example.com
  *                     profilePicture:
- *                       type: object
- *                       properties:
- *                         url:
- *                           type: string
- *                           example: "https://res.cloudinary.com/demo/image/upload/v1234567/user.png"
- *                         publicId:
- *                           type: string
- *                           example: "user_abc123"
+ *                       url: https://res.cloudinary.com/example/image/upload/v1730211899/default.jpg
+ *                       publicId: default_image_id
+ *                     otp: "893120"
+ *                     otpExpiredat: 1730212012000
+ *       400:
+ *         description: Invalid input or validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Validation failed
  *       404:
- *         description: Account already exists, log in to your account
+ *         description: Account already exists
  *         content:
  *           application/json:
  *             schema:
@@ -93,20 +79,9 @@ const upload = require('../middleware/multer')
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Account already exists, log in to your account
+ *                   example: Account already exist as a client, log in to your account
  *       500:
- *         description: Internal Server Error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal Server Error
- *                 error:
- *                   type: string
- *                   example: "Something went wrong while creating client"
+ *         description: Internal server error
  */
 router.post('/register-client', signUp);
 
@@ -169,7 +144,7 @@ router.post('/register-client', signUp);
  *                   type: string
  *                   example: "Operation `clients.findOne()` buffering timed out after 10000ms"
  */
-router.get('/clients', fetch);
+router.get('/clients', getClients);
 
 
 /**
@@ -224,45 +199,83 @@ router.get('/clients', fetch);
  *       500:
  *         description: Internal server error
  */
-router.get('/client/:id', getAclient);
+router.get('/client/:id', getClient);
+
 
 /**
  * @swagger
- * /clients/{id}:
- *   patch:
- *     summary: Update a client profile
+ * /client-bookings:
+ *   get:
+ *     summary: Get all bookings for a client
+ *     description: Retrieve all bookings made by the authenticated client, including both confirmed and pending bookings.
  *     tags: [Client]
  *     security:
  *       - bearerAuth: []
- *     consumes:
- *       - multipart/form-data
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: Client ID
- *         schema:
- *           type: string
- *       - in: formData
- *         name: profilePicture
- *         type: file
- *         description: Upload a new profile picture
- *       - in: formData
- *         name: firstName
- *         type: string
- *       - in: formData
- *         name: surname
- *         type: string
- *       - in: formData
- *         name: phoneNumber
- *         type: string
  *     responses:
  *       200:
- *         description: Client updated successfully
+ *         description: Successfully retrieved all client bookings.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All client bookings
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 671d4caa9e11b79e30f5a1b2
+ *                       clientId:
+ *                         type: string
+ *                         example: 671cbaab2d41e18f3f534ce7
+ *                       venueId:
+ *                         type: string
+ *                         example: 671cbad72d41e18f3f534cf2
+ *                       bookingstatus:
+ *                         type: string
+ *                         enum: [confirmed, pending, cancelled]
+ *                         example: confirmed
+ *                       eventDate:
+ *                         type: string
+ *                         format: date
+ *                         example: 2025-11-01
+ *                       totalAmount:
+ *                         type: number
+ *                         example: 150000
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-28T14:22:17.000Z
+ *       400:
+ *         description: Session expired or invalid token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Session expired, login to continue
  *       404:
- *         description: Client not found
+ *         description: Client not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Client not found
+ *       500:
+ *         description: Internal server error.
  */
-router.patch('/updateclient/:id',  upload.single('profilePicture'), updateClient);
+router.get('/client-bookings', authentication, getAllClientBooking)
+
 
 /**
  * @swagger
