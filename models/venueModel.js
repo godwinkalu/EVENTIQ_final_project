@@ -61,35 +61,21 @@ const venueSchema = new mongoose.Schema(
     amenities: {
       type: String,
     },
-    image: [
-      {
-        url: {
-          type: String,
+    documents: {
+      images: [
+        {
+          url: String,
+          publicId: String,
         },
-        publicId: {
-          type: String,
-        },
+      ],
+      cac: {
+        url: String,
+        publicId: String,
       },
-    ],
-    cac: {
-      url: {
-        type: String,
+      docu: {
+        url: String,
+        publicId: String,
       },
-      publicId: {
-        type: String,
-      },
-    },
-    document: {
-      url: {
-        type: String,
-      },
-      publicId: {
-        type: String,
-      },
-    },
-    isfeatured: {
-      type: Boolean,
-      default: false,
     },
     isavailable: {
       type: Boolean,
@@ -99,10 +85,15 @@ const venueSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-     status: {
+    featuredExpireAt: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    status: {
       type: String,
-      enum:['pending', 'unverified', 'verified'],
-      default:'unverified'
+      enum: ['pending', 'unverified', 'verified'],
+      default: 'unverified'
     },
   },
   { timestamps: true }
