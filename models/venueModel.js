@@ -72,7 +72,7 @@ const venueSchema = new mongoose.Schema(
         url: String,
         publicId: String,
       },
-      docu: {
+      doc: {
         url: String,
         publicId: String,
       },
