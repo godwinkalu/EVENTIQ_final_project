@@ -24,7 +24,7 @@ const upload = require('../middleware/multer')
  *             required:
  *               - firstName
  *               - surname
- *               - businessemail
+ *               - email
  *               - password
  *             properties:
  *               firstName:
@@ -64,7 +64,7 @@ const upload = require('../middleware/multer')
  *                     surname:
  *                       type: string
  *                       example: Doe
- *                     businessemail:
+ *                     email:
  *                       type: string
  *                       example: johndoe@example.com
  *                     phoneNumber:
