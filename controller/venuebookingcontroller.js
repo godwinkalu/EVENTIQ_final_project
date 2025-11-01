@@ -3,6 +3,7 @@ const venuebookingModel = require('../models/venuebookingModel')
 const venueModel = require('../models/venueModel')
 const venueOwnerModel = require('../models/venueOwnerModel')
 const { confirmedHtml, rejectedHtml } = require('../utils/confirmemailTemplate')
+const jwt = require('jsonwebtoken')
 
 exports.createvenuebooking = async (req, res, next) => {
   try {
@@ -46,8 +47,8 @@ exports.createvenuebooking = async (req, res, next) => {
 
     //  Create booking
     const newBooking = new venuebookingModel({
-      venueId:venue._id,
-      clientId:client._id,
+      venueId: venue._id,
+      clientId: client._id,
       venueOwnerId: venue.venueOwnerId,
       date,
       totalamount: totalAmount,
@@ -85,34 +86,12 @@ exports.getMyBookings = async (req, res, next) => {
   }
 }
 
-exports.getAllPendingBookings = async (req, res, next) => {
+
+exports.getAllBookings = async (req, res, next) => {
   try {
-    const venueOwner = await venueOwnerModel.findById(req.user.id)
+    const user = await venueOwnerModel.findById(req.user.id) || await clientModel.findById(req.user.id)
 
-    if (!venueOwner) {
-      return res.status(404).json({
-        message: 'Venue owner not found',
-      })
-    }
-
-    const bookings = await venuebookingModel
-      .find({ bookingstatus: 'pending' })
-      .populate('venueId')
-      .populate('clientId', 'name email')
-
-    return res.status(200).json({
-      message: 'Your bookings retrieved successfully',
-      data: bookings,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-exports.getAllConfirmedBookings = async (req, res, next) => {
-  try {
-    const venueOwner = await venueOwnerModel.findById(req.user.id)
-
-    if (!venueOwner) {
+    if (!user) {
       return res.status(404).json({
         message: 'Venue owner not found',
       })
@@ -134,22 +113,29 @@ exports.getAllConfirmedBookings = async (req, res, next) => {
   }
 }
 
-exports.acceptedBooking = async (req, res) => {
+exports.acceptedBooking = async (req, res, next) => {
   try {
     const { id } = req.user
-    const { clientId } = req.params
+    const { bookingId } = req.params
     const venueOwner = await venueOwnerModel.findById(id)
-    const client = await clientModel.findById(clientId)
+    const venueBooking = await venuebookingModel.findById(bookingId).populate('clientId')
+    const client = await clientModel.findById(venueBooking.clientId);
 
     if (!venueOwner) {
-     return res.status(404).json({
+      return res.status(404).json({
         message: 'venue owner not found',
       })
     }
 
     if (!client) {
       return res.status(404).json({
-        message: 'client not found',
+        message: 'Client not found',
+      })
+    }
+
+    if (!venueBooking) {
+      return res.status(404).json({
+        message: 'Venue not booked',
       })
     }
 
@@ -167,17 +153,24 @@ exports.acceptedBooking = async (req, res) => {
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error)
   }
 }
 
-exports.rejectedBooking = async (req, res) => {
+
+exports.rejectedBooking = async (req, res, next) => {
   try {
     const { id } = req.user
-    const { clientId } = req.params
+    const { bookingId } = req.params
     const { reason } = req.body
     const venueOwner = await venueOwnerModel.findById(id)
-    const client = await clientModel.findById(clientId)
+    const venueBooking = await venuebookingModel.findById(bookingId).populate('clientId')
+    const client = await clientModel.findById(venueBooking.clientId);
 
     if (!venueOwner) {
       return res.status(404).json({
@@ -187,13 +180,13 @@ exports.rejectedBooking = async (req, res) => {
 
     if (!client) {
       return res.status(404).json({
-        message: 'client not found',
+        message: 'Client not found',
       })
     }
 
-    if (!reason) {
-       return res.status(400).json({
-        message: 'please input a reason',
+    if (!venueBooking) {
+      return res.status(404).json({
+        message: 'Venue not booked',
       })
     }
 
@@ -210,6 +203,11 @@ exports.rejectedBooking = async (req, res) => {
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error)
   }
 }

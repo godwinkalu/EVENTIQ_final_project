@@ -44,7 +44,7 @@ exports.signUp = async (req, res, next) => {
       email,
       password: hashedPassword,
       otp: otp,
-      otpExpiredat: Date.now() + 1000 * 60 * 2,
+      otpExpiredat: Date.now() + 1000 * 60 * 10,
       profilePicture: {
         url: response.secure_url,
         publicId: response.public_id,

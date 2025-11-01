@@ -42,7 +42,7 @@ exports.createVenueOwner = async (req, res, next) => {
       email,
       password: hashedPassword,
       otp: otp,
-      otpExpiredat: Date.now() + 1000 * 60,
+      otpExpiredat: Date.now() + 1000 * 60 * 10,
       profilePicture: {
         url: response.secure_url,
         publicId: response.public_id,
@@ -89,7 +89,12 @@ exports.getAllVenueOwners = async (req, res, next) => {
 exports.getVenueOwner = async (req, res, next) => {
   try {
     const { id } = req.params;
+    console.log(id);
+    
     const owner = await venueOwnerModel.findById(id).select('-password -otp');
+
+    console.log(owner);
+    
     if (!owner) {
       return res.status(404).json({
         message: 'Venue owner not found',
