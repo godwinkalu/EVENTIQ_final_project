@@ -163,3 +163,111 @@ exports.deleteClient = async (req, res, next) => {
     next(error);
   }
 };
+
+
+exports.getAllVerifiedVenues = async (req, res, next) => {
+  try {
+    const {id} = req.user;
+    const user = await clientModel.findById(id)
+    const venues = await venueModel.find({status: 'verified'})
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found'
+      })
+    }
+
+    res.status(200).json({
+      message: 'All venues retrieved successfully',
+      data: venues,
+    })
+  } catch (error) {
+       if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error)
+  }
+}
+
+
+exports.getAllVerifiedIndoors = async (req, res, next) => {
+  try {
+    const {id} = req.user;
+    const user = await clientModel.findById(id)
+    const venues = await venueModel.find({status: 'verified', type: 'indoor'})
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found'
+      })
+    }
+
+    res.status(200).json({
+      message: 'All venues retrieved successfully',
+      data: venues,
+    })
+  } catch (error) {
+       if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error)
+  }
+}
+
+
+exports.getAllVerifiedOutdoor = async (req, res, next) => {
+  try {
+    const {id} = req.user;
+    const user = await clientModel.findById(id)
+    const venues = await venueModel.find({status: 'verified', type: 'outdoor'})
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found'
+      })
+    }
+
+    res.status(200).json({
+      message: 'All venues retrieved successfully',
+      data: venues,
+    })
+  } catch (error) {
+       if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error)
+  }
+}
+
+
+exports.getAllVerifiedMulti = async (req, res, next) => {
+  try {
+    const {id} = req.user;
+    const user = await clientModel.findById(id)
+    const venues = await venueModel.find({status: 'verified', type: 'multipurpose'})
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found'
+      })
+    }
+
+    res.status(200).json({
+      message: 'All venues retrieved successfully',
+      data: venues,
+    })
+  } catch (error) {
+       if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error)
+  }
+}

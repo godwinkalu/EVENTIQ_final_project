@@ -1,4 +1,4 @@
-const {signUp, getClients, getClient, deleteClient, getAllClientBooking} = require('../controller/clientController');
+const {signUp, getClients, getClient, deleteClient, getAllClientBooking, getAllVerifiedVenues, getAllVerifiedIndoors, getAllVerifiedOutdoor, getAllVerifiedMulti} = require('../controller/clientController');
 const { authentication } = require('../middleware/authMiddleware');
 
 const router = require('express').Router();
@@ -299,5 +299,61 @@ router.get('/client-bookings', authentication, getAllClientBooking)
  *         description: Client not found
  */
 router.delete('/delete/:id', deleteClient);
+
+
+/**
+ * @swagger
+ * /allvenues:
+ *   get:
+ *     summary: Get all venues
+ *     description: Retrieve all venues listed in the platform.
+ *     tags: [Client]
+ *     responses:
+ *       200:
+ *         description: List of all venues retrieved successfully
+ */
+router.get('/allvenues', authentication, getAllVerifiedVenues)
+
+
+/**
+ * @swagger
+ * /allvenues-indoor:
+ *   get:
+ *     summary: Get all venues
+ *     description: Retrieve all indoor venues listed in the platform.
+ *     tags: [Client]
+ *     responses:
+ *       200:
+ *         description: List of all venues retrieved successfully
+ */
+router.get('/allvenues-indoor', authentication, getAllVerifiedIndoors)
+
+
+/**
+ * @swagger
+ * /allvenues-outdoor:
+ *   get:
+ *     summary: Get all venues
+ *     description: Retrieve all outdoor venues listed in the platform.
+ *     tags: [Client]
+ *     responses:
+ *       200:
+ *         description: List of all venues retrieved successfully
+ */
+router.get('/allvenues-outdoor', authentication, getAllVerifiedOutdoor)
+
+
+/**
+ * @swagger
+ * /allvenues-multipurpose:
+ *   get:
+ *     summary: Get all venues
+ *     description: Retrieve all multipurpose venues listed in the platform.
+ *     tags: [Client]
+ *     responses:
+ *       200:
+ *         description: List of all venues retrieved successfully
+ */
+router.get('/allvenues-multipurpose', authentication, getAllVerifiedMulti)
 
 module.exports = router
