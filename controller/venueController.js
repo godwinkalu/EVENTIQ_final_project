@@ -1,5 +1,7 @@
 const venueModel = require('../models/venueModel')
 const venueOwnerModel = require('../models/venueOwnerModel')
+const clientModel = require('../models/clientModel')
+const adminModel = require('../models/adminModel')
 const cloudinary = require('../config/cloudinary')
 const fs = require('fs')
 
@@ -156,9 +158,17 @@ exports.uploadDoc = async (req, res, next) => {
 }
 
 
-exports.getAllVenues = async (req, res, next) => {
+exports.getAllVerifiedVenues = async (req, res, next) => {
   try {
-    const venues = await venueModel.find()
+    const {id} = req.user;
+    const user = await clientModel.findById(id)
+    const venues = await venueModel.find({status: 'verified'})
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found'
+      })
+    }
 
     res.status(200).json({
       message: 'All venues retrieved successfully',
@@ -168,6 +178,8 @@ exports.getAllVenues = async (req, res, next) => {
     next(error)
   }
 }
+
+
 exports.getOnevenue = async (req, res, next) => {
   try {
     const { id } = req.params

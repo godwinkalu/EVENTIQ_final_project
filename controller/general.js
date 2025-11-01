@@ -103,9 +103,10 @@ exports.login = async (req, res, next) => {
         message: 'User not found',
       })
     }
+
     if (user.isVerified === false) {
       return res.status(404).json({
-        message: 'Go and verified',
+        message: 'Account not verified',
       })
     }
 
@@ -133,6 +134,8 @@ exports.login = async (req, res, next) => {
       token,
     })
   } catch (error) {
+    console.log(error);
+    
     next(error)
   }
 }
@@ -285,7 +288,7 @@ exports.resetPassword = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(newPassword, salt)
     user.password = hashedPassword
     await user.save()
-    return res.status(404).json({
+    return res.status(200).json({
       message: 'Password reset successfully',
     })
   } catch (error) {
