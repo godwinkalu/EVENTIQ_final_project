@@ -9,12 +9,11 @@ const { emailSender } = require('../middleware/nodemalier')
 const Brevo = require('@getbrevo/brevo')
 const venueModel = require('../models/venueModel')
 
-
 exports.signUp = async (req, res, next) => {
   const { firstName, surname, email, password } = req.body
   try {
-    const existClient = await clientModel.findOne({ email: email.toLowerCase() }) 
-    const existVenueOwner = await clientModel.findOne({ email: email.toLowerCase() }) 
+    const existClient = await clientModel.findOne({ email: email.toLowerCase() })
+    const existVenueOwner = await clientModel.findOne({ email: email.toLowerCase() })
 
     if (existClient) {
       return res.status(404).json({
@@ -35,7 +34,8 @@ exports.signUp = async (req, res, next) => {
       .toString()
       .padStart(6, '0')
 
-    const imgUrl = 'https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=1024x1024&w=is&k=20&c=oGqYHhfkz_ifeE6-dID6aM7bLz38C6vQTy1YcbgZfx8=';
+    const imgUrl =
+      'https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=1024x1024&w=is&k=20&c=oGqYHhfkz_ifeE6-dID6aM7bLz38C6vQTy1YcbgZfx8='
     const response = await cloudinary.uploader.upload(imgUrl)
 
     const client = new clientModel({
@@ -77,7 +77,9 @@ exports.signUp = async (req, res, next) => {
 
 exports.getClients = async (req, res, next) => {
   try {
-    const clients = await clientModel.find().select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v')
+    const clients = await clientModel
+      .find()
+      .select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v')
 
     res.status(200).json({
       message: 'Clients fetched',
@@ -88,7 +90,6 @@ exports.getClients = async (req, res, next) => {
   }
 }
 
-
 exports.getClient = async (req, res, next) => {
   try {
     const { id } = req.params
@@ -98,7 +99,7 @@ exports.getClient = async (req, res, next) => {
 
     if (!client) {
       return res.status(404).json({
-        message: 'Client not found'
+        message: 'Client not found',
       })
     }
 
@@ -111,161 +112,208 @@ exports.getClient = async (req, res, next) => {
   }
 }
 
-
 exports.getAllClientBooking = async (req, res, next) => {
   try {
-    const {id} = req.user;
-    const client = await clientModel.findById(id);
+    const { id } = req.user
+    const client = await clientModel.findById(id)
 
     if (!client) {
       return res.status(404).json({
-        message: 'Client not found'
+        message: 'Client not found',
       })
-    };
+    }
 
-    const bookings = await venuebookingModel.find({clientId: client._id,  bookingstatus: { $in: ['confirmed', 'pending'] } });
+    const bookings = await venuebookingModel.find({
+      clientId: client._id,
+      bookingstatus: { $in: ['confirmed', 'pending'] },
+    })
     res.status(200).json({
       message: 'All client bookings',
-      data: bookings
+      data: bookings,
     })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
-        message: 'Session expired, login to continue'
+        message: 'Session expired, login to continue',
       })
     }
     next(error)
   }
 }
-
 
 exports.deleteClient = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params
 
-    const client = await clientModel.findById(id);
+    const client = await clientModel.findById(id)
     if (!client) {
       return res.status(404).json({
         message: 'Client not found',
-      });
+      })
     }
 
     if (client.profilePicture && client.profilePicture.publicId) {
-      await cloudinary.uploader.destroy(client.profilePicture.publicId);
+      await cloudinary.uploader.destroy(client.profilePicture.publicId)
     }
 
-    await clientModel.findByIdAndDelete(id);
+    await clientModel.findByIdAndDelete(id)
 
     res.status(200).json({
       message: 'Client deleted successfully',
-    });
+    })
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
-
+}
 
 exports.getAllVerifiedVenues = async (req, res, next) => {
   try {
-    const {id} = req.user;
+    const { id } = req.user
+    const city = req.query.city
     const user = await clientModel.findById(id)
-    const venues = await venueModel.find({status: 'verified'})
 
     if (!user) {
       return res.status(404).json({
-        message: 'User not found'
+        message: 'User not found',
       })
+    }
+
+    let venues
+
+    if (city === undefined || city.toLowerCase() === 'all areas') {
+      venues = await venueModel.find({ status: 'verified' })
+    } else {
+      venues = await venueModel.find({ status: 'verified', 'location.city': city.toLowerCase() })
     }
 
     res.status(200).json({
       message: 'All venues retrieved successfully',
       data: venues,
+      total: venues.length,
     })
   } catch (error) {
-       if (error instanceof jwt.JsonWebTokenError) {
+    if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
-        message: 'Session expired, login to continue'
+        message: 'Session expired, login to continue',
       })
     }
     next(error)
   }
 }
-
 
 exports.getAllVerifiedIndoors = async (req, res, next) => {
   try {
-    const {id} = req.user;
+    const { id } = req.user
+    const city = req.query.city
     const user = await clientModel.findById(id)
-    const venues = await venueModel.find({status: 'verified', type: 'indoor'})
 
     if (!user) {
       return res.status(404).json({
-        message: 'User not found'
+        message: 'User not found',
+      })
+    }
+
+    let venues
+
+    if (!city || city.toLowerCase() === 'all areas') {
+      venues = await venueModel.find({ status: 'verified', type: 'indoor' })
+    } else if (city) {
+      venues = await venueModel.find({
+        status: 'verified',
+        type: 'indoor',
+        'location.city': city.toLowerCase(),
       })
     }
 
     res.status(200).json({
       message: 'All venues retrieved successfully',
       data: venues,
+      total: venues.length,
     })
   } catch (error) {
-       if (error instanceof jwt.JsonWebTokenError) {
+    if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
-        message: 'Session expired, login to continue'
+        message: 'Session expired, login to continue',
       })
     }
     next(error)
   }
 }
-
 
 exports.getAllVerifiedOutdoor = async (req, res, next) => {
   try {
-    const {id} = req.user;
+    const { id } = req.user
+    const city = req.query.city
+    console.log(city)
+
     const user = await clientModel.findById(id)
-    const venues = await venueModel.find({status: 'verified', type: 'outdoor'})
 
     if (!user) {
       return res.status(404).json({
-        message: 'User not found'
+        message: 'User not found',
+      })
+    }
+
+    let venues
+
+    if (!city || city.toLowerCase() === 'all areas') {
+      venues = await venueModel.find({ status: 'verified', type: 'outdoor' })
+    } else if (city) {
+      venues = await venueModel.find({
+        status: 'verified',
+        type: 'outdoor',
+        'location.city': city.toLowerCase(),
       })
     }
 
     res.status(200).json({
       message: 'All venues retrieved successfully',
       data: venues,
+      total: venues.length,
     })
   } catch (error) {
-       if (error instanceof jwt.JsonWebTokenError) {
+    if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
-        message: 'Session expired, login to continue'
+        message: 'Session expired, login to continue',
       })
     }
     next(error)
   }
 }
 
-
 exports.getAllVerifiedMulti = async (req, res, next) => {
   try {
-    const {id} = req.user;
+    const { id } = req.user
+    const city = req.query.city
     const user = await clientModel.findById(id)
-    const venues = await venueModel.find({status: 'verified', type: 'multipurpose'})
 
     if (!user) {
       return res.status(404).json({
-        message: 'User not found'
+        message: 'User not found',
+      })
+    }
+
+    let venues
+
+    if (!city || city.toLowerCase() === 'all areas') {
+      venues = await venueModel.find({ status: 'verified', type: 'multipurpose' })
+    } else if (city) {
+      venues = await venueModel.find({
+        status: 'verified',
+        type: 'multipurpose',
+        'location.city': city.toLowerCase(),
       })
     }
 
     res.status(200).json({
       message: 'All venues retrieved successfully',
       data: venues,
+      total: venues.length,
     })
   } catch (error) {
-       if (error instanceof jwt.JsonWebTokenError) {
+    if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
-        message: 'Session expired, login to continue'
+        message: 'Session expired, login to continue',
       })
     }
     next(error)
