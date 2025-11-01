@@ -20,14 +20,17 @@ const venueSchema = new mongoose.Schema(
       street: {
         type: String,
         required: true,
+        lowercase: true
       },
       city: {
         type: String,
         required: true,
+        lowercase: true
       },
       state: {
         type: String,
         required: true,
+        lowercase: true
       },
     },
     openingtime: {

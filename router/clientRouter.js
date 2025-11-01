@@ -279,7 +279,7 @@ router.get('/client-bookings', authentication, getAllClientBooking)
 
 /**
  * @swagger
- * /api/v1/clients/{id}:
+ * /delete/{id}:
  *   delete:
  *     summary: Delete a client
  *     tags: [Client]
@@ -305,12 +305,66 @@ router.delete('/delete/:id', deleteClient);
  * @swagger
  * /allvenues:
  *   get:
- *     summary: Get all venues
- *     description: Retrieve all venues listed in the platform.
- *     tags: [Client]
+ *     summary: Retrieve all verified venues
+ *     description: Returns a list of all verified venues. You can filter by city using the `city` query parameter.
+ *     tags:
+ *       - Client
+ *     security:
+ *       - bearerAuth: []   # Requires JWT authentication
+ *     parameters:
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Optional city name to filter venues. Use "all areas" or leave empty to get all venues.
+ *         example: Lagos
  *     responses:
  *       200:
- *         description: List of all venues retrieved successfully
+ *         description: Successfully retrieved all verified venues
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All venues retrieved successfully
+ *                 total:
+ *                   type: integer
+ *                   example: 10
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 6723abc1dfe45
+ *                       name:
+ *                         type: string
+ *                         example: Royal Event Center
+ *                       status:
+ *                         type: string
+ *                         example: verified
+ *                       type:
+ *                         type: string
+ *                         example: multipurpose
+ *                       location:
+ *                         type: object
+ *                         properties:
+ *                           city:
+ *                             type: string
+ *                             example: lagos
+ *                           address:
+ *                             type: string
+ *                             example: 12 Allen Avenue, Ikeja
+ *       400:
+ *         description: Session expired, login to continue
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
  */
 router.get('/allvenues', authentication, getAllVerifiedVenues)
 
@@ -319,12 +373,66 @@ router.get('/allvenues', authentication, getAllVerifiedVenues)
  * @swagger
  * /allvenues-indoor:
  *   get:
- *     summary: Get all venues
- *     description: Retrieve all indoor venues listed in the platform.
- *     tags: [Client]
+ *     summary: Retrieve all verified indoor venues
+ *     description: Returns a list of all verified indoor venues. You can optionally filter by city.
+ *     tags:
+ *       - Client
+ *     security:
+ *       - bearerAuth: []   # Requires JWT token
+ *     parameters:
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Optional city to filter indoor venues. Use "all areas" to get all indoor venues.
+ *         example: Lagos
  *     responses:
  *       200:
- *         description: List of all venues retrieved successfully
+ *         description: List of verified indoor venues
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All indoor venues retrieved successfully
+ *                 total:
+ *                   type: integer
+ *                   example: 5
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 6723abc1
+ *                       name:
+ *                         type: string
+ *                         example: Royal Banquet Hall
+ *                       status:
+ *                         type: string
+ *                         example: verified
+ *                       type:
+ *                         type: string
+ *                         example: indoor
+ *                       location:
+ *                         type: object
+ *                         properties:
+ *                           city:
+ *                             type: string
+ *                             example: Lagos
+ *                           address:
+ *                             type: string
+ *                             example: 14 Adeola Odeku, Victoria Island
+ *       400:
+ *         description: Session expired, login to continue
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
  */
 router.get('/allvenues-indoor', authentication, getAllVerifiedIndoors)
 
@@ -333,12 +441,66 @@ router.get('/allvenues-indoor', authentication, getAllVerifiedIndoors)
  * @swagger
  * /allvenues-outdoor:
  *   get:
- *     summary: Get all venues
- *     description: Retrieve all outdoor venues listed in the platform.
- *     tags: [Client]
+ *     summary: Retrieve all verified outdoor venues
+ *     description: Returns a list of all verified outdoor venues. You can optionally filter by city.
+ *     tags:
+ *       - Client
+ *     security:
+ *       - bearerAuth: []   # Requires JWT token
+ *     parameters:
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Optional city to filter outdoor venues. Use "all areas" to get all indoor venues.
+ *         example: Lagos
  *     responses:
  *       200:
- *         description: List of all venues retrieved successfully
+ *         description: List of verified indoor venues
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All indoor venues retrieved successfully
+ *                 total:
+ *                   type: integer
+ *                   example: 5
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 6723abc1
+ *                       name:
+ *                         type: string
+ *                         example: Royal Banquet Hall
+ *                       status:
+ *                         type: string
+ *                         example: verified
+ *                       type:
+ *                         type: string
+ *                         example: indoor
+ *                       location:
+ *                         type: object
+ *                         properties:
+ *                           city:
+ *                             type: string
+ *                             example: Lagos
+ *                           address:
+ *                             type: string
+ *                             example: 14 Adeola Odeku, Victoria Island
+ *       400:
+ *         description: Session expired, login to continue
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
  */
 router.get('/allvenues-outdoor', authentication, getAllVerifiedOutdoor)
 
@@ -347,13 +509,68 @@ router.get('/allvenues-outdoor', authentication, getAllVerifiedOutdoor)
  * @swagger
  * /allvenues-multipurpose:
  *   get:
- *     summary: Get all venues
- *     description: Retrieve all multipurpose venues listed in the platform.
- *     tags: [Client]
+ *     summary: Retrieve all verified multipurpose venues
+ *     description: Returns a list of all verified multipurpose venues. You can optionally filter by city.
+ *     tags:
+ *       - Client
+ *     security:
+ *       - bearerAuth: []   # Requires JWT token
+ *     parameters:
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Optional city to filter multipurpose venues. Use "all areas" to get all indoor venues.
+ *         example: Lagos
  *     responses:
  *       200:
- *         description: List of all venues retrieved successfully
+ *         description: List of verified indoor venues
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All indoor venues retrieved successfully
+ *                 total:
+ *                   type: integer
+ *                   example: 5
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 6723abc1
+ *                       name:
+ *                         type: string
+ *                         example: Royal Banquet Hall
+ *                       status:
+ *                         type: string
+ *                         example: verified
+ *                       type:
+ *                         type: string
+ *                         example: indoor
+ *                       location:
+ *                         type: object
+ *                         properties:
+ *                           city:
+ *                             type: string
+ *                             example: Lagos
+ *                           address:
+ *                             type: string
+ *                             example: 14 Adeola Odeku, Victoria Island
+ *       400:
+ *         description: Session expired, login to continue
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
  */
+
 router.get('/allvenues-multipurpose', authentication, getAllVerifiedMulti)
 
 module.exports = router
