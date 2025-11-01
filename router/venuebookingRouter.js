@@ -73,7 +73,7 @@ router.get('/mybooking', authentication, getMyBookings)
 
 /**
  * @swagger
- * /bookings/confirmedbooking:
+ * /allbooking:
  *   get:
  *     summary: Get all confirmed or pending bookings
  *     description: Retrieve all confirmed and pending bookings for a venue owner.
@@ -90,7 +90,7 @@ router.get('/allbooking', authentication, getAllBookings)
 
 /**
  * @swagger
- * /bookings/accept/{clientId}:
+ * /accepectbooking/{bookingId}:
  *   post:
  *     summary: Accept a booking and notify the client
  *     description: Sends a confirmation email to the client when their booking is accepted.
@@ -115,7 +115,7 @@ router.get('/accepectbooking/:bookingId', authentication, acceptedBooking)
 
 /**
  * @swagger
- * /bookings/reject/{clientId}:
+ * /rejectbooking{bookingId}:
  *   post:
  *     summary: Reject a booking and notify the client
  *     description: Sends an email to the client when their booking is rejected, including a reason.
