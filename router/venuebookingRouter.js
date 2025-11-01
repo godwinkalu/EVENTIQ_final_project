@@ -55,7 +55,7 @@ router.post('/booking/:venueId', authentication, createvenuebooking)
 
 /**
  * @swagger
- * /bookings/mybooking:
+ * /mybooking:
  *   get:
  *     summary: Get client’s bookings
  *     description: Retrieve all bookings made by the logged-in client.
@@ -73,7 +73,7 @@ router.get('/mybooking', authentication, getMyBookings)
 
 /**
  * @swagger
- * /allbooking:
+ * /bookings/confirmedbooking:
  *   get:
  *     summary: Get all confirmed or pending bookings
  *     description: Retrieve all confirmed and pending bookings for a venue owner.
@@ -90,7 +90,7 @@ router.get('/allbooking', authentication, getAllBookings)
 
 /**
  * @swagger
- * /accepectbooking/{bookingId}:
+ * /bookings/accept/{clientId}:
  *   post:
  *     summary: Accept a booking and notify the client
  *     description: Sends a confirmation email to the client when their booking is accepted.
@@ -115,7 +115,7 @@ router.get('/accepectbooking/:bookingId', authentication, acceptedBooking)
 
 /**
  * @swagger
- * /rejectbooking/{bookingId}:
+ * /bookings/reject/{clientId}:
  *   post:
  *     summary: Reject a booking and notify the client
  *     description: Sends an email to the client when their booking is rejected, including a reason.
@@ -152,4 +152,4 @@ router.get('/accepectbooking/:bookingId', authentication, acceptedBooking)
 
 router.get('/rejectbooking/:bookingId', authentication, rejectedBooking)
 
-module.exports = router
+module.exports = router 

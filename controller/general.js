@@ -106,7 +106,7 @@ exports.login = async (req, res, next) => {
 
     if (user.isVerified === false) {
       return res.status(404).json({
-        message: 'Account not verified',
+        message: 'Account not verify',
       })
     }
 
@@ -239,7 +239,7 @@ exports.forgotPassword = async (req, res, next) => {
       .toString()
       .padStart(6, '0')
     user.otp = newOtp
-    user.otpExpiredat = Date.now() + 2 * 60 * 1000
+    user.otpExpiredat = Date.now() + 1000 * 60 * 10,
     await user.save()
 
     console.log("Hosted url", `${req.protocol}://${req.get('host')}`);
