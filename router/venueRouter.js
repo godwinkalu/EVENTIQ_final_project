@@ -1,7 +1,6 @@
 const router = require('express').Router()
 const {
   createVenue,
-  getAllVerifiedVenues,
   getOnevenue,
   updateVenue,
   deleteVenue,
@@ -156,19 +155,6 @@ const upload = require('../middleware/multer')
  */
 router.post('/list-venue', authentication, createVenue)
 
-
-/**
- * @swagger
- * /allvenues:
- *   get:
- *     summary: Get all venues
- *     description: Retrieve all venues listed in the platform.
- *     tags: [Client]
- *     responses:
- *       200:
- *         description: List of all venues retrieved successfully
- */
-router.get('/allvenues', authentication, getAllVerifiedVenues)
 
 /**
  * @swagger

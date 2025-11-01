@@ -158,28 +158,6 @@ exports.uploadDoc = async (req, res, next) => {
 }
 
 
-exports.getAllVerifiedVenues = async (req, res, next) => {
-  try {
-    const {id} = req.user;
-    const user = await clientModel.findById(id)
-    const venues = await venueModel.find({status: 'verified'})
-
-    if (!user) {
-      return res.status(404).json({
-        message: 'User not found'
-      })
-    }
-
-    res.status(200).json({
-      message: 'All venues retrieved successfully',
-      data: venues,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-
-
 exports.getOnevenue = async (req, res, next) => {
   try {
     const { id } = req.params
