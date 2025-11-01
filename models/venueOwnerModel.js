@@ -77,6 +77,16 @@ venueOwnerSchema.post('save', async function (doc, next) {
     createdAt: { $gte: startOfMonth, $lte: endOfMonth }
   });
 
+  dashboard.totalVenues = {
+    total: venues.length,
+    stat: newVenuesThisMonth
+  }
+
+  dashboard.activeBooking = {
+    confirmed: venuebookings.length,
+    pending: venuebookings.filter((e) => e.bookingstatus === 'pending').length
+  }
+
   const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const endOfThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
@@ -86,7 +96,7 @@ venueOwnerSchema.post('save', async function (doc, next) {
   const thisMonthRevenueData = await venuebookingModel.aggregate([
     {
       $match: {
-        venueOwnerId: dashboard._id,
+        venueOwnerId: this._id,
         createdAt: { $gte: startOfThisMonth, $lte: endOfThisMonth }
       }
     },
@@ -98,10 +108,10 @@ venueOwnerSchema.post('save', async function (doc, next) {
     }
   ]);
 
-  const lastMonthRevenueData = await Booking.aggregate([
+  const lastMonthRevenueData = await venuebookingModel.aggregate([
     {
       $match: {
-        venueOwnerId: ownerId,
+        venueOwnerId: this._id,
         createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth }
       }
     },
@@ -119,16 +129,6 @@ venueOwnerSchema.post('save', async function (doc, next) {
   let growth = 0;
   if (lastMonthRevenue > 0) {
     growth = ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
-  }
-
-  dashboard.totalVenues = {
-    total: venues.length,
-    stat: newVenuesThisMonth
-  }
-
-  dashboard.activeBooking = {
-    confirmed: venuebookings.length,
-    pending: venuebookings.filter((e) => e.bookingstatus === 'pending').length
   }
 
   dashboard.revenue = {

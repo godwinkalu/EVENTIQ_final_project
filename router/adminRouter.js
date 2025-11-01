@@ -1,6 +1,7 @@
 const router = require('express').Router()
 
-const { signUp, getAllAdmin, getOneAdmin, updateAdminInfo, deleteAdmin } = require('../controller/adminController')
+const { signUp, getAllAdmin, getOneAdmin, updateAdminInfo, deleteAdmin, getAllVenues } = require('../controller/adminController');
+const { authentication } = require('../middleware/authMiddleware');
 
 
 /**
@@ -314,5 +315,102 @@ router.put('/adminInfo/:id', updateAdminInfo);
 router.delete('/deleteAdmin/:id', deleteAdmin);
 
 
+/**
+ * @swagger
+ * /venues:
+ *   get:
+ *     summary: Retrieve all venues
+ *     description: Get a list of all venues with status "verified" or "pending". Accessible to authenticated venue owners and admins.
+ *     tags: [Venue]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved all venues.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All venues retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 671db92e6fdcbb9b1b1e7a0f
+ *                       name:
+ *                         type: string
+ *                         example: The Grand Palace Hall
+ *                       description:
+ *                         type: string
+ *                         example: Spacious event hall suitable for weddings and conferences.
+ *                       location:
+ *                         type: object
+ *                         properties:
+ *                           street:
+ *                             type: string
+ *                             example: 24 Victoria Street
+ *                           city:
+ *                             type: string
+ *                             example: Lagos
+ *                           state:
+ *                             type: string
+ *                             example: Lagos
+ *                       price:
+ *                         type: number
+ *                         example: 300000
+ *                       capacity:
+ *                         type: number
+ *                         example: 500
+ *                       type:
+ *                         type: string
+ *                         example: Indoor
+ *                       status:
+ *                         type: string
+ *                         enum: [verified, pending, rejected]
+ *                         example: verified
+ *                       amenities:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                           example: Air conditioning
+ *                       image:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             url:
+ *                               type: string
+ *                               example: https://res.cloudinary.com/demo/image/upload/v1726759445/Event/Venues/image1.jpg
+ *                             publicId:
+ *                               type: string
+ *                               example: Event/Venues/image1
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-16T08:00:00.000Z
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-10-16T09:00:00.000Z
+ *       404:
+ *         description: User not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ *       500:
+ *         description: Internal server error.
+ */
+router.get('/venues', authentication, getAllVenues);
 
 module.exports = router 

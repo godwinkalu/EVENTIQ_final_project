@@ -1,25 +1,18 @@
 const express = require('express')
 const {
   getMyBookings,
-  getAllPendingBookings,
   createvenuebooking,
-  getAllConfirmedBookings,
+  getAllBookings,
   acceptedBooking,
   rejectedBooking,
 } = require('../controller/venuebookingcontroller')
 const { authentication } = require('../middleware/authMiddleware')
 const router = express.Router()
 
-/**
- * @swagger
- * tags:
- *   name: Bookings
- *   description: API endpoints for venue bookings and booking management
- */
 
 /**
  * @swagger
- * /bookings/booking/{venueId}:
+ * /booking/{venueId}:
  *   post:
  *     summary: Create a new venue booking
  *     description: Allows a client to create a booking for a selected venue.
@@ -77,25 +70,10 @@ router.post('/booking/:venueId', authentication, createvenuebooking)
  */
 router.get('/mybooking', authentication, getMyBookings)
 
+
 /**
  * @swagger
- * /bookings/pendingbooking:
- *   get:
- *     summary: Get all pending bookings
- *     description: Retrieve all pending bookings for a venue owner.
- *     tags: [Bookings]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Pending bookings retrieved successfully
- *       404:
- *         description: Venue owner not found
- */
-router.get('/pendingbooking', authentication, getAllPendingBookings)
-/**
- * @swagger
- * /bookings/confirmedbooking:
+ * /allbooking:
  *   get:
  *     summary: Get all confirmed or pending bookings
  *     description: Retrieve all confirmed and pending bookings for a venue owner.
@@ -108,11 +86,11 @@ router.get('/pendingbooking', authentication, getAllPendingBookings)
  *       404:
  *         description: Venue owner not found
  */
-router.get('/confirmedbooking', authentication, getAllConfirmedBookings)
+router.get('/allbooking', authentication, getAllBookings)
 
 /**
  * @swagger
- * /bookings/accept/{clientId}:
+ * /accepectbooking/{bookingId}:
  *   post:
  *     summary: Accept a booking and notify the client
  *     description: Sends a confirmation email to the client when their booking is accepted.
@@ -121,7 +99,7 @@ router.get('/confirmedbooking', authentication, getAllConfirmedBookings)
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: clientId
+ *         name: bookingId
  *         required: true
  *         schema:
  *           type: string
@@ -133,11 +111,11 @@ router.get('/confirmedbooking', authentication, getAllConfirmedBookings)
  *         description: Venue owner or client not found
  */
 
-router.get('/accepectbooking', authentication, acceptedBooking)
+router.get('/accepectbooking/:bookingId', authentication, acceptedBooking)
 
 /**
  * @swagger
- * /bookings/reject/{clientId}:
+ * /rejectbooking/{bookingId}:
  *   post:
  *     summary: Reject a booking and notify the client
  *     description: Sends an email to the client when their booking is rejected, including a reason.
@@ -146,7 +124,7 @@ router.get('/accepectbooking', authentication, acceptedBooking)
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: clientId
+ *         name: bookingId
  *         required: true
  *         schema:
  *           type: string
@@ -172,6 +150,6 @@ router.get('/accepectbooking', authentication, acceptedBooking)
  *         description: Venue owner or client not found
  */
 
-router.get('/rejectbooking', authentication, rejectedBooking)
+router.get('/rejectbooking/:bookingId', authentication, rejectedBooking)
 
 module.exports = router

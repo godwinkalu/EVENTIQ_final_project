@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const {
   createVenue,
-  getAllVenues,
+  getAllVerifiedVenues,
   getOnevenue,
   updateVenue,
   deleteVenue,
@@ -163,12 +163,12 @@ router.post('/list-venue', authentication, createVenue)
  *   get:
  *     summary: Get all venues
  *     description: Retrieve all venues listed in the platform.
- *     tags: [Venue]
+ *     tags: [Client]
  *     responses:
  *       200:
  *         description: List of all venues retrieved successfully
  */
-router.get('/allvenues', getAllVenues)
+router.get('/allvenues', authentication, getAllVerifiedVenues)
 
 /**
  * @swagger

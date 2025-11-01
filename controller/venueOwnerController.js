@@ -89,7 +89,12 @@ exports.getAllVenueOwners = async (req, res, next) => {
 exports.getVenueOwner = async (req, res, next) => {
   try {
     const { id } = req.params;
+    console.log(id);
+    
     const owner = await venueOwnerModel.findById(id).select('-password -otp');
+
+    console.log(owner);
+    
     if (!owner) {
       return res.status(404).json({
         message: 'Venue owner not found',
