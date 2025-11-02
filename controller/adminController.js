@@ -1,6 +1,8 @@
 const adminModel = require('../models/adminModel')
 const bcrypt = require('bcrypt');
 const venueOwnerModel = require('../models/venueOwnerModel');
+const venueModel = require('../models/venueModel')
+
 
 exports.signUp = async (req, res, next) => {
   const { firstName, surname, phoneNumber, email, password } = req.body

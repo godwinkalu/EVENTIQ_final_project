@@ -75,6 +75,8 @@ exports.createVenueOwner = async (req, res, next) => {
     next(error)
   }
 }
+
+
 exports.getAllVenueOwners = async (req, res, next) => {
   try {
     const owners = await venueOwnerModel.find().select('-password -otp');
@@ -86,6 +88,7 @@ exports.getAllVenueOwners = async (req, res, next) => {
     next(error);
   }
 };
+
 
 exports.getVenueOwner = async (req, res, next) => {
   try {
