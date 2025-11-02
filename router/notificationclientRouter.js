@@ -1,6 +1,5 @@
 const express = require('express');
 const {
-  createNotification,
   getClientNotifications,
   markAsRead,
   deleteNotification
@@ -9,51 +8,11 @@ const { authentication } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-/**
- * @swagger
- * tags:
- *   name: Notifications
- *   description: Manage client notifications
- */
+
 
 /**
  * @swagger
- * /notifications:
- *   post:
- *     summary: Create a new notification
- *     tags: [Notifications]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               venueId:
- *                 type: string
- *                 example: 671a8f3d8b8d2b6780a92d9c
- *               BookingId:
- *                 type: string
- *                 example: 671a8f3d8b8d2b6780a92d9e
- *               notificationMsg:
- *                 type: string
- *                 enum: [Booking Confirmed, Booking Reject, Booking Pending, Payment Successful]
- *                 example: Booking Confirmed
- *     responses:
- *       201:
- *         description: Notification created successfully
- *       400:
- *         description: Bad request
- *       404:
- *         description: Client or booking not found
- */
-router.post('/notification/', authentication, createNotification);
-
-/**
- * @swagger
- * /notifications:
+ * /client-notifications:
  *   get:
  *     summary: Get all notifications for the logged-in client
  *     tags: [Notifications]
@@ -65,7 +24,7 @@ router.post('/notification/', authentication, createNotification);
  *       404:
  *         description: Notifications not found
  */
-router.get('/getclient/', authentication, getClientNotifications);
+router.get('/client-notifications', authentication, getClientNotifications);
 
 /**
  * @swagger

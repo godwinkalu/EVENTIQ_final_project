@@ -1,6 +1,7 @@
 const clientModel = require('../models/clientModel')
 const venueOwnerModelModel = require('../models/venueOwnerModel')
 const venuebookingModel = require('../models/venuebookingModel')
+const notificationclientModel = require('../models/notificationclientModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const cloudinary = require('../config/cloudinary')
@@ -64,7 +65,13 @@ exports.signUp = async (req, res, next) => {
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     await client.save()
-
+    const notification = await notificationclientModel.create({
+      clientId: client._id,
+      notificationTitle: 'Welcome To Eventiq',
+      notificationMsg: 'Start exploring amazing event venues across Lagos.',
+      dot: '#808080',
+      time: new Date()
+    })
     return res.status(201).json({
       message: 'Client created successfully',
       data: client,
