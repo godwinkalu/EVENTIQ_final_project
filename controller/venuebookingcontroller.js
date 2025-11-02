@@ -2,6 +2,7 @@ const clientModel = require('../models/clientModel')
 const venuebookingModel = require('../models/venuebookingModel')
 const venueModel = require('../models/venueModel')
 const venueOwnerModel = require('../models/venueOwnerModel')
+const notificationclientModel = require('../models/notificationclientModel')
 const { confirmedHtml, rejectedHtml } = require('../utils/confirmemailTemplate')
 const jwt = require('jsonwebtoken')
 
@@ -57,6 +58,15 @@ exports.createvenuebooking = async (req, res, next) => {
     })
 
     await newBooking.save()
+    const notification = await notificationclientModel.create({
+      clientId: client._id,
+      BookingId: newBooking._id,
+      venueId: venue._id,
+      notificationTitle: 'Booking Pending',
+      notificationMsg: `Your booking request at ${venue.venuename} is pending. You will recieve a notification within 24 hours`,
+      dot: '#ffa500',
+      time: new Date()
+    })
 
     return res.status(201).json({
       message: 'Venue booked successfully',
@@ -68,50 +78,6 @@ exports.createvenuebooking = async (req, res, next) => {
   }
 }
 
-exports.getMyBookings = async (req, res, next) => {
-  try {
-    const clientId = req.user.id
-
-    const bookings = await venuebookingModel
-      .find({ clientId })
-      .populate('venueId', 'name location capacity')
-      .populate('clientId', 'name email')
-
-    return res.status(200).json({
-      message: 'Your bookings retrieved successfully',
-      data: bookings,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-
-
-exports.getAllBookings = async (req, res, next) => {
-  try {
-    const user = await venueOwnerModel.findById(req.user.id) || await clientModel.findById(req.user.id)
-
-    if (!user) {
-      return res.status(404).json({
-        message: 'Venue owner not found',
-      })
-    }
-
-    const bookings = await venuebookingModel
-      .find({
-        $or: [{ bookingstatus: 'pending' }, { bookingstatus: 'confirmed' }],
-      })
-      .populate('venueId')
-      .populate('clientId', 'name email')
-
-    return res.status(200).json({
-      message: 'Your bookings retrieved successfully',
-      data: bookings,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
 
 exports.acceptedBooking = async (req, res, next) => {
   try {
@@ -120,10 +86,17 @@ exports.acceptedBooking = async (req, res, next) => {
     const venueOwner = await venueOwnerModel.findById(id)
     const venueBooking = await venuebookingModel.findById(bookingId).populate('clientId')
     const client = await clientModel.findById(venueBooking.clientId);
+    const venue = await venueModel.findById(venueBooking.venueId)
 
     if (!venueOwner) {
       return res.status(404).json({
         message: 'venue owner not found',
+      })
+    }
+
+    if (!venue) {
+      return res.status(404).json({
+        message: 'venue not found',
       })
     }
 
@@ -138,6 +111,19 @@ exports.acceptedBooking = async (req, res, next) => {
         message: 'Venue not booked',
       })
     }
+
+    venueBooking.bookingstatus = 'confirmed'
+    await venueBooking.save()
+
+    const notification = await notificationclientModel.create({
+      clientId: client._id,
+      BookingId: venueBooking._id,
+      venueId: venue._id,
+      notificationTitle: 'Booking Confirmed',
+      notificationMsg: `Your booking request at ${venue.venuename} has been confirmed for ${venueBooking.date}.`,
+      dot: '#800080',
+      time: new Date()
+    })
 
     const link = `${req.protocol}://${req.get('host')}/payment`
     const apikey = process.env.brevo
@@ -171,10 +157,17 @@ exports.rejectedBooking = async (req, res, next) => {
     const venueOwner = await venueOwnerModel.findById(id)
     const venueBooking = await venuebookingModel.findById(bookingId).populate('clientId')
     const client = await clientModel.findById(venueBooking.clientId);
+    const venue = await venueModel.findById(venueBooking.venueId)
 
     if (!venueOwner) {
       return res.status(404).json({
         message: 'venue owner not found',
+      })
+    }
+
+    if (!venue) {
+      return res.status(404).json({
+        message: 'venue not found',
       })
     }
 
@@ -189,6 +182,19 @@ exports.rejectedBooking = async (req, res, next) => {
         message: 'Venue not booked',
       })
     }
+
+    venueBooking.bookingstatus = 'rejected'
+    await venueBooking.save()
+
+    const notification = await notificationclientModel.create({
+      clientId: client._id,
+      BookingId: venueBooking._id,
+      venueId: venue._id,
+      notificationTitle: 'Booking Rejected',
+      notificationMsg: `Your booking request at ${venue.venuename} has been confirmed for ${venueBooking.date}.`,
+      dot: '#ff0000',
+      time: new Date()
+    })
 
     const apikey = process.env.brevo
     const apiInstance = new Brevo.TransactionalEmailsApi()

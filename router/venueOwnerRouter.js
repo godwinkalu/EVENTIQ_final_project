@@ -1,4 +1,4 @@
-const { createVenueOwner, getAllVenueOwners, getVenueOwner, deleteVenueOwner } = require("../controller/venueOwnerController");
+const { createVenueOwner, getAllVenueOwners, getVenueOwner, deleteVenueOwner, getAllBookings } = require("../controller/venueOwnerController");
 
 const { authentication } = require("../middleware/authMiddleware");
 
@@ -171,5 +171,23 @@ router.get('/venueowner/:id', getVenueOwner);
  *         description: Venue owner not found
  */
 router.delete('/delete/:id', deleteVenueOwner);
+
+
+/**
+ * @swagger
+ * /allbooking:
+ *   get:
+ *     summary: Get all confirmed or pending bookings
+ *     description: Retrieve all confirmed and pending bookings for a venue owner.
+ *     tags: [Venue Owner]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Confirmed and pending bookings retrieved successfully
+ *       404:
+ *         description: Venue owner not found
+ */
+router.get('/allbooking', authentication, getAllBookings)
 
 module.exports = router

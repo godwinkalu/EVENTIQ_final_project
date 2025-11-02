@@ -20,6 +20,7 @@ const paymentRouter = require('./router/paymentRouter')
 const bankDetailRouter = require('./router/bankDetails')
 const businessinfoRouter = require('./router/businessinformationModel')
 const dashboardRouter = require('./router/dashboard')
+const notificationRouter = require('./router/notificationclientRouter')
 
 app.use('/api/v1/', clientRouter)
 app.use('/api/v1/', adminRouter)
@@ -31,6 +32,7 @@ app.use('/api/v1/', paymentRouter)
 app.use('/api/v1', bankDetailRouter)
 app.use('/api/v1/', businessinfoRouter)
 app.use('/api/v1', dashboardRouter)
+app.use('/api/v1', notificationRouter)
 
 app.use((error, req, res, next) => {
   if (error) {

@@ -1,5 +1,6 @@
 const venueOwnerModel = require('../models/venueOwnerModel')
 const dashboardModel = require('../models/dashboardModel');
+const venuebookingModel = require('../models/venuebookingModel')
 const cloudinary = require('../config/cloudinary')
 const bcrypt = require('bcrypt')
 const { signUpTemplate } = require('../utils/emailTemplate')
@@ -135,3 +136,32 @@ exports.deleteVenueOwner = async (req, res, next) => {
     next(error);
   }
 };
+
+
+exports.getAllBookings = async (req, res, next) => {
+  try {
+    const venueOwner = await venueOwnerModel.findById(req.user.id)
+
+    if (!venueOwner) {
+      return res.status(404).json({
+        message: 'Venue owner not found',
+      })
+    }
+
+    const bookings = await venuebookingModel.find()
+      .populate('venueId')
+      .populate('clientId', 'name email')
+
+    return res.status(200).json({
+      message: 'All bookings retrieved successfully',
+      data: bookings,
+    })
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error)
+  }
+}

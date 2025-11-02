@@ -1,8 +1,6 @@
 const express = require('express')
 const {
-  getMyBookings,
   createvenuebooking,
-  getAllBookings,
   acceptedBooking,
   rejectedBooking,
 } = require('../controller/venuebookingcontroller')
@@ -53,40 +51,6 @@ const router = express.Router()
  */
 router.post('/booking/:venueId', authentication, createvenuebooking)
 
-/**
- * @swagger
- * /mybooking:
- *   get:
- *     summary: Get client’s bookings
- *     description: Retrieve all bookings made by the logged-in client.
- *     tags: [Bookings]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of client bookings retrieved successfully
- *       404:
- *         description: Client not found
- */
-router.get('/mybooking', authentication, getMyBookings)
-
-
-/**
- * @swagger
- * /allbooking:
- *   get:
- *     summary: Get all confirmed or pending bookings
- *     description: Retrieve all confirmed and pending bookings for a venue owner.
- *     tags: [Bookings]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Confirmed and pending bookings retrieved successfully
- *       404:
- *         description: Venue owner not found
- */
-router.get('/allbooking', authentication, getAllBookings)
 
 /**
  * @swagger

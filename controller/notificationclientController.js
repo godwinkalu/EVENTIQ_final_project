@@ -1,57 +1,43 @@
-const notificationclientModel  = require('../models/notificationclientModel');
+const notificationclientModel = require('../models/notificationclientModel');
 const clientModel = require('../models/clientModel')
 const venuebookingModel = require('../models/venuebookingModel')
-exports.createNotification = async (req, res, next) => {
-  try {
-    const clientId = req.user.id;
-    const client = await clientModel.findById(clientId)
-    if (!client) {
-      return res.status(404).json({
-        message: 'client not found'
-      })
-    }
-    const venuebooking = await venuebookingModel.findOne({clientId:client._id})
-    if (!venuebooking) {
-      return res.status(404).json({
-        message: 'venuebooking not found'
-      })
-    }
+const jwt = require('jsonwebtoken')
+const dayjs = require('dayjs')
+const relativeTime = require('dayjs/plugin/relativeTime')
 
-    const newNotification = new notificationclientModel({
-      venueId,
-      clientId,
-      BookingId,
-      notificationMsg,
-    });
-
-    await newNotification.save();
-
-    return res.status(201).json({
-      message: 'Notification created successfully',
-      data: newNotification,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
 
 exports.getClientNotifications = async (req, res, next) => {
   try {
-    const clientId = req.user.id;
+    const { id } = req.user;
+    const client = await clientModel.findById(id);
 
-    const notifications = await Notification.find({ clientId })
-      .populate('venueId', 'name location')
-      .populate('BookingId')
-      .sort({ createdAt: -1 });
+    if (!client) {
+      return res.status(404).json({
+        message: 'Client not found'
+      })
+    }
 
+    const notifications = await notificationclientModel.find({ clientId: client._id }).sort({ createdAt: -1 });
+    dayjs.extend(relativeTime)
+    notifications.forEach((e) => {
+      e.time = dayjs(e.createdAt).fromNow()
+    })
+  
     return res.status(200).json({
       message: 'Notifications retrieved successfully',
       data: notifications,
     });
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
     next(error);
   }
 };
+
+
 exports.markAsRead = async (req, res, next) => {
   try {
     const { id } = req.params;
