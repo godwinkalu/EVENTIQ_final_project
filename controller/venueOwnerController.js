@@ -1,6 +1,7 @@
 const venueOwnerModel = require('../models/venueOwnerModel')
 const dashboardModel = require('../models/dashboardModel');
 const venuebookingModel = require('../models/venuebookingModel')
+const clientModel = require('../models/clientModel')
 const cloudinary = require('../config/cloudinary')
 const bcrypt = require('bcrypt')
 const { signUpTemplate } = require('../utils/emailTemplate')
@@ -13,7 +14,7 @@ exports.createVenueOwner = async (req, res, next) => {
   const { firstName, surname, email, password } = req.body
   try {
     const existVenueOwner = await venueOwnerModel.findOne({ email: email.toLowerCase() })
-    const existClient = await venueOwnerModel.findOne({ email: email.toLowerCase() })
+    const existClient = await clientModel.findOne({ email: email.toLowerCase() })
 
     if (existVenueOwner) {
       return res.status(404).json({

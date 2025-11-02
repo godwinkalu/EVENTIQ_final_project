@@ -73,17 +73,18 @@ venueOwnerSchema.post('save', async function (doc, next) {
   const startOfMonth = moment().startOf('month').toDate();
   const endOfMonth = moment().endOf('month').toDate();
 
-  const newVenuesThisMonth = await venueModel.countDocuments({
+  const newVenuesThisMonth = await venueModel.find({
+    venueOwnerId: venues[0]?._id,
     createdAt: { $gte: startOfMonth, $lte: endOfMonth }
   });
 
   dashboard.totalVenues = {
     total: venues.length,
-    stat: newVenuesThisMonth
+    stat: newVenuesThisMonth.length
   }
 
   dashboard.activeBooking = {
-    confirmed: venuebookings.length,
+    total: venuebookings.length,
     pending: venuebookings.filter((e) => e.bookingstatus === 'pending').length
   }
 

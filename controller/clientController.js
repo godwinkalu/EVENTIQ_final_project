@@ -1,5 +1,5 @@
 const clientModel = require('../models/clientModel')
-const venueOwnerModelModel = require('../models/venueOwnerModel')
+const venueOwnerModel = require('../models/venueOwnerModel')
 const venuebookingModel = require('../models/venuebookingModel')
 const notificationclientModel = require('../models/notificationclientModel')
 const bcrypt = require('bcrypt')
@@ -13,18 +13,18 @@ const venueModel = require('../models/venueModel')
 exports.signUp = async (req, res, next) => {
   const { firstName, surname, email, password } = req.body
   try {
+    const existVenueOwner = await venueOwnerModel.findOne({ email: email.toLowerCase() })
     const existClient = await clientModel.findOne({ email: email.toLowerCase() })
-    const existVenueOwner = await clientModel.findOne({ email: email.toLowerCase() })
+
+    if (existVenueOwner) {
+      return res.status(404).json({
+        message: 'Account already exist as a venue owner, login your account',
+      })
+    }
 
     if (existClient) {
       return res.status(404).json({
         message: 'Account already exist as a client, log in to your account',
-      })
-    }
-
-    if (existVenueOwner) {
-      return res.status(404).json({
-        message: 'Account already exist as a venue owner, log in to your account',
       })
     }
 
@@ -187,7 +187,7 @@ exports.getAllVerifiedVenues = async (req, res, next) => {
 
     let venues
 
-    if (city === undefined || city.toLowerCase() === 'all areas') {
+    if (!city || city.toLowerCase() === 'all areas') {
       venues = await venueModel.find({ status: 'verified' })
     } else {
       venues = await venueModel.find({ status: 'verified', 'location.city': city.toLowerCase() })
