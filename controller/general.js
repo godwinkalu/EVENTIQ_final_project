@@ -133,9 +133,10 @@ exports.login = async (req, res, next) => {
     )
 
     await user.save()
+    const {otp, otpExpiredat, isVerified, isLoggedIn, createdAt, updatedAt, __v, ...data} = user.toObject();
     res.status(200).json({
-      message: 'Logged in  successfully',
-      data: user,
+      message: 'Logged in successfully',
+      data,
       token,
     })
   } catch (error) {

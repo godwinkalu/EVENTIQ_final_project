@@ -1,4 +1,4 @@
-const { createFeatures, getAllFeatures, subscribeOneFeature } = require('../controller/paymentController');
+const { createFeatures, getAllFeatures, subscribeOneFeature, verifyPayment } = require('../controller/paymentController');
 const { authentication } = require('../middleware/authMiddleware');
 
 const router = require('express').Router();
@@ -170,5 +170,8 @@ router.get('/features', authentication, getAllFeatures);
  *                   example: Internal Server Error
  */
 router.get('/subscribe/:featureId', authentication, subscribeOneFeature);
+
+
+router.post('/verify', verifyPayment)
 
 module.exports = router;

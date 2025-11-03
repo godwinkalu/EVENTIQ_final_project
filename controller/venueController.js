@@ -6,23 +6,18 @@ const cloudinary = require('../config/cloudinary')
 const fs = require('fs')
 
 exports.createVenue = async (req, res, next) => {
+  const { images, cac, doc } = req.files || []
+
+  const cleanupLocalFiles = (files) => {
+    for (const file of files) {
+      if (fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path)
+      }
+    }
+  }
 
   try {
-    const {
-      venuename,
-      description,
-      capacity,
-      price,
-      type,
-      amenities,
-      cautionfee,
-      openingtime,
-      closingtime,
-      hallsize,
-      street,
-      city,
-      state,
-    } = req.body
+    const { venuename, description, capacity, price, type, amenities, cautionfee, openingtime, closingtime, hallsize, street, city, state } = req.body
 
     const id = req.user.id
 
@@ -45,67 +40,11 @@ exports.createVenue = async (req, res, next) => {
         message: 'Venue already exists in this city',
       })
     }
+
     const location = {
       street: street ? street.trim() : '',
       city: city ? city.trim() : '',
       state: state ? state.trim() : '',
-    }
-
-
-    const newVenue = new venueModel({
-      venueOwnerId: venueOwner._id,
-      venuename,
-      description,
-      location,
-      price,
-      openingtime,
-      closingtime,
-      hallsize,
-      type,
-      cautionfee,
-      amenities,
-      capacity,
-    })
-
-    await newVenue.save()
-    res.status(201).json({
-      message: 'Venue uploaded successfully ',
-      data: newVenue,
-    })
-  } catch (error) {
-
-    next(error)
-  }
-}
-
-exports.uploadDoc = async (req, res, next) => {
-  const { images, cac, doc } = req.files || []
-
-  const cleanupLocalFiles = (files) => {
-    for (const file of files) {
-      if (fs.existsSync(file.path)) {
-        fs.unlinkSync(file.path)
-      }
-    }
-  }
-
-  try {
-    const { id } = req.user
-    const venueOwner = await venueOwnerModel.findById(id)
-
-    if (!venueOwner) {
-      fs.unlinkSync(file.path)
-      return res.status(404).json({
-        message: 'Venue owner not found',
-      })
-    }
-
-    const venue = await venueModel.findOne({ venueOwnerId: venueOwner._id })
-
-    if (!venue) {
-      return res.status(404).json({
-        message: 'Venue not found',
-      })
     }
 
     if (!images?.length || !cac?.length || !doc?.length) {
@@ -125,38 +64,64 @@ exports.uploadDoc = async (req, res, next) => {
       })
     );
 
-    const uploadCAC = await cloudinary.uploader.upload(cac[0].path, {
-      folder: 'Event/Venues',
-      use_filename: true,
-      transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
-    });
+    const uploadCAC = await Promise.all(
+      cac.map(async (file) => {
+        const uploadRes = await cloudinary.uploader.upload(file.path, {
+          folder: 'Event/Venues',
+          use_filename: true,
+          transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
+        });
+        return { url: uploadRes.secure_url, publicId: uploadRes.public_id };
+      })
+    );
 
-    const uploadDoc = await cloudinary.uploader.upload(doc[0].path, {
-      folder: 'Event/Venues',
-      use_filename: true,
-      transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
-    });
+    const uploadDoc = await Promise.all(
+      doc.map(async (file) => {
+        const uploadRes = await cloudinary.uploader.upload(file.path, {
+          folder: 'Event/Venues',
+          use_filename: true,
+          transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
+        });
+        return { url: uploadRes.secure_url, publicId: uploadRes.public_id };
+      })
+    );
 
     cleanupLocalFiles(images);
-    fs.unlinkSync(cac[0].path)
-    fs.unlinkSync(doc[0].path)
-    Object.assign(venue, {
-      documents: {
-        images: uploadedImages,
-        cac: { url: uploadCAC.secure_url, publicId: uploadCAC.public_id },
-        doc: { url: uploadDoc.secure_url, publicId: uploadDoc.public_id },
-      },
+    cleanupLocalFiles(uploadCAC);
+    cleanupLocalFiles(uploadDoc);
+
+    const documents = {
+      images: uploadedImages,
+      cac: uploadCAC,
+      doc: uploadDoc
+    }
+
+    const newVenue = new venueModel({
+      venueOwnerId: venueOwner._id,
+      venuename,
+      description,
+      location,
+      price,
+      openingtime,
+      closingtime,
+      hallsize,
+      type,
+      cautionfee,
+      amenities,
+      capacity,
+      documents
     })
-    await venue.save()
+
+    await newVenue.save()
     res.status(201).json({
-      message: 'Documents uploaded successfully ',
+      message: 'Venue uploaded successfully ',
+      data: newVenue,
     })
   } catch (error) {
-    if (files && Array.isArray(files)) cleanupLocalFiles(files)
+
     next(error)
   }
 }
-
 
 exports.getOnevenue = async (req, res, next) => {
   try {

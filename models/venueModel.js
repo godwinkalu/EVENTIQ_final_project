@@ -59,6 +59,7 @@ const venueSchema = new mongoose.Schema(
     },
     type: {
       type: String,
+      lowercase: true,
       enum: ['indoor', 'outdoor', 'multipurpose'],
     },
     amenities: {
@@ -71,14 +72,14 @@ const venueSchema = new mongoose.Schema(
           publicId: String,
         },
       ],
-      cac: {
+      cac: [{
         url: String,
         publicId: String,
-      },
-      doc: {
+      }],
+      doc: [{
         url: String,
         publicId: String,
-      },
+      }],
     },
     isavailable: {
       type: Boolean,
