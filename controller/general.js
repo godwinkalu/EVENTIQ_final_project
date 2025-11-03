@@ -105,7 +105,7 @@ exports.login = async (req, res, next) => {
     }
     if (user.isVerified === false) {
       return res.status(404).json({
-        message: 'Go and verified',
+        message: 'please verify',
       })
     }
 
@@ -114,12 +114,6 @@ exports.login = async (req, res, next) => {
     if (!correctPassword) {
       return res.status(400).json({
         message: 'Invaild Credentials',
-      })
-    }
-
-    if (user.isLoggedIn === true) {
-      return res.status(400).json({
-        message: 'User is already logged in',
       })
     }
 
