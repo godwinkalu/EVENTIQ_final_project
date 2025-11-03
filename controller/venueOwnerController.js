@@ -2,6 +2,7 @@ const venueOwnerModel = require('../models/venueOwnerModel')
 const dashboardModel = require('../models/dashboardModel');
 const venuebookingModel = require('../models/venuebookingModel')
 const clientModel = require('../models/clientModel')
+const businessinfomationModel = require('../models/businessinfomationModel')
 const cloudinary = require('../config/cloudinary')
 const bcrypt = require('bcrypt')
 const { signUpTemplate } = require('../utils/emailTemplate')
@@ -68,6 +69,9 @@ exports.createVenueOwner = async (req, res, next) => {
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     await venueOwner.save()
+    const businessInfo = await businessinfomationModel.create({
+      venueOwnerId: venueOwner._id
+    })
     res.status(201).json({
       message: 'venueOwner created successfully',
       data: venueOwner,
