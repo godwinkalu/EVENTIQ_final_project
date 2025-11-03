@@ -17,7 +17,22 @@ exports.createVenue = async (req, res, next) => {
   }
 
   try {
-    const { venuename, description, capacity, price, type, amenities, cautionfee, openingtime, closingtime, hallsize, street, city, state } = req.body
+    const {
+      venuename,
+      description,
+      price,
+      type,
+      amenities,
+      cautionfee,
+      openingtime,
+      closingtime,
+      hallsize,
+      street,
+      city,
+      state,
+      minimum,
+      maximum,
+    } = req.body
 
     const id = req.user.id
 
@@ -50,7 +65,7 @@ exports.createVenue = async (req, res, next) => {
     if (!images?.length || !cac?.length || !doc?.length) {
       return res.status(400).json({
         message: 'All required files (images, CAC, doc) must be provided',
-      });
+      })
     }
 
     const uploadedImages = await Promise.all(
@@ -59,10 +74,10 @@ exports.createVenue = async (req, res, next) => {
           folder: 'Event/Venues',
           use_filename: true,
           transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
-        });
-        return { url: uploadRes.secure_url, publicId: uploadRes.public_id };
+        })
+        return { url: uploadRes.secure_url, publicId: uploadRes.public_id }
       })
-    );
+    )
 
     const uploadCAC = await Promise.all(
       cac.map(async (file) => {
@@ -70,10 +85,10 @@ exports.createVenue = async (req, res, next) => {
           folder: 'Event/Venues',
           use_filename: true,
           transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
-        });
-        return { url: uploadRes.secure_url, publicId: uploadRes.public_id };
+        })
+        return { url: uploadRes.secure_url, publicId: uploadRes.public_id }
       })
-    );
+    )
 
     const uploadDoc = await Promise.all(
       doc.map(async (file) => {
@@ -81,19 +96,24 @@ exports.createVenue = async (req, res, next) => {
           folder: 'Event/Venues',
           use_filename: true,
           transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
-        });
-        return { url: uploadRes.secure_url, publicId: uploadRes.public_id };
+        })
+        return { url: uploadRes.secure_url, publicId: uploadRes.public_id }
       })
-    );
+    )
 
-    cleanupLocalFiles(images);
-    cleanupLocalFiles(uploadCAC);
-    cleanupLocalFiles(uploadDoc);
+    cleanupLocalFiles(images)
+    cleanupLocalFiles(uploadCAC)
+    cleanupLocalFiles(uploadDoc)
 
     const documents = {
       images: uploadedImages,
       cac: uploadCAC,
-      doc: uploadDoc
+      doc: uploadDoc,
+    }
+
+    const capacity = {
+      minimum: minimum,
+      maximum: maximum,
     }
 
     const newVenue = new venueModel({
@@ -109,7 +129,7 @@ exports.createVenue = async (req, res, next) => {
       cautionfee,
       amenities,
       capacity,
-      documents
+      documents,
     })
 
     await newVenue.save()
@@ -118,7 +138,6 @@ exports.createVenue = async (req, res, next) => {
       data: newVenue,
     })
   } catch (error) {
-
     next(error)
   }
 }
@@ -173,7 +192,7 @@ exports.updateVenue = async (req, res, next) => {
     }
 
     let uploadedImages = venue.image
-    let newUploadedImage;
+    let newUploadedImage
 
     if (files.length === 0) {
       newUploadedImage = uploadedImages
@@ -242,7 +261,7 @@ exports.deleteVenue = async (req, res, next) => {
 
     if (deleted) {
       for (path of venue.image) {
-        console.log(path);
+        console.log(path)
 
         await cloudinary.uploader.destroy(path.publicId)
       }

@@ -20,17 +20,17 @@ const venueSchema = new mongoose.Schema(
       street: {
         type: String,
         required: true,
-        lowercase: true
+        lowercase: true,
       },
       city: {
         type: String,
         required: true,
-        lowercase: true
+        lowercase: true,
       },
       state: {
         type: String,
         required: true,
-        lowercase: true
+        lowercase: true,
       },
     },
     openingtime: {
@@ -46,8 +46,14 @@ const venueSchema = new mongoose.Schema(
       required: true,
     },
     capacity: {
-      type: Number,
-      required: true,
+      minimum: {
+        type: Number,
+        required: true,
+      },
+      maximum: {
+        type: Number,
+        required: true,
+      },
     },
     hallsize: {
       type: String,
@@ -72,14 +78,18 @@ const venueSchema = new mongoose.Schema(
           publicId: String,
         },
       ],
-      cac: [{
-        url: String,
-        publicId: String,
-      }],
-      doc: [{
-        url: String,
-        publicId: String,
-      }],
+      cac: [
+        {
+          url: String,
+          publicId: String,
+        },
+      ],
+      doc: [
+        {
+          url: String,
+          publicId: String,
+        },
+      ],
     },
     isavailable: {
       type: Boolean,
@@ -87,17 +97,17 @@ const venueSchema = new mongoose.Schema(
     },
     isFeatured: {
       type: Boolean,
-      default: false
+      default: false,
     },
     featuredExpireAt: {
       type: Number,
       required: true,
-      default: 0
+      default: 0,
     },
     status: {
       type: String,
       enum: ['pending', 'unverified', 'verified'],
-      default: 'pending'
+      default: 'pending',
     },
   },
   { timestamps: true }

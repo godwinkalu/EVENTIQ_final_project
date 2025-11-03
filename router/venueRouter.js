@@ -30,7 +30,8 @@ const upload = require('../middleware/multer')
  *             required:
  *               - venuename
  *               - description
- *               - capacity
+ *               - minimum
+ *               - maximum
  *               - price
  *               - type
  *               - amenities
@@ -51,7 +52,10 @@ const upload = require('../middleware/multer')
  *               description:
  *                 type: string
  *                 example: "A spacious event hall suitable for weddings and conferences."
- *               capacity:
+ *               minimum:
+ *                 type: integer
+ *                 example: 200
+ *               maximum:
  *                 type: integer
  *                 example: 500
  *               price:
