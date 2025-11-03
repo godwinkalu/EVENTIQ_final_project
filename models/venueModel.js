@@ -59,6 +59,7 @@ const venueSchema = new mongoose.Schema(
     },
     type: {
       type: String,
+      lowercase: true,
       enum: ['indoor', 'outdoor', 'multipurpose'],
     },
     amenities: {

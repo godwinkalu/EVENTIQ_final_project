@@ -74,6 +74,7 @@ exports.createVenue = async (req, res, next) => {
         return { url: uploadRes.secure_url, publicId: uploadRes.public_id };
       })
     );
+
     const uploadDoc = await Promise.all(
       doc.map(async (file) => {
         const uploadRes = await cloudinary.uploader.upload(file.path, {
