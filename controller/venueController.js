@@ -64,28 +64,36 @@ exports.createVenue = async (req, res, next) => {
       })
     );
 
-    const uploadCAC = await cloudinary.uploader.upload(cac[0].path, {
-      folder: 'Event/Venues',
-      use_filename: true,
-      transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
-    });
-
-    const uploadDoc = await cloudinary.uploader.upload(doc[0].path, {
-      folder: 'Event/Venues',
-      use_filename: true,
-      transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
-    });
+    const uploadCAC = await Promise.all(
+      cac.map(async (file) => {
+        const uploadRes = await cloudinary.uploader.upload(file.path, {
+          folder: 'Event/Venues',
+          use_filename: true,
+          transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
+        });
+        return { url: uploadRes.secure_url, publicId: uploadRes.public_id };
+      })
+    );
+    const uploadDoc = await Promise.all(
+      doc.map(async (file) => {
+        const uploadRes = await cloudinary.uploader.upload(file.path, {
+          folder: 'Event/Venues',
+          use_filename: true,
+          transformation: [{ width: 500, height: 250, crop: 'fill', gravity: 'auto' }],
+        });
+        return { url: uploadRes.secure_url, publicId: uploadRes.public_id };
+      })
+    );
 
     cleanupLocalFiles(images);
-    fs.unlinkSync(cac[0].path)
-    fs.unlinkSync(doc[0].path)
-    Object.assign(venue, {
-      documents: {
-        images: uploadedImages,
-        cac: { url: uploadCAC.secure_url, publicId: uploadCAC.public_id },
-        doc: { url: uploadDoc.secure_url, publicId: uploadDoc.public_id },
-      },
-    })
+    cleanupLocalFiles(uploadCAC);
+    cleanupLocalFiles(uploadDoc);
+
+    const documents = {
+      images: uploadedImages,
+      cac: uploadCAC,
+      doc: uploadDoc
+    }
 
     const newVenue = new venueModel({
       venueOwnerId: venueOwner._id,
@@ -100,11 +108,7 @@ exports.createVenue = async (req, res, next) => {
       cautionfee,
       amenities,
       capacity,
-      documents: {
-        images: uploadedImages,
-        cac: { url: uploadCAC.secure_url, publicId: uploadCAC.public_id },
-        doc: { url: uploadDoc.secure_url, publicId: uploadDoc.public_id },
-      }
+      documents
     })
 
     await newVenue.save()
