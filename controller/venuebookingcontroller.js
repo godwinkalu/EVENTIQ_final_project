@@ -2,6 +2,7 @@ const clientModel = require('../models/clientModel')
 const venuebookingModel = require('../models/venuebookingModel')
 const venueModel = require('../models/venueModel')
 const venueOwnerModel = require('../models/venueOwnerModel')
+const notificationvenueownerModel = require('../models/notificationvenueOwnerModel')
 const notificationclientModel = require('../models/notificationclientModel')
 const { confirmedHtml, rejectedHtml } = require('../utils/confirmemailTemplate')
 const jwt = require('jsonwebtoken')
@@ -11,12 +12,16 @@ exports.createvenuebooking = async (req, res, next) => {
     const { date, numberofguests } = req.body
     const { venueId } = req.params
     const clientId = req.user.id
-
     const venue = await venueModel.findById(venueId)
+    const venueOwner = await venueOwnerModel.findById(venue.venueOwnerId)
     const client = await clientModel.findById(clientId)
 
     if (!client) {
       return res.status(404).json({ message: 'Client not found' })
+    }
+
+    if (!venueOwner) {
+      return res.status(404).json({ message: 'Venue owner not found' })
     }
 
     if (client.role !== 'client') {
@@ -58,14 +63,15 @@ exports.createvenuebooking = async (req, res, next) => {
     })
 
     await newBooking.save()
-    const notification = await notificationclientModel.create({
-      clientId: client._id,
+
+    const notification = await notificationvenueownerModel.create({
+      venueOwnerId: venueOwner._id,
       BookingId: newBooking._id,
       venueId: venue._id,
-      notificationTitle: 'Booking Pending',
-      notificationMsg: `Your booking request at ${venue.venuename} is pending. You will recieve a notification within 24 hours`,
-      dot: '#ffa500',
-      time: new Date()
+      notificationTitle: 'New Booking Request',
+      notificationMsg: `${client.firstName} ${client.surname} requested ${venue.venuename} for ${newBooking.date}.`,
+      dot: '#800080',
+      time: new Date(),
     })
 
     return res.status(201).json({
@@ -114,16 +120,6 @@ exports.acceptedBooking = async (req, res, next) => {
 
     venueBooking.bookingstatus = 'confirmed'
     await venueBooking.save()
-
-    const notification = await notificationclientModel.create({
-      clientId: client._id,
-      BookingId: venueBooking._id,
-      venueId: venue._id,
-      notificationTitle: 'Booking Confirmed',
-      notificationMsg: `Your booking request at ${venue.venuename} has been confirmed for ${venueBooking.date}.`,
-      dot: '#800080',
-      time: new Date()
-    })
 
     const link = `${req.protocol}://${req.get('host')}/payment`
     const apikey = process.env.brevo

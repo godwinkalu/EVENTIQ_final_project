@@ -20,7 +20,7 @@ const paymentRouter = require('./router/paymentRouter')
 const bankDetailRouter = require('./router/bankDetails')
 const businessinfoRouter = require('./router/businessinformationModel')
 const dashboardRouter = require('./router/dashboard')
-const notificationRouter = require('./router/notificationclientRouter')
+const notificationRouter = require('./router/notificationRouter')
 
 app.use('/api/v1/', clientRouter)
 app.use('/api/v1/', adminRouter)
