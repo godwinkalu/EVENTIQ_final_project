@@ -72,9 +72,9 @@ exports.signUp = async (req, res, next) => {
       dot: '#808080',
       time: new Date()
     })
+  
     return res.status(201).json({
       message: 'Client created successfully',
-      data: client,
     })
   } catch (error) {
     console.log(error)
@@ -86,7 +86,7 @@ exports.getClients = async (req, res, next) => {
   try {
     const clients = await clientModel
       .find()
-      .select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v')
+      .select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v -isLoggedIn -phoneNumber')
 
     res.status(200).json({
       message: 'Clients fetched',
@@ -102,7 +102,7 @@ exports.getClient = async (req, res, next) => {
     const { id } = req.params
     const client = await clientModel
       .findById(id)
-      .select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v')
+      .select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v - isLoggedIn -phoneNumber')
 
     if (!client) {
       return res.status(404).json({

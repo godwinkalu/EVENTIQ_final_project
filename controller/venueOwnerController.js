@@ -80,7 +80,7 @@ exports.createVenueOwner = async (req, res, next) => {
 
 exports.getAllVenueOwners = async (req, res, next) => {
   try {
-    const owners = await venueOwnerModel.find().select('-password -otp');
+    const owners = await venueOwnerModel.find().select('-password -otp -password -phoneNumber -isVerified -role  -isLoggedIn');
     res.status(200).json({
       message: 'All venue owners retrieved successfully',
       data: owners,
@@ -94,9 +94,8 @@ exports.getAllVenueOwners = async (req, res, next) => {
 exports.getVenueOwner = async (req, res, next) => {
   try {
     const { id } = req.params;
-    console.log(id);
     
-    const owner = await venueOwnerModel.findById(id).select('-password -otp');
+    const owner = await venueOwnerModel.findById(id).select('-password -otp -password -phoneNumber -isVerified -role -isLoggedIn');
 
     console.log(owner);
     
