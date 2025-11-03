@@ -260,3 +260,77 @@ exports.resetPassword = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.updatePhoneNumber = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const user =
+      (await venueOwnerModel.findById(id)) ||
+      (await clientModel.findById(id)) ||
+      (await adminModel.findById(id))
+    const { phoneNumber } = req.body;
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'Venue owner not found',
+      });
+    };
+
+    user.phoneNumber = phoneNumber ?? user.phoneNumber;
+    await user.save();
+    res.status(200).json({
+      message: 'Phone number updated successfully',
+    });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error);
+  }
+};
+
+
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const user =
+      (await venueOwnerModel.findById(id)) ||
+      (await clientModel.findById(id)) ||
+      (await adminModel.findById(id))
+    const file = req.file;
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'Venue owner not found',
+      });
+    };
+
+    let profilePicture = user.profilePicture;
+
+    if (file && file.path) {
+      const response = await cloudinary.uploader.upload(file.path);
+      fs.unlinkSync(file.path)
+      profilePicture = {
+        url: response.secure_url,
+        publicId: response.public_id
+      }
+    }
+
+    Object.assign(user, {
+      profilePicture
+    });
+    await user.save();
+    res.status(200).json({
+      message: 'Profile picture updated successfully',
+    });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error);
+  }
+};
