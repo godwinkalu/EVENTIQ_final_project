@@ -64,7 +64,7 @@ const upload = require('../middleware/multer')
  *                 type: string
  *                 items:
  *                   type: string
- *                 example: "Air Conditioning "Parking Space Sound System"
+ *                 example: "Air Conditioning, Parking Space, Sound System"
  *               cautionfee:
  *                 type: number
  *                 example: 50000
