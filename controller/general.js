@@ -96,7 +96,7 @@ exports.login = async (req, res, next) => {
   const { email, password } = req.body
 
   try {
-    const user = await venueOwnerModel.findOne({ email: email.toLowerCase() }) || await clientModel.findOne({ email: email.toLowerCase() }) || await adminModel.findOne({ email: email.toLowerCase() })
+    const user = await venueOwnerModel.findOne({ email: email.toLowerCase() }) || await clientModel.findOne({ email: email.toLowerCase() }) || await adminModel.findOne({ email: email.toLowerCase() }).select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v - isLoggedIn -phoneNumber')
 
     if (!user) {
       return res.status(404).json({
@@ -106,7 +106,7 @@ exports.login = async (req, res, next) => {
 
     if (user.isVerified === false) {
       return res.status(404).json({
-        message: 'Account not verify',
+        message: 'Account not verified',
       })
     }
 
