@@ -120,18 +120,21 @@ exports.subscribeOneFeature = async (req, res, next) => {
 };
 
 
-exports.verifyFeaturedPayment = async (req, res) => {
+exports.verifyPayment = async (req, res, next) => {
   try {
-    const {reference} = req.query;
-
-    if (!reference) {
-      return res.status(404).json({
-        message: 'Payment reference is required'
-      })
-    };
-
-    const {data} = await axios.get(`https://api.korapay.com/merchant/api/v1/charges/${reference}`)
-  } catch (error) {
+   const {event, data} = req.body;
+    console.log(event);
+    console.log(data);
     
+   if (!event || !data) {
+    res.status(400).json({
+      message: 'Error retrieving response from kora pay'
+    })
+   };
+
+  //  if(event)
+    
+  } catch (error) {
+    next(error)
   }
-}
+};
