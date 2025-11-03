@@ -118,7 +118,6 @@ exports.createVenue = async (req, res, next) => {
   }
 }
 
-
 exports.getOnevenue = async (req, res, next) => {
   try {
     const { id } = req.params
