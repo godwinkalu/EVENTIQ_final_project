@@ -33,5 +33,6 @@ const notificationSchema = new mongoose.Schema({
   }
 }, {timestamps: true})
 
-const notificationclientModel = mongoose.model('notification', notificationSchema)
+const notificationclientModel = mongoose.model('client-notifications', notificationSchema)
+
 module.exports = notificationclientModel

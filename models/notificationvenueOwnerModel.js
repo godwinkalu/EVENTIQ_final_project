@@ -1,19 +1,38 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
-const  notificationvenueOwnerSchema = new mongoose.Schema({
+const notificationSchema = new mongoose.Schema({
   venueId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Venue',
+    ref: 'venues',
   },
-  venueOwnerId: {
+  clientId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'venueOwners',
+    ref: 'clients',
   },
-   notificationMsg: {
+  BookingId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'venuebookings',
+  },
+  notificationTitle: {
     type: String,
-    enum: ['newBookings', 'paymentReceived', 'eventReminder'],
+    required: true,
+    enum: ['New Booking Request', 'Payment Received', 'Venue Verified', 'Welcome To Eventiq'],
   },
-});
+  notificationMsg: {
+    type: String,
+    required: true
+  },
+  time: {
+    type: String,
+    required: true
+  },
+  dot: {
+    type: String,
+    required: true,
+    enum: ['#800080', '#ffa500', '#808080', '#008000', '#ff0000']
+  }
+}, {timestamps: true})
 
-const notificationvenueOwner = mongoose.model('notificationvenueOwner', notificationvenueOwnerSchema);
-module.exports = notificationvenueOwner;
+const notificationvenueownerModel = mongoose.model('venueowner-notifications', notificationSchema)
+
+module.exports = notificationvenueownerModel
