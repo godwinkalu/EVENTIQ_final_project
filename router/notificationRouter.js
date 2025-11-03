@@ -1,9 +1,5 @@
 const express = require('express');
-const {
-  getClientNotifications,
-  markAsRead,
-  deleteNotification
-} = require('../controller/notificationclientController');
+const { getVenueownerNotifications, getClientNotifications } = require('../controller/notificationcController');
 const { authentication } = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -25,5 +21,23 @@ const router = express.Router();
  *         description: Notifications not found
  */
 router.get('/client-notifications', authentication, getClientNotifications);
+
+
+
+/**
+ * @swagger
+ * /venueowner-notifications:
+ *   get:
+ *     summary: Get all notifications for the logged-in venue owner
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Notifications retrieved successfully
+ *       404:
+ *         description: Notifications not found
+ */
+router.get('/venueowner-notifications', authentication, getVenueownerNotifications);
 
 module.exports = router;
