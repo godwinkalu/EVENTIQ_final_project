@@ -8,28 +8,28 @@ const businessinfomationSchema = new mongoose.Schema({
       },
    businessname:{
     type:String,
-    required:true
+    default: ''
    },
    rcnumber:{
     type:Number,
-    required:true
+    default: ''
    },
    businessphonenumber:{
    type:Number,
-   required:true
-   },
-   businessadress:{
-   type:Number,
-   required:true
+   default: ''
    },
   location: {
       state: {
         type: String,
-        required: true,
+        default: ''
       },
-      localgovernmentarea: {
+      lga: {
         type: String,
-        required: true,
+        default: ''
+      },
+      address: {
+        type: String,
+        default: ''
       },
     },
 }, {timestamps:true})

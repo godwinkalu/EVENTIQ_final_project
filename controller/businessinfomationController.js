@@ -1,56 +1,68 @@
 const businessinfomationModel = require('../models/businessinfomationModel');
+const venueOwnerModel = require('../models/venueOwnerModel')
+const jwt = require('jsonwebtoken')
 
 exports.updateBusinessInfo = async (req, res, next) => {
   try {
-    const venueOwnerId = req.user.id; 
-    const {businessname,businessphonenumber,businessadress, rcnumber,} = req.body;
+    const { id } = req.user;
+    const { businessname, businessphonenumber, address, rcnumber, state, lga } = req.body;
+    const venueOwner = await venueOwnerModel.findById(id)
 
-    const businessInfo = await businessinfomationModel.findOne({ venueOwnerId });
-
-    if (businessInfo) {
-
-       const location = {
-      state: state ? state.trim() : '',
-       city: city ? city.trim() : '',
+    if (!venueOwner) {
+      return res.status(404).json({
+        message: 'Venue owner not found'
+      })
     }
-      const data = {
-        venueOwnerId:venueOwner._id,
-        businessname,
-        businessphonenumber,
-        businessadress,
-         rcnumber,
-         location
+
+    
+
+    if (existBusinessInfo) {
+      return res.status(400).json({
+        message: 'Business info created already'
+      })
+    }
+
+    const businessInfo = new businessinfomationModel({
+      venueOwnerId: venueOwner._id,
+      businessname,
+      rcnumber,
+      businessphonenumber,
+      location: {
+        state: state,
+        lga: lga,
+        address: address
       }
-      businessInfo = await businessinfomationModel.findOneAndUpdate({ venueOwnerId },  data,{ new: true }
-      );
-      
-      return res.status(200).json({
-        message: 'Business information updated successfully',
-        data: businessInfo,
-      });
-    } else {
-      updates.venueOwnerId = venueOwnerId;
-      const newBusinessInfo = await businessinfomationModel.create(updates);
-      return res.status(201).json({
-        message: 'Business information created successfully',
-        data: newBusinessInfo,
-      });
-    }
+    })
+
+    await businessInfo.save()
+    res.status(200).json({
+      message: 'Business information created successfully',
+      data: businessInfo,
+    });
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue',
+        data: businessInfo,
+      })
+    }
     next(error);
   }
 };
+
+
 exports.getMyBusinessInfo = async (req, res, next) => {
   try {
-    const venueOwnerId = req.user.id;
+     const { id } = req.user;
+    const venueOwner = await venueOwnerModel.findById(id)
 
-    const businessInfo = await businessinfomationModel.findOne({ venueOwnerId });
-
-    if (!businessInfo) {
+    if (!venueOwner) {
       return res.status(404).json({
-        message: 'No business information found for this venue owner',
-      });
+        message: 'Venue owner not found'
+      })
     }
+
+    const businessInfo = await businessinfomationModel.findOne({ venueOwnerId: venueOwner._id });
 
     res.status(200).json({
       message: 'Business information retrieved successfully',
