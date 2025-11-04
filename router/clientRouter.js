@@ -1,4 +1,4 @@
-const {signUp, getClients, getClient, deleteClient, getAllClientBooking, getAllVerifiedVenues, getAllVerifiedIndoors, getAllVerifiedOutdoor, getAllVerifiedMulti} = require('../controller/clientController');
+const {signUp, getClients, getClient, deleteClient, getAllClientBooking, getAllVerifiedVenues, getAllVerifiedIndoors, getAllVerifiedOutdoor, getAllVerifiedMulti, search} = require('../controller/clientController');
 const { authentication } = require('../middleware/authMiddleware');
 
 const router = require('express').Router();
@@ -570,7 +570,8 @@ router.get('/allvenues-outdoor', authentication, getAllVerifiedOutdoor)
  *       500:
  *         description: Server error
  */
-
 router.get('/allvenues-multipurpose', authentication, getAllVerifiedMulti)
+
+router.get('/search', search)
 
 module.exports = router
