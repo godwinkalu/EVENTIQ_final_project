@@ -327,26 +327,6 @@ exports.getAllVerifiedMulti = async (req, res, next) => {
   }
 }
 
-// exports.search = async (req, res, next) => {
-//   try {
-//     const {...type} = req.body;
-//     console.log(type.data.toLowerCase());
-    
-//     if (Object.values(type).length === 0) {
-//       return res.status(400).json({
-//         message: 'Input cannot be empty'
-//       })
-//     }
-
-//     const venue = await venueModel.findOne({description: type.data}) || await venueModel.findOne({venuename: type.data}) || await venueModel.findOne({'location.city': type.data}) || await venueModel.findOne({'capacity.maximum': type.data}) || await venueModel.findOne({hallsize: type.data}) || await venueModel.findOne({price: type.data}) || await venueModel.findOne({type: type.data.toLowerCase()}) || await venueModel.findOne({isavailable: type.data});
-
-//     console.log(venue);
-    
-//   } catch (error) {
-//     next(error)
-//   }
-// }
-
 
 exports.search = async (req, res, next) => {
   try {
