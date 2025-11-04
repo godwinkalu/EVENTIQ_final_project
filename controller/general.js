@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 const { signUpTemplate } = require('../utils/emailTemplate')
 const { emailSender } = require('../middleware/nodemalier')
 const bcrypt = require('bcrypt')
-
+const Brevo = require('@getbrevo/brevo')
 
 exports.verify = async (req, res, next) => {
   const { email, otp } = req.body
@@ -72,18 +72,18 @@ exports.resendOtp = async (req, res, next) => {
     user.otp = newOtp
     user.otpExpiredat = Date.now() + 2 * 60 * 1000
     await user.save()
+    const apikey = process.env.brevo
+    const apiInstance = new Brevo.TransactionalEmailsApi()
+    apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
 
-    if (`${req.protocol}://${req.get('host')}`.startsWith('http://localhost')) {
-      const emailOptions = {
-        email: user.email,
-        subject: 'Verify Email',
-        html: signUpTemplate(newOtp, user.firstName),
-      }
+    const sendSmtpEmail = new Brevo.SendSmtpEmail()
+    sendSmtpEmail.subject = 'Welcome to Eventiq'
+    sendSmtpEmail.to = [{ email: user.email }]
+    sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
 
-      emailSender(emailOptions)
-    } else {
-    }
+    sendSmtpEmail.htmlContent = signUpTemplate(newOtp, user.firstName)
 
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     res.status(200).json({
       message: 'OTP resent successfully',
     })
@@ -94,10 +94,12 @@ exports.resendOtp = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body
-
   try {
-    const user = await venueOwnerModel.findOne({ email: email.toLowerCase() }) || await clientModel.findOne({ email: email.toLowerCase() }) ||await adminModel.findOne({ email: email.toLowerCase() })
-   
+    const user =
+      (await venueOwnerModel.findOne({ email: email.toLowerCase() })) ||
+      (await clientModel.findOne({ email: email.toLowerCase() })) ||
+      (await adminModel.findOne({ email: email.toLowerCase() }))
+
     if (!user) {
       return res.status(404).json({
         message: 'User not found',
@@ -127,7 +129,7 @@ exports.login = async (req, res, next) => {
     )
 
     await user.save()
-    const {otp, otpExpiredat, isVerified, isLoggedIn, createdAt, updatedAt, __v, ...data} = user.toObject();
+    const { otp, otpExpiredat, isVerified, isLoggedIn, createdAt, updatedAt, __v, ...data } = user.toObject()
     res.status(200).json({
       message: 'Logged in successfully',
       data,
@@ -201,8 +203,7 @@ exports.forgotPassword = async (req, res, next) => {
     user.otpExpiredat = Date.now() + 2 * 60 * 1000
     await user.save()
 
-    console.log("Hosted url",`${req.protocol}://${req.get('host')}`);
-    
+    console.log('Hosted url', `${req.protocol}://${req.get('host')}`)
 
     if (`${req.protocol}://${req.get('host')}`.startsWith('http://localhost')) {
       const emailOptions = {
@@ -257,74 +258,73 @@ exports.resetPassword = async (req, res, next) => {
 
 exports.updatePhoneNumber = async (req, res, next) => {
   try {
-    const { id } = req.user;
+    const { id } = req.user
     const user =
       (await venueOwnerModel.findById(id)) ||
       (await clientModel.findById(id)) ||
       (await adminModel.findById(id))
-    const { phoneNumber } = req.body;
+    const { phoneNumber } = req.body
 
     if (!user) {
       return res.status(404).json({
         message: 'Venue owner not found',
-      });
-    };
+      })
+    }
 
-    user.phoneNumber = phoneNumber ?? user.phoneNumber;
-    await user.save();
+    user.phoneNumber = phoneNumber ?? user.phoneNumber
+    await user.save()
     res.status(200).json({
       message: 'Phone number updated successfully',
-    });
+    })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
-        message: 'Session expired, login to continue'
+        message: 'Session expired, login to continue',
       })
     }
-    next(error);
+    next(error)
   }
-};
-
+}
 
 exports.updateProfile = async (req, res, next) => {
   try {
-    const { id } = req.user;
+    const { id } = req.user
     const user =
       (await venueOwnerModel.findById(id)) ||
       (await clientModel.findById(id)) ||
       (await adminModel.findById(id))
-    const file = req.file;
+    const file = req.file
 
     if (!user) {
       return res.status(404).json({
         message: 'Venue owner not found',
-      });
-    };
+      })
+    }
 
-    let profilePicture = user.profilePicture;
+    let profilePicture = user.profilePicture
 
     if (file && file.path) {
-      const response = await cloudinary.uploader.upload(file.path);
+      const response = await cloudinary.uploader.upload(file.path)
       fs.unlinkSync(file.path)
       profilePicture = {
         url: response.secure_url,
-        publicId: response.public_id
+        publicId: response.public_id,
       }
     }
 
     Object.assign(user, {
-      profilePicture
-    });
-    await user.save();
+      profilePicture,
+    })
+    await user.save()
     res.status(200).json({
       message: 'Profile picture updated successfully',
-    });
+    })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
-        message: 'Session expired, login to continue'
+        message: 'Session expired, login to continue',
       })
     }
-    next(error);
+    next(error)
   }
-};
+}
