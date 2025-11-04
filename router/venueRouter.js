@@ -65,10 +65,10 @@ const upload = require('../middleware/multer')
  *                 type: string
  *                 example: "Indoor"
  *               amenities:
- *                 type: string
+ *                 type: array
  *                 items:
- *                   type: string
- *                 example: "Air Conditioning, Parking Space, Sound System"
+ *                   type: [string]
+ *                 example: ["Air Conditioning", "Parking Space", "Sound System"]
  *               cautionfee:
  *                 type: number
  *                 example: 50000
@@ -251,7 +251,7 @@ router.get('/getOneVenue/:id', getOnevenue)
  *               name: Updated Hall
  *               capacity: 300
  *               price: 200000
- *               amenities: WiFi, Chairs, Parking
+ *               amenities: ["WiFi", "Chairs", "Parking"]
  *     responses:
  *       200:
  *         description: Venue updated successfully
