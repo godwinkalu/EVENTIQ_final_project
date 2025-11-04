@@ -47,11 +47,11 @@ const venueSchema = new mongoose.Schema(
     },
     capacity: {
       minimum: {
-        type: Number,
+        type: String,
         required: true,
       },
       maximum: {
-        type: Number,
+        type: String,
         required: true,
       },
     },
