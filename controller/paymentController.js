@@ -181,11 +181,12 @@ exports.initializeBookingPayment = async (req, res, next) => {
       }
     )
 
-    const bookingPayment = await bookingPaymentModel.create({
+    const bookingPayment = bookingPaymentModel({
       venuebookingId: venue._id,
       clientId: client._id,
-      reference: data.reference,
+      reference: reference
     })
+    await bookingPayment.save()
     res.status(200).json({
       message: 'Payment initialized',
       data: data.data,
@@ -194,6 +195,7 @@ exports.initializeBookingPayment = async (req, res, next) => {
     next(error)
   }
 }
+
 
 exports.verifyPayment = async (req, res, next) => {
   try {

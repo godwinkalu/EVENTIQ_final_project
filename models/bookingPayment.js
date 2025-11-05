@@ -11,7 +11,7 @@ const paymentSchema = new mongoose.Schema(
       ref: 'clients',
     },
     reference: {
-      type: String,
+      type: String
     },
     status: {
       type: String,
