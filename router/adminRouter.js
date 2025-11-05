@@ -1025,35 +1025,36 @@ router.get('/venue-verifiy/:id', authorize, verifiyVenue)
  * @swagger
  * /venue-unverified/{venueId}:
  *   post:
- *     summary: Unverify a venue
- *     description: Admin can unverify a venue and optionally include a reason for unverification.  
- *                  A notification email will be sent to the venue owner.
+ *     summary: Unverify a specific venue
+ *     description: Allows an admin to mark a venue as **unverified** and sends an email notification to the venue owner.
  *     tags:
  *       - Admin
  *     security:
- *       - bearerAuth: []   # Requires admin authorization token
+ *       - bearerAuth: []   # Admin must be logged in
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: venueId
  *         required: true
- *         description: The unique ID of the venue to unverify.
+ *         description: The ID of the venue to be marked as unverified
  *         schema:
  *           type: string
- *           example: 67305c19bfa2f4f3a6df2320
+ *           example: 671b245f5a7cfe52d3fae342
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - reason
  *             properties:
  *               reason:
  *                 type: string
- *                 description: Reason for unverifying the venue.
- *                 example: Missing legal documents or unclear ownership details.
+ *                 description: The reason for unverifying the venue
+ *                 example: Venue failed verification due to incomplete CAC documentation.
  *     responses:
  *       200:
- *         description: Venue successfully unverified.
+ *         description: Venue marked as unverified successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -1063,7 +1064,7 @@ router.get('/venue-verifiy/:id', authorize, verifiyVenue)
  *                   type: string
  *                   example: venue unverified successfully
  *       400:
- *         description: Session expired or invalid token.
+ *         description: Session expired or invalid token
  *         content:
  *           application/json:
  *             schema:
@@ -1073,7 +1074,7 @@ router.get('/venue-verifiy/:id', authorize, verifiyVenue)
  *                   type: string
  *                   example: session expired please login to continue
  *       404:
- *         description: Admin, venue, or venue owner not found.
+ *         description: Admin, venue, or venue owner not found
  *         content:
  *           application/json:
  *             schema:
@@ -1083,7 +1084,15 @@ router.get('/venue-verifiy/:id', authorize, verifiyVenue)
  *                   type: string
  *                   example: venue not found
  *       500:
- *         description: Internal server error.
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: An unexpected error occurred
  */
 router.post('/venue-unverified/:venueId', authorize, unverifiedVenue)
 

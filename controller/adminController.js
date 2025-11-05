@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt')
 const venueOwnerModel = require('../models/venueOwnerModel')
 const venueModel = require('../models/venueModel')
 const jwt = require('jsonwebtoken')
+const Brevo = require('@getbrevo/brevo')
+const { signUpTemplate } = require('../utils/emailTemplate')
 
 exports.signUp = async (req, res, next) => {
   const { firstName, surname, phoneNumber, email, password } = req.body
@@ -337,11 +339,7 @@ exports.unverifiedVenue = async (req, res, next) => {
     const { venueId } = req.params
     const { reason } = req.body
     const venue = await venueModel.findById(venueId)
-    console.log("how:",venue);
-    
     const venueowner = await venueOwnerModel.findOne({ _id: venue.venueOwnerId })
-    console.log(venueowner);
-    
     if (!venue) {
       return res.status(404).json({
         message: 'venue not found',
@@ -364,7 +362,7 @@ exports.unverifiedVenue = async (req, res, next) => {
     sendSmtpEmail.to = [{ email: venueowner.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
 
-    sendSmtpEmail.htmlContent = signUpTemplate(otp, venueowner.firstName)
+    sendSmtpEmail.htmlContent = signUpTemplate(reason, venueowner.firstName)
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     res.status(200).json({
