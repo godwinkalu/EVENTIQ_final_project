@@ -51,12 +51,19 @@ exports.createvenuebooking = async (req, res, next) => {
     const serviceCharge = +(0.1 * basePrice).toFixed(2)
     const totalAmount = basePrice + serviceCharge
 
+    const [day, month, year] = date.split('/')
+    const jsDate = new Date(`${month} ${day}, ${year}`).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+
     //  Create booking
     const newBooking = new venuebookingModel({
       venueId: venue._id,
       clientId: client._id,
       venueOwnerId: venue.venueOwnerId,
-      date,
+      date: jsDate,
       totalamount: totalAmount,
       servicecharge: serviceCharge,
       numberofguests,
@@ -84,14 +91,13 @@ exports.createvenuebooking = async (req, res, next) => {
   }
 }
 
-
 exports.acceptedBooking = async (req, res, next) => {
   try {
     const { id } = req.user
     const { bookingId } = req.params
     const venueOwner = await venueOwnerModel.findById(id)
     const venueBooking = await venuebookingModel.findById(bookingId).populate('clientId')
-    const client = await clientModel.findById(venueBooking.clientId);
+    const client = await clientModel.findById(venueBooking.clientId)
     const venue = await venueModel.findById(venueBooking.venueId)
 
     if (!venueOwner) {
@@ -137,13 +143,12 @@ exports.acceptedBooking = async (req, res, next) => {
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
-        message: 'Session expired, login to continue'
+        message: 'Session expired, login to continue',
       })
     }
     next(error)
   }
 }
-
 
 exports.rejectedBooking = async (req, res, next) => {
   try {
@@ -152,7 +157,7 @@ exports.rejectedBooking = async (req, res, next) => {
     const { reason } = req.body
     const venueOwner = await venueOwnerModel.findById(id)
     const venueBooking = await venuebookingModel.findById(bookingId).populate('clientId')
-    const client = await clientModel.findById(venueBooking.clientId);
+    const client = await clientModel.findById(venueBooking.clientId)
     const venue = await venueModel.findById(venueBooking.venueId)
 
     if (!venueOwner) {
@@ -189,7 +194,7 @@ exports.rejectedBooking = async (req, res, next) => {
       notificationTitle: 'Booking Rejected',
       notificationMsg: `Your booking request at ${venue.venuename} has been confirmed for ${venueBooking.date}.`,
       dot: '#ff0000',
-      time: new Date()
+      time: new Date(),
     })
 
     const apikey = process.env.brevo
@@ -207,7 +212,7 @@ exports.rejectedBooking = async (req, res, next) => {
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
-        message: 'Session expired, login to continue'
+        message: 'Session expired, login to continue',
       })
     }
     next(error)

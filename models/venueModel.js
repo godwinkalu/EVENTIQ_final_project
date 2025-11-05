@@ -4,7 +4,7 @@ const venueSchema = new mongoose.Schema(
   {
     venueOwnerId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'venueOwners',
+      ref: 'venue-owner',
       required: true,
     },
     venuename: {
@@ -47,11 +47,11 @@ const venueSchema = new mongoose.Schema(
     },
     capacity: {
       minimum: {
-        type: Number,
+        type: String,
         required: true,
       },
       maximum: {
-        type: Number,
+        type: String,
         required: true,
       },
     },
@@ -69,7 +69,8 @@ const venueSchema = new mongoose.Schema(
       enum: ['indoor', 'outdoor', 'multipurpose'],
     },
     amenities: {
-      type: String,
+      type: [String],
+      required: true
     },
     documents: {
       images: [

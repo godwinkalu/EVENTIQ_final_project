@@ -58,16 +58,20 @@ exports.authorize = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-    const user =
-      (await clientModel.findById(decoded.id)) ||
-      (await venueOwnerModel.findById(decoded.id)) ||
-      (await adminModel.findById(decoded.id))
-    if (!user) {
+    const admin = await adminModel.findById(decoded.id)
+    if (!admin) {
       return res.status(404).json({
-        message: 'Authorization failed, User not found',
+        message: 'Authorization failed, your not an admin',
       })
     }
-    if (user.role === 'admin') {
+
+    if (admin.isLoggedIn !== decoded.isLoggedIn) {
+      return res.status(404).json({
+        message: 'Authentication failed: Please login to continue',
+      })
+    }
+
+    if (admin.role !== 'admin') {
       return res.status(404).json({
         message: 'Authorization failed: Contact Admin',
       })

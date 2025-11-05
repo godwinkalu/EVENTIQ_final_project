@@ -70,9 +70,9 @@ exports.signUp = async (req, res, next) => {
       notificationTitle: 'Welcome To Eventiq',
       notificationMsg: 'Start exploring amazing event venues across Lagos.',
       dot: '#808080',
-      time: new Date()
+      time: new Date(),
     })
-  
+
     return res.status(201).json({
       message: 'Client created successfully',
     })
@@ -326,3 +326,45 @@ exports.getAllVerifiedMulti = async (req, res, next) => {
     next(error)
   }
 }
+
+
+exports.search = async (req, res, next) => {
+  try {
+    const { data } = req.body;
+
+    if (!data || data.trim() === '') {
+      return res.status(400).json({
+        message: 'Input cannot be empty',
+      });
+    }
+
+    const searchTerm = data.toLowerCase();
+
+    const venues = await venueModel.find({
+      $or: [
+        { description: { $regex: searchTerm, $options: 'i' } },
+        { venuename: { $regex: searchTerm, $options: 'i' } },
+        { 'location.city': { $regex: searchTerm, $options: 'i' } },
+        { 'capacity.maximum': searchTerm },
+        { hallsize: { $regex: searchTerm, $options: 'i' } },
+        { price: searchTerm },
+        { type: { $regex: searchTerm, $options: 'i' } },
+        { isavailable: searchTerm },
+      ],
+    });
+
+    if (venues.length === 0) {
+      return res.status(404).json({
+        message: 'No venues found matching your search term',
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Venues found successfully',
+      total: venues.length,
+      data: venues,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
