@@ -3,8 +3,7 @@ const {
   createVenue,
   getOnevenue,
   updateVenue,
-  deleteVenue,
-  uploadDoc,
+  deleteVenue
 } = require('../controller/venueController')
 const { authentication } = require('../middleware/authMiddleware')
 
