@@ -14,6 +14,7 @@ const {
   allVenuesPending,
   verifiyVenue,
   unverifiedVenue,
+  VenuesOwner,
 } = require('../controller/adminController')
 const { authentication, authorize } = require('../middleware/authMiddleware')
 
@@ -990,4 +991,95 @@ router.get('/venue-verifiy/:id', authorize, verifiyVenue)
  */
 router.post('/venue-unverified/:venueId', authorize, unverifiedVenue)
 
+/**
+ * @swagger
+ * /ownervenue:
+ *   get:
+ *     summary: Get all venues owned by the logged-in venue owner
+ *     description: Retrieves all venues created by the authenticated venue owner.
+ *     tags:
+ *       - Venue Owner
+ *     security:
+ *       - bearerAuth: []   # Requires authentication token
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved all venues owned by the user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All venues listed
+ *                 total:
+ *                   type: integer
+ *                   example: 3
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 67201c62f5e7b34328e4dabc
+ *                       venuename:
+ *                         type: string
+ *                         example: Crystal Event Hall
+ *                       description:
+ *                         type: string
+ *                         example: A spacious hall for weddings and conferences.
+ *                       price:
+ *                         type: number
+ *                         example: 500000
+ *                       type:
+ *                         type: string
+ *                         example: indoor
+ *                       status:
+ *                         type: string
+ *                         example: verified
+ *                       location:
+ *                         type: object
+ *                         properties:
+ *                           street:
+ *                             type: string
+ *                             example: 14 Admiralty Way
+ *                           city:
+ *                             type: string
+ *                             example: Lagos
+ *                           state:
+ *                             type: string
+ *                             example: Lagos
+ *       400:
+ *         description: Invalid or expired token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: session expired please login to continue
+ *       404:
+ *         description: Venue owner not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: venueowner not found
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
+router.get('/ownervenue', authentication, VenuesOwner)
 module.exports = router

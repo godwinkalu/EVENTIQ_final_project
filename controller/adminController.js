@@ -171,6 +171,57 @@ exports.getAllListed = async (req, res, next) => {
   }
 }
 
+exports.VenuesOwner = async (req, res, next) => {
+  try {
+    const id = req.user.id
+    const venueowner = await venueOwnerModel.findById(id)
+    if (!venueowner) {
+      return res.status(404).json({
+        message: 'venueowner not found',
+      })
+    }
+    const venues = await venueModel.find({venueOwnerId:venueowner._id})
+    res.status(200).json({
+      message: 'All venues listed',
+      data: venues,
+      total: venues.length,
+    })
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'session expired please login to continue',
+      })
+    }
+    next(error)
+  }
+}
+
+
+exports.allVenues = async (req, res, next) => {
+  try {
+    const adminid = req.user.id
+    const admin = await adminModel.findById(adminid)
+    if (!admin) {
+      return res.status(404).json({
+        message: 'admin not found',
+      })
+    }
+    const venues = await venueModel.find()
+    res.status(200).json({
+      message: 'All venues listed',
+      data: venues,
+      total: venues.length,
+    })
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'session expired please login to continue',
+      })
+    }
+    next(error)
+  }
+}
+
 exports.allVenuesVerified = async (req, res, next) => {
   try {
     const adminid = req.user.id
