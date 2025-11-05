@@ -198,7 +198,8 @@ exports.initializeBookingPayment = async (req, res, next) => {
 exports.verifyPayment = async (req, res, next) => {
   try {
     const { event, data } = req.body
-
+    console.log('event:', event)
+    console.log('data:', data)
     if (!event || !data) {
       res.status(400).json({
         message: 'Error retrieving response from kora pay',
@@ -206,7 +207,7 @@ exports.verifyPayment = async (req, res, next) => {
     }
 
     const payment = await paymentModel.findOne({ reference: data.reference })
-    const venueBooking = await venuebookingModel.findOne({_id: payment.venuebookingId})
+    const venueBooking = await venuebookingModel.findOne({ _id: payment.venuebookingId })
 
     if (!payment) {
       return res.status(404).json({
@@ -223,20 +224,20 @@ exports.verifyPayment = async (req, res, next) => {
     if (event === 'charge.success' && data.status === 'success') {
       payment.status = successful
       venueBooking.paymentstatus = 'paid'
-      await payment.save();
+      await payment.save()
       await venueBooking.save()
       res.status(200).json({
-        messagwe: 'Payment verified successful'
+        messagwe: 'Payment verified successful',
       })
-    }else if(event === 'charge.failed' && data.status === 'failed'){
+    } else if (event === 'charge.failed' && data.status === 'failed') {
       payment.status = failed
       venueBooking.paymentstatus = 'failed'
-      await payment.save();
+      await payment.save()
       await venueBooking.save()
       res.status(200).json({
-        messagwe: 'Payment failed via webhook'
+        messagwe: 'Payment failed via webhook',
       })
-    }else if(event === 'charge.failed' && data.status === 'failed'){
+    } else if (event === 'charge.failed' && data.status === 'failed') {
     }
   } catch (error) {
     next(error)
