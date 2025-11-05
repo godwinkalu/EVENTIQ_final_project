@@ -61,7 +61,7 @@ exports.authorize = async (req, res, next) => {
     const admin = await adminModel.findById(decoded.id)
     if (!admin) {
       return res.status(404).json({
-        message: 'Authorization failed, User not found',
+        message: 'Authorization failed, your not an admin',
       })
     }
 
