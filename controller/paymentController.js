@@ -169,11 +169,7 @@ exports.initializeBookingPayment = async (req, res, next) => {
       currency: 'NGN',
       amount: venue.price,
       reference: reference,
-      redirect_url: 'https://eventiq-final-project.onrender.com/verify  ',
-
-
-  }
-
+    }
 
     const { data } = await axios.post(
       'https://api.korapay.com/merchant/api/v1/charges/initialize',
@@ -227,13 +223,21 @@ exports.verifyPayment = async (req, res, next) => {
     if (event === 'charge.success' && data.status === 'success') {
       payment.status = successful
       venueBooking.paymentstatus = 'paid'
+      await payment.save();
+      await venueBooking.save()
+      res.status(200).json({
+        messagwe: 'Payment verified successful'
+      })
     }else if(event === 'charge.failed' && data.status === 'failed'){
       payment.status = failed
       venueBooking.paymentstatus = 'failed'
+      await payment.save();
+      await venueBooking.save()
+      res.status(200).json({
+        messagwe: 'Payment failed via webhook'
+      })
+    }else if(event === 'charge.failed' && data.status === 'failed'){
     }
-
-    await payment.save();
-    await venueBooking.save()
   } catch (error) {
     next(error)
   }
