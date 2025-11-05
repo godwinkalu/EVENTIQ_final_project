@@ -145,7 +145,7 @@ exports.createVenue = async (req, res, next) => {
 exports.getOnevenue = async (req, res, next) => {
   try {
     const { id } = req.params
-    const venue = await venueModel.findById(id).populate('venueOwnerId', 'fullname email phoneNumber')
+    const venue = await venueModel.findById(id)
     if (!venue) {
       return res.status(404).json({
         message: 'Venue not found',
