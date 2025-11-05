@@ -149,7 +149,7 @@ exports.getAllListed = async (req, res, next) => {
   try {
     const { id } = req.user
     const user = (await venueOwnerModel.findById(id)) || (await adminModel.findById(id))
-    const venues = await venueModel.find({ status: { $in: ['verified', 'pending'] } })
+    const venues = await venueModel.find()
 
     if (!user) {
       return res.status(404).json({
@@ -160,31 +160,6 @@ exports.getAllListed = async (req, res, next) => {
     res.status(200).json({
       message: 'All venues retrieved successfully',
       data: venues,
-    })
-  } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(400).json({
-        message: 'session expired please login to continue',
-      })
-    }
-    next(error)
-  }
-}
-
-exports.allVenues = async (req, res, next) => {
-  try {
-    const adminid = req.user.id
-    const admin = await adminModel.findById(adminid)
-    if (!admin) {
-      return res.status(404).json({
-        message: 'admin not found',
-      })
-    }
-    const venues = await venueModel.find()
-    res.status(200).json({
-      message: 'All venues listed',
-      data: venues,
-      total: venues.length,
     })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
