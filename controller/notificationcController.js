@@ -41,12 +41,9 @@ exports.getClientNotifications = async (req, res, next) => {
 
 exports.getVenueownerNotifications = async (req, res, next) => {
   try {
-    const { id } = req.user;
-    console.log(id);
-    
+    const { id } = req.user;    
     const venueOwner = await venueOwnerModel.findById(id);
-console.log(venueOwner);
-
+    
     if (!venueOwner) {
       return res.status(404).json({
         message: 'Venue owner not found'
