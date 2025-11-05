@@ -169,8 +169,11 @@ exports.initializeBookingPayment = async (req, res, next) => {
       currency: 'NGN',
       amount: venue.price,
       reference: reference,
-      notification_url: 'https://eventiq-final-project.onrender.com/verify',
-    }
+      redirect_url: 'https://eventiq-final-project.onrender.com/verify  ',
+
+
+  }
+
 
     const { data } = await axios.post(
       'https://api.korapay.com/merchant/api/v1/charges/initialize',
