@@ -236,6 +236,6 @@ router.get('/feature-payment/:featureId', authentication, initializeFeaturePayme
 router.get('/booking-payment/:clientId', initializeBookingPayment)
 
 
-router.post('/verify', verifyPayment)
+router.get('/verify', verifyPayment)
 
 module.exports = router;
