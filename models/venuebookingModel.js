@@ -20,6 +20,10 @@ const venuebookingSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    eventtype:{
+      type: String,
+      required: true,
+    },
     total: {
       type: Number,
       required: true,
@@ -42,10 +46,6 @@ const venuebookingSchema = new mongoose.Schema(
       type: String,
       enum: ['pending', 'confirmed', 'rejected'],
       default: 'pending',
-    },
-    numberofguests: {
-      type: Number,
-      default: 0,
     },
   },
   { timestamps: true }

@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken')
 
 exports.createvenuebooking = async (req, res, next) => {
   try {
-    const { date, numberofguests, days } = req.body
+    const { date, days, eventtype } = req.body
     const { venueId } = req.params
     const clientId = req.user.id
     const venue = await venueModel.findById(venueId)
@@ -37,6 +37,7 @@ exports.createvenuebooking = async (req, res, next) => {
       clientId: client._id,
       venueId: venue._id,
       bookingstatus: 'pending',
+      
     })
 
     if (existingBooking) {
@@ -56,16 +57,19 @@ exports.createvenuebooking = async (req, res, next) => {
       month: 'long',
       day: 'numeric',
     })
-
-    //  Create booking
+    console.log({ total: totalAmount * days,});
+    
+   //  Create booking
     const newBooking = new venuebookingModel({
       venueId: venue._id,
       clientId: client._id,
       venueOwnerId: venue.venueOwnerId,
       date: jsDate,
-      totalamount: totalAmount * days,
+      total: totalAmount * days,
+
+      
       servicecharge: serviceCharge,
-      numberofguests,
+      eventtype
     })
 
     await newBooking.save()

@@ -7,14 +7,14 @@ const {
 const { authentication } = require('../middleware/authMiddleware')
 const router = express.Router()
 
-
 /**
  * @swagger
  * /booking/{venueId}:
  *   post:
  *     summary: Create a new venue booking
- *     description: Allows a client to create a booking for a selected venue.
- *     tags: [Bookings]
+ *     description: Allows a client to book a specific venue by providing the event date, duration, and event type.
+ *     tags:
+ *       - [Bookings]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -23,7 +23,7 @@ const router = express.Router()
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the venue being booked
+ *         description: The ID of the venue to be booked.
  *     requestBody:
  *       required: true
  *       content:
@@ -32,22 +32,79 @@ const router = express.Router()
  *             type: object
  *             required:
  *               - date
- *               - numberofguests
+ *               - days
+ *               - eventtype
  *             properties:
  *               date:
  *                 type: string
- *                 format: date
- *                 example: 2025-11-05
- *               numberofguests:
- *                 type: integer
- *                 example: 120
+ *                 example: "12/06/2025"
+ *                 description: The date of the event (format DD/MM/YYYY).
+ *               days:
+ *                 type: number
+ *                 example: 2
+ *                 description: The number of days the venue is booked for.
+ *               eventtype:
+ *                 type: string
+ *                 example: "Wedding"
+ *                 description: The type of event being hosted.
  *     responses:
  *       201:
- *         description: Venue booked successfully
+ *         description: Venue booked successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Venue booked successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: "672f89a12d93af001fcbcc12"
+ *                     venueId:
+ *                       type: string
+ *                       example: "672e1c121e5a23001fbcdd34"
+ *                     clientId:
+ *                       type: string
+ *                       example: "672d7a8b43f672001eacdd09"
+ *                     venueOwnerId:
+ *                       type: string
+ *                       example: "672e7a2e56b7cd001fcdcc80"
+ *                     date:
+ *                       type: string
+ *                       example: "June 12, 2025"
+ *                     totalamount:
+ *                       type: number
+ *                       example: 55000
+ *                     servicecharge:
+ *                       type: number
+ *                       example: 5000
+ *                     eventtype:
+ *                       type: string
+ *                       example: "Wedding"
  *       400:
- *         description: Venue already booked or invalid request
+ *         description: Invalid input or user not authorized.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Only client can book for venue
  *       404:
- *         description: Venue or client not found
+ *         description: Venue, client, or owner not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Venue not found
  */
 router.post('/booking/:venueId', authentication, createvenuebooking)
 
