@@ -86,7 +86,7 @@ exports.createVenueOwner = async (req, res, next) => {
 
 exports.getAllVenueOwners = async (req, res, next) => {
   try {
-    const owners = await venueOwnerModel.find().select('-password -otp -password -phoneNumber -isVerified -role  -isLoggedIn');
+    const owners = await venueOwnerModel.find().select('-password -otp -password  -isVerified -isLoggedIn');
     res.status(200).json({
       message: 'All venue owners retrieved successfully',
       data: owners,
@@ -101,7 +101,7 @@ exports.getVenueOwner = async (req, res, next) => {
   try {
     const { id } = req.params;
     
-    const owner = await venueOwnerModel.findById(id).select('-password -otp -password -phoneNumber -isVerified -role -isLoggedIn');
+    const owner = await venueOwnerModel.findById(id).select('-password -otp -password  -isVerified -isLoggedIn');
 
     console.log(owner);
     
@@ -229,7 +229,12 @@ exports.paymentHistory = async (req, res, next) =>{
       })
     }
 
-    const payments = await paymentModel.find({venuebookingId:venueBooking._id}).populate('') .sort({createdAt:-1})
+    const payments = await paymentModel.find({venuebookingId:venueBooking._id}).populate('venueId', 'venuename price').populate('clientId', 'firstName surname').populate('venuebookingId', 'date').sort({createdAt:-1})
+    
+    res.status(200).json({
+      message: 'All Payment History',
+      data: payments
+    })
   } catch (error) {
         if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({

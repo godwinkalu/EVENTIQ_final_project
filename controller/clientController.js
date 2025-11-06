@@ -86,7 +86,7 @@ exports.getClients = async (req, res, next) => {
   try {
     const clients = await clientModel
       .find()
-      .select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v -isLoggedIn -phoneNumber')
+      .select('-password -isVerified -otp -otpExpiredat -__v -isLoggedIn')
 
     res.status(200).json({
       message: 'Clients fetched',
@@ -102,7 +102,7 @@ exports.getClient = async (req, res, next) => {
     const { id } = req.params
     const client = await clientModel
       .findById(id)
-      .select('-password -phoneNumber -isVerified -role -otp -otpExpiredat -__v - isLoggedIn -phoneNumber')
+      .select('-password -isVerified -otp -otpExpiredat -__v - isLoggedIn')
 
     if (!client) {
       return res.status(404).json({
