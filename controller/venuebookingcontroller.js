@@ -42,6 +42,11 @@ exports.createvenuebooking = async (req, res, next) => {
       date:date
     })
 
+    if (!eventType) {
+      return res.status(400).json({
+        message:'Event Type is required'
+      })
+    }
     if (existingBooking) {
       return res.status(400).json({
         message: 'Venue is already booked for the selected date by this user',
