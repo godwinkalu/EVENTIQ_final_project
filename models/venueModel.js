@@ -109,6 +109,7 @@ const venueSchema = new mongoose.Schema(
       type: String,
       enum: ['pending', 'unverified', 'verified'],
       default: 'pending',
+      lowercase: true
     },
   },
   { timestamps: true }

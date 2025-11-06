@@ -197,8 +197,9 @@ exports.allVenues = async (req, res, next) => {
   }
 }
 
-exports.allVenuesVerified = async (req, res, next) => {
+exports.allVenueStatus = async (req, res, next) => {
   try {
+    const status = req.query.status;
     const adminid = req.user.id
     const admin = await adminModel.findById(adminid)
     if (!admin) {
@@ -206,7 +207,7 @@ exports.allVenuesVerified = async (req, res, next) => {
         message: 'admin not found',
       })
     }
-    const venues = await venueModel.find({ status: 'verified' })
+    const venues = await venueModel.find({ status: `${status.toLowerCase()}` })
     res.status(200).json({
       message: 'All venues listed',
       data: venues,
@@ -222,30 +223,6 @@ exports.allVenuesVerified = async (req, res, next) => {
   }
 }
 
-exports.allVenuesUnverified = async (req, res, next) => {
-  try {
-    const adminid = req.user.id
-    const admin = await adminModel.findById(adminid)
-    if (!admin) {
-      return res.status(404).json({
-        message: 'admin not found',
-      })
-    }
-    const venues = await venueModel.find({ status: 'unverified' })
-    res.status(200).json({
-      message: 'All venues listed',
-      data: venues,
-      total: venues.length,
-    })
-  } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(400).json({
-        message: 'session expired please login to continue',
-      })
-    }
-    next(error)
-  }
-}
 
 exports.allVenuesFeatured = async (req, res, next) => {
   try {
@@ -257,31 +234,6 @@ exports.allVenuesFeatured = async (req, res, next) => {
       })
     }
     const venues = await venueModel.find({ isFeatured: true })
-    res.status(200).json({
-      message: 'All venues listed',
-      data: venues,
-      total: venues.length,
-    })
-  } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(400).json({
-        message: 'session expired please login to continue',
-      })
-    }
-    next(error)
-  }
-}
-
-exports.allVenuesPending = async (req, res, next) => {
-  try {
-    const adminid = req.user.id
-    const admin = await adminModel.findById(adminid)
-    if (!admin) {
-      return res.status(404).json({
-        message: 'admin not found',
-      })
-    }
-    const venues = await venueModel.find({ status: 'pending' })
     res.status(200).json({
       message: 'All venues listed',
       data: venues,
