@@ -3,7 +3,6 @@ const venueOwnerModel = require('../models/venueOwnerModel')
 const clientModel = require('../models/clientModel')
 const featuresPaymentModel = require('../models/featurePayment')
 const venueModel = require('../models/venueModel')
-const bookingPaymentModel = require('../models/bookingPayment')
 const jwt = require('jsonwebtoken')
 const axios = require('axios')
 const otpGen = require('otp-generator')
@@ -181,12 +180,13 @@ exports.initializeBookingPayment = async (req, res, next) => {
       }
     )
 
-    const bookingPayment = bookingPaymentModel({
+    const payment = new paymentModel({
       venuebookingId: venue._id,
       clientId: client._id,
-      reference: reference
+      reference: reference,
+      venueId: venue._id
     })
-    await bookingPayment.save()
+    await payment.save()
     res.status(200).json({
       message: 'Payment initialized',
       data: data.data,

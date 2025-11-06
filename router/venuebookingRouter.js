@@ -14,7 +14,7 @@ const router = express.Router()
  *     summary: Create a new venue booking
  *     description: Allows a client to book a specific venue by providing the event date, duration, and event type.
  *     tags:
- *       - [Bookings]
+ *       - Client
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -43,7 +43,7 @@ const router = express.Router()
  *                 type: number
  *                 example: 2
  *                 description: The number of days the venue is booked for.
- *               eventtype:
+ *               eventType:
  *                 type: string
  *                 example: "Wedding"
  *                 description: The type of event being hosted.

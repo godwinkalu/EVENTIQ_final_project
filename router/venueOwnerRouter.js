@@ -1,4 +1,4 @@
-const { createVenueOwner, getAllVenueOwners, getVenueOwner, deleteVenueOwner, getAllBookings, getAllListed } = require("../controller/venueOwnerController");
+const { createVenueOwner, getAllVenueOwners, getVenueOwner, deleteVenueOwner, getAllBookings, getAllListed, paymentHistory } = require("../controller/venueOwnerController");
 
 const { authentication } = require("../middleware/authMiddleware");
 
@@ -288,5 +288,101 @@ router.get('/allbooking', authentication, getAllBookings)
  *         description: Internal server error.
  */
 router.get('/listed-venues', authentication, getAllListed)
+
+/**
+ * @swagger
+ * /historypayment:
+ *   get:
+ *     summary: Retrieve all payment history for a venue owner
+ *     description: >
+ *       This endpoint returns a list of all payments related to the venue(s) owned by the authenticated venue owner.
+ *       The response includes populated data such as venue name, price, client details, and booking date.
+ *     tags:
+ *       - Venue Owner
+ *     security:
+ *       - bearerAuth: []     # JWT token required for authentication
+ *     responses:
+ *       200:
+ *         description: A list of all payment history records for the venue owner
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Payment history retrieved successfully"
+ *                 total:
+ *                   type: integer
+ *                   example: 3
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: "674ac12f83d92c001f6b5ea3"
+ *                       amount:
+ *                         type: number
+ *                         example: 120000
+ *                       reference:
+ *                         type: string
+ *                         example: "KORA123456ABC"
+ *                       paymentStatus:
+ *                         type: string
+ *                         example: "successful"
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2025-10-20T10:30:45.123Z"
+ *                       venueId:
+ *                         type: object
+ *                         properties:
+ *                           venuename:
+ *                             type: string
+ *                             example: "Grand Royale Hall"
+ *                           price:
+ *                             type: number
+ *                             example: 50000
+ *                       clientId:
+ *                         type: object
+ *                         properties:
+ *                           firstName:
+ *                             type: string
+ *                             example: "John"
+ *                           surname:
+ *                             type: string
+ *                             example: "Doe"
+ *                       venuebookingId:
+ *                         type: object
+ *                         properties:
+ *                           date:
+ *                             type: string
+ *                             example: "June 12, 2025"
+ *       400:
+ *         description: Session expired or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Session expired, login to continue"
+ *       404:
+ *         description: Venue owner or payment not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "venueowner not found"
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/historypayment', authentication, paymentHistory)
 
 module.exports = router
