@@ -111,66 +111,165 @@ router.post('/booking/:venueId', authentication, createvenuebooking)
 
 /**
  * @swagger
- * /accepectbooking/{bookingId}:
- *   post:
- *     summary: Accept a booking and notify the client
- *     description: Sends a confirmation email to the client when their booking is accepted.
- *     tags: [Bookings]
+ * /acceptbooking/{bookingId}:
+ *   get:
+ *     summary: Accept a venue booking request
+ *     description: Allows a venue owner to accept a booking request made by a client. Once accepted, the booking status is updated to "confirmed" and a confirmation email is sent to the client.
+ *     tags: [Booking]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: bookingId
  *         required: true
+ *         description: The ID of the booking to be accepted.
  *         schema:
  *           type: string
- *         description: The ID of the client whose booking is being accepted
+ *           example: 6701cda8bf2b4d31e4ef56a2
  *     responses:
  *       200:
- *         description: Booking accepted and client notified
+ *         description: Booking accepted successfully and client notified.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Booking accepted successfully, confirmation email sent to client.
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: 6701cda8bf2b4d31e4ef56a2
+ *                     bookingstatus:
+ *                       type: string
+ *                       example: confirmed
+ *                     clientId:
+ *                       type: string
+ *                       example: 6701bda4cf3a812a334aa891
+ *                     venueId:
+ *                       type: string
+ *                       example: 6701ada5ef3a112a304aa233
+ *       400:
+ *         description: Session expired or invalid request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Session expired, login to continue.
  *       404:
- *         description: Venue owner or client not found
+ *         description: Venue, client, or booking not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Venue not found.
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error.
  */
-
-router.get('/accepectbooking/:bookingId', authentication, acceptedBooking)
+router.get('/acceptbooking/:bookingId', authentication, acceptedBooking)
 
 /**
  * @swagger
- * /rejectbooking{bookingId}:
- *   post:
- *     summary: Reject a booking and notify the client
- *     description: Sends an email to the client when their booking is rejected, including a reason.
- *     tags: [Bookings]
+ * /rejectbooking/{bookingId}:
+ *   get:
+ *     summary: Reject a venue booking request
+ *     description: Allows a venue owner to reject a client's booking request and notify the client via email and in-app notification.
+ *     tags: [Booking]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: bookingId
  *         required: true
+ *         description: The ID of the booking to reject.
  *         schema:
  *           type: string
- *         description: The ID of the client whose booking is being rejected
+ *           example: 6701cda8bf2b4d31e4ef56a2
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - reason
  *             properties:
  *               reason:
  *                 type: string
- *                 example: The venue is already booked for that date.
+ *                 description: Reason for rejecting the booking.
+ *                 example: The venue is not available on the selected date.
  *     responses:
  *       200:
- *         description: Booking rejected and client notified
+ *         description: Booking rejected successfully and client notified.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Booking rejected successfully, notification sent to client.
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: 6701cda8bf2b4d31e4ef56a2
+ *                     bookingstatus:
+ *                       type: string
+ *                       example: rejected
+ *                     clientId:
+ *                       type: string
+ *                       example: 6701bda4cf3a812a334aa891
+ *                     venueId:
+ *                       type: string
+ *                       example: 6701ada5ef3a112a304aa233
  *       400:
- *         description: Reason is missing
+ *         description: Session expired or invalid token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Session expired, login to continue.
  *       404:
- *         description: Venue owner or client not found
+ *         description: Venue owner, booking, or client not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Venue not found.
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error.
  */
-
 router.get('/rejectbooking/:bookingId', authentication, rejectedBooking)
 
 module.exports = router 

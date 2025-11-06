@@ -6,6 +6,7 @@ const notificationvenueownerModel = require('../models/notificationvenueOwnerMod
 const notificationclientModel = require('../models/notificationclientModel')
 const { confirmedHtml, rejectedHtml } = require('../utils/confirmemailTemplate')
 const jwt = require('jsonwebtoken')
+const Brevo = require('@getbrevo/brevo')
 
 exports.createvenuebooking = async (req, res, next) => {
   try {
