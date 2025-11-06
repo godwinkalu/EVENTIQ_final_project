@@ -9,7 +9,9 @@ const { signUpTemplate } = require('../utils/emailTemplate')
 const { emailSender } = require('../middleware/nodemalier')
 const Brevo = require('@getbrevo/brevo')
 const jwt = require('jsonwebtoken')
-const fs = require('fs')
+const fs = require('fs');
+const venueModel = require('../models/venueModel');
+const paymentModel = require('../models/bookingPayment')
 
 exports.createVenueOwner = async (req, res, next) => {
   const { firstName, surname, email, password } = req.body
@@ -146,7 +148,7 @@ exports.deleteVenueOwner = async (req, res, next) => {
 
 
 exports.getAllBookings = async (req, res, next) => {
-  try {
+  try { 
     const venueOwner = await venueOwnerModel.findById(req.user.id)
 
     if (!venueOwner) {
@@ -155,9 +157,11 @@ exports.getAllBookings = async (req, res, next) => {
       })
     }
 
-    const bookings = await venuebookingModel.find()
-      .populate('venueId')
-      .populate('clientId', 'name email')
+    const venue = await venueModel.find({venueOwnerId: venueOwner._id})
+
+    const bookings = await venuebookingModel.find({venueownerId: venue[0].venueOwnerId}).select('date eventType')
+      .populate('venueId', 'venuename price')
+      .populate('clientId', 'firstName surname')
 
     return res.status(200).json({
       message: 'All bookings retrieved successfully',
@@ -195,6 +199,41 @@ exports.getAllListed = async (req, res, next) => {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
         message: 'session expired please login to continue',
+      })
+    }
+    next(error)
+  }
+}
+
+
+exports.paymentHistory = async (req, res, next) =>{
+  try {
+    const venueowner = await venueOwnerModel.findById(req.user.id)
+    if (!venueowner) {
+      return res.status(404).json({
+        message:"venueowner not found"
+      })
+    }
+    const venue = await venueModel.findOne({venueOwnerId:venueowner._id})
+
+     if (!venue) {
+      return res.status(404).json({
+        message:"venueowner not found"
+      })
+    }
+    const venueBooking = await venuebookingModel.findOne({venueId:venue._id})
+
+     if (!venueowner) {
+      return res.status(404).json({
+        message:"venueowner not found"
+      })
+    }
+
+    const payments = await paymentModel.find({venuebookingId:venueBooking._id}).populate('') .sort({createdAt:-1})
+  } catch (error) {
+        if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
       })
     }
     next(error)

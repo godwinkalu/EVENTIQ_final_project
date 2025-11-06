@@ -7,6 +7,11 @@ const venuebookingSchema = new mongoose.Schema(
       ref: 'venues',
       required: true,
     },
+    venueownerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'venue-owner',
+      required: true,
+    },
     clientId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'clients',
@@ -20,7 +25,7 @@ const venuebookingSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    eventtype:{
+    eventType:{
       type: String,
       required: true,
     },
