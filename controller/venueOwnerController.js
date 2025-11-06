@@ -194,6 +194,7 @@ exports.getAllListed = async (req, res, next) => {
     res.status(200).json({
       message: 'All venues retrieved successfully',
       data: venues,
+      total: venues.length
     })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
