@@ -984,7 +984,82 @@ router.post('/venue-unverified/:venueId', authorize, unverifiedVenue)
  */
 router.get('/ownervenue', authentication, VenuesOwner)
 
-
+/**
+ * @swagger
+ * /venues:
+ *   get:
+ *     summary: Get all venues
+ *     description: Retrieve all venues available in the system. Only accessible by an admin.
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All venues listed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All venues listed
+ *                 total:
+ *                   type: integer
+ *                   example: 3
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 671aa2c5a1b43d2d9b4e06b8
+ *                       venuename:
+ *                         type: string
+ *                         example: Royal Event Center
+ *                       location:
+ *                         type: string
+ *                         example: Lagos, Nigeria
+ *                       capacity:
+ *                         type: number
+ *                         example: 300
+ *                       price:
+ *                         type: number
+ *                         example: 500000
+ *                       status:
+ *                         type: string
+ *                         enum: [pending, verified, unverified]
+ *                         example: verified
+ *                       images:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                           example: https://res.cloudinary.com/.../image.jpg
+ *       400:
+ *         description: Session expired, please login to continue
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: session expired please login to continue
+ *       404:
+ *         description: Admin not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: admin not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/venues', authorize, allVenues)
 
 module.exports = router

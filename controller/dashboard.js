@@ -6,7 +6,7 @@ exports.getOverview = async (req, res, next) => {
   try {
     const {id}= req.user;
     const dashboard = await dashboardModel.findOne({venueOwnerId: id});
-
+console.log(dashboard)
     if (!dashboard) {
       return res.status(404).json({
         message: 'No dashboard found'

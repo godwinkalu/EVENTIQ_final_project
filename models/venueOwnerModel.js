@@ -28,7 +28,7 @@ const venueOwnerSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    phoneNumber: {
+    cc: {
       type: String,
       default: ''
     },
