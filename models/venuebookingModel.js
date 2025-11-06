@@ -9,7 +9,7 @@ const venuebookingSchema = new mongoose.Schema(
     },
     venueownerId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'venue-owner',
+      ref: 'venue-owners',
       required: true,
     },
     clientId: {

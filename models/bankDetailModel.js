@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bankSchema = new mongoose.Schema({
   venueOwnerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'venueOwners'
+    ref: 'venue-owners'
   },
   bankName: {
     type: String,
