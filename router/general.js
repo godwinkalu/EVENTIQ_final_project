@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { verify, resendOtp, login, changePassword, forgotPassword, resetPassword,  updateProfile } = require('../controller/general')
+const { verify, resendOtp, login, changePassword, forgotPassword, resetPassword, updateProfile } = require('../controller/general')
 const { authentication } = require('../middleware/authMiddleware')
 const upload = require ('../middleware/multer')
 
