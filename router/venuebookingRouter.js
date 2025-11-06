@@ -33,7 +33,7 @@ const router = express.Router()
  *             required:
  *               - date
  *               - days
- *               - eventtype
+ *               - eventType
  *             properties:
  *               date:
  *                 type: string
@@ -82,7 +82,7 @@ const router = express.Router()
  *                     servicecharge:
  *                       type: number
  *                       example: 5000
- *                     eventtype:
+ *                     eventType:
  *                       type: string
  *                       example: "Wedding"
  *       400:

@@ -141,6 +141,6 @@ venueOwnerSchema.post('save', async function (doc, next) {
   next();
 })
 
-const venueOwnerModel = mongoose.model('venueOwners', venueOwnerSchema)
+const venueOwnerModel = mongoose.model('venue-owner', venueOwnerSchema)
 
 module.exports = venueOwnerModel
