@@ -145,31 +145,6 @@ exports.deleteAdmin = async (req, res) => {
   }
 }
 
-exports.getAllListed = async (req, res, next) => {
-  try {
-    const { id } = req.user
-    const user = (await venueOwnerModel.findById(id)) || (await adminModel.findById(id))
-    const venues = await venueModel.find()
-
-    if (!user) {
-      return res.status(404).json({
-        message: 'User not found',
-      })
-    }
-
-    res.status(200).json({
-      message: 'All venues retrieved successfully',
-      data: venues,
-    })
-  } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(400).json({
-        message: 'session expired please login to continue',
-      })
-    }
-    next(error)
-  }
-}
 
 exports.VenuesOwner = async (req, res, next) => {
   try {

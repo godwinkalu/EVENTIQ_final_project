@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken')
 
 exports.createvenuebooking = async (req, res, next) => {
   try {
-    const { date, numberofguests } = req.body
+    const { date, numberofguests, days } = req.body
     const { venueId } = req.params
     const clientId = req.user.id
     const venue = await venueModel.findById(venueId)
@@ -36,8 +36,7 @@ exports.createvenuebooking = async (req, res, next) => {
     const existingBooking = await venuebookingModel.findOne({
       clientId: client._id,
       venueId: venue._id,
-      paymentstatus: 'paid',
-      bookingstatus: 'accepted',
+      bookingstatus: 'pending',
     })
 
     if (existingBooking) {
@@ -47,8 +46,8 @@ exports.createvenuebooking = async (req, res, next) => {
     }
 
     // Calculate total cost
-    const basePrice = venue.price
-    const serviceCharge = +(0.1 * basePrice).toFixed(2)
+    const basePrice = venue.price * days
+    const serviceCharge = basePrice * (10/100)
     const totalAmount = basePrice + serviceCharge
 
     const [day, month, year] = date.split('/')
@@ -64,7 +63,7 @@ exports.createvenuebooking = async (req, res, next) => {
       clientId: client._id,
       venueOwnerId: venue.venueOwnerId,
       date: jsDate,
-      totalamount: totalAmount,
+      totalamount: totalAmount * days,
       servicecharge: serviceCharge,
       numberofguests,
     })

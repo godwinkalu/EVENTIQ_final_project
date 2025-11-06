@@ -16,13 +16,13 @@ const venuebookingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    totalamount: {
-      type: Number,
-      required: true,
-    },
     servicecharge: {
       type: Number,
       default: 0,
+    },
+    total: {
+      type: Number,
+      required: true,
     },
     cautionfeestatus: {
       type: String,
