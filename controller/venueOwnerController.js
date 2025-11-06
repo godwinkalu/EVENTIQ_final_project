@@ -172,3 +172,31 @@ exports.getAllBookings = async (req, res, next) => {
     next(error)
   }
 }
+
+
+
+exports.getAllListed = async (req, res, next) => {
+  try {
+    const { id } = req.user
+    const venueOwner = await venueOwnerModel.findById(id)
+    
+    if (!venueOwner) {
+      return res.status(404).json({
+        message: 'Venue owner not found',
+      })
+    }
+    
+    const venues = await venueModel.find({venueOwnerId: venueOwner._id})
+    res.status(200).json({
+      message: 'All venues retrieved successfully',
+      data: venues,
+    })
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'session expired please login to continue',
+      })
+    }
+    next(error)
+  }
+}
