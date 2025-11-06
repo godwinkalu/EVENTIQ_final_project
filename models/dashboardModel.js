@@ -6,44 +6,20 @@ const dashboardSchema = new mongoose.Schema({
     ref: 'venue-owners'
   },
   totalVenues: {
-    total: {
       type: Number,
       default: 0                          
-    },
-    stat: {
-      type: Number,
-      default: 0
-    }
   },
   activeBooking: {
-    confirmed: {
       type: Number,
       default: 0
-    },
-    pending: {
-      type: Number,
-      default: 0
-    }
   },
   revenue: {
-    total: {
       type: Number,
       default: 0
-    },
-    stat: {
-      type: Number,
-      default: 0
-    }
   },
   occupancyRate: {
-    total: {
       type: Number,
       default: 0
-    },
-    stat: {
-      type: Number,
-      default: 0
-    }
   }
 }, {timestamps: true});
 

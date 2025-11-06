@@ -65,80 +65,23 @@ const venueOwnerSchema = new mongoose.Schema(
 );
 
 venueOwnerSchema.post('save', async function (doc, next) {
-  const venues = await venueModel.find({ venueOwnerId: doc._id });
+ try {
+   const venues = await venueModel.find({ venueOwnerId: doc._id });
+  console.log(`venues: ${venues.length}`,venues);
+  
   const venuebookings = await venuebookingModel.find({ venueId: venues[0]?._id });
+  console.log(`venue booking: ${venuebookings.length}`,venuebookings);
+  
   const dashboard = await dashboardModel.findOne({ venueOwnerId: this._id })
-  const now = new Date();
+  const now = new Date().toLocaleDateString();
 
-  const startOfMonth = moment().startOf('month').toDate();
-  const endOfMonth = moment().endOf('month').toDate();
-
-  const newVenuesThisMonth = await venueModel.find({
-    venueOwnerId: venues[0]?._id,
-    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
-  });
-
-  dashboard.totalVenues = {
-    total: venues.length,
-    stat: newVenuesThisMonth.length
-  }
-
-  dashboard.activeBooking = {
-    total: venuebookings.length,
-    pending: venuebookings.filter((e) => e.bookingstatus === 'pending').length
-  }
-
-  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const endOfThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-
-  const thisMonthRevenueData = await venuebookingModel.aggregate([
-    {
-      $match: {
-        venueOwnerId: this._id,
-        createdAt: { $gte: startOfThisMonth, $lte: endOfThisMonth }
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        totalRevenue: { $sum: venuebookings?.reduce((a, b) => a + b.totalamount, 0) }
-      }
-    }
-  ]);
-
-  const lastMonthRevenueData = await venuebookingModel.aggregate([
-    {
-      $match: {
-        venueOwnerId: this._id,
-        createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth }
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        totalRevenue: { $sum: venuebookings?.reduce((a, b) => a + b.totalamount, 0) }
-      }
-    }
-  ]);
-
-  const thisMonthRevenue = thisMonthRevenueData[0]?.totalRevenue || 0;
-  const lastMonthRevenue = lastMonthRevenueData[0]?.totalRevenue || 0;
-
-  let growth = 0;
-  if (lastMonthRevenue > 0) {
-    growth = ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
-  }
-
-  dashboard.revenue = {
-    total: thisMonthRevenue,
-    stat: growth
-  }
-
+  dashboard.totalVenues = venues.length
+  dashboard.activeBooking = venuebookings.length
   await dashboard.save()
   next();
+ } catch (error) {
+  console.log(error)
+ }
 })
 
 const venueOwnerModel = mongoose.model('venue-owners', venueOwnerSchema)
