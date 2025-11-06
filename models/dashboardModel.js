@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const dashboardSchema = new mongoose.Schema({
   venueOwnerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'venueOwners'
+    ref: 'venue-owners'
   },
   totalVenues: {
     total: {

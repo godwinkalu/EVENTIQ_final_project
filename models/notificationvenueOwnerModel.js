@@ -7,7 +7,7 @@ const notificationSchema = new mongoose.Schema({
   },
   venueOwnerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'venue-owner',
+    ref: 'venue-owners',
   },
   BookingId: {
     type: mongoose.Schema.Types.ObjectId,

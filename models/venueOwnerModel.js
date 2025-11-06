@@ -28,7 +28,7 @@ const venueOwnerSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    cc: {
+    phoneNumber: {
       type: String,
       default: ''
     },
@@ -141,6 +141,6 @@ venueOwnerSchema.post('save', async function (doc, next) {
   next();
 })
 
-const venueOwnerModel = mongoose.model('venue-owner', venueOwnerSchema)
+const venueOwnerModel = mongoose.model('venue-owners', venueOwnerSchema)
 
 module.exports = venueOwnerModel
