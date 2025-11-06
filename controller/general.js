@@ -6,6 +6,8 @@ const { signUpTemplate } = require('../utils/emailTemplate')
 const { emailSender } = require('../middleware/nodemalier')
 const bcrypt = require('bcrypt')
 const Brevo = require('@getbrevo/brevo')
+const cloudinary = require('../config/cloudinary')
+const fs = require('fs')
 
 exports.verify = async (req, res, next) => {
   const { email, otp } = req.body
@@ -94,6 +96,7 @@ exports.resendOtp = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body
+
   try {
     const user =
       (await venueOwnerModel.findOne({ email: email.toLowerCase() })) ||
@@ -256,68 +259,44 @@ exports.resetPassword = async (req, res, next) => {
   }
 }
 
-exports.updatePhoneNumber = async (req, res, next) => {
-  try {
-    const { id } = req.user
-    const user =
-      (await venueOwnerModel.findById(id)) ||
-      (await clientModel.findById(id)) ||
-      (await adminModel.findById(id))
-    const { phoneNumber } = req.body
-
-    if (!user) {
-      return res.status(404).json({
-        message: 'Venue owner not found',
-      })
-    }
-
-    user.phoneNumber = phoneNumber ?? user.phoneNumber
-    await user.save()
-    res.status(200).json({
-      message: 'Phone number updated successfully',
-    })
-  } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(400).json({
-        message: 'Session expired, login to continue',
-      })
-    }
-    next(error)
-  }
-}
-
 exports.updateProfile = async (req, res, next) => {
   try {
     const { id } = req.user
+    const { phoneNumber } = req.body
+    const file = req.file
+
     const user =
       (await venueOwnerModel.findById(id)) ||
       (await clientModel.findById(id)) ||
       (await adminModel.findById(id))
-    const file = req.file
 
     if (!user) {
       return res.status(404).json({
-        message: 'Venue owner not found',
+        message: 'User not found',
       })
     }
 
-    let profilePicture = user.profilePicture
-
+    if (phoneNumber) {
+      user.phoneNumber = phoneNumber
+    }
+    
     if (file && file.path) {
       const response = await cloudinary.uploader.upload(file.path)
       fs.unlinkSync(file.path)
-      profilePicture = {
+      user.profilePicture = {
         url: response.secure_url,
         publicId: response.public_id,
       }
     }
-
-    Object.assign(user, {
-      profilePicture,
-    })
     await user.save()
+
     res.status(200).json({
-      message: 'Profile picture updated successfully',
+      message: 'Profile updated successfully',
+      data: {
+        id: user._id,
+        phoneNumber: user.phoneNumber,
+        profilePicture: user.profilePicture,
+      },
     })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
