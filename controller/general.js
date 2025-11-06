@@ -276,20 +276,24 @@ exports.updateProfile = async (req, res, next) => {
       })
     }
 
-    if (phoneNumber) {
-      user.phoneNumber = phoneNumber
-    }
-    
+    let img
+
     if (file && file.path) {
       const response = await cloudinary.uploader.upload(file.path)
       fs.unlinkSync(file.path)
-      user.profilePicture = {
+      img = {
         url: response.secure_url,
         publicId: response.public_id,
       }
     }
-    await user.save()
 
+    let data = {
+      phoneNumber: phoneNumber ?? user.phoneNumber,
+      profilePicture: img ?? user.profilePicture,
+    }
+
+    Object.assign(user, data)
+    await user.save()
     res.status(200).json({
       message: 'Profile updated successfully',
       data: {
