@@ -214,7 +214,7 @@ exports.getOneBooking = async (req, res, next) => {
 
 exports.getpaidBooking = async (req, res, next) => {
   try {
-    const booking = await venuebookingModel.findById(req.param.venuebookingId)
+    const booking = await venuebookingModel.findById(req.params.venuebookingId)
     //.select('date eventType')
       .populate('venueId', 'venuename price')
       .populate('clientId', 'firstName surname')
