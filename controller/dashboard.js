@@ -25,8 +25,10 @@ exports.getOverview = async (req, res, next) => {
       })
     }
 
-    
-
+    Object.assign(dashboard, {
+      totalVenues: venues.length,
+      activeBooking: bookings.length
+    })
     res.status(200).json({
       message: 'User dashboard',
       data: dashboard,
