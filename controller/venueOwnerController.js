@@ -159,7 +159,7 @@ exports.getAllBookings = async (req, res, next) => {
 
     const venue = await venueModel.find({ venueOwnerId: venueOwner._id })
 
-    const bookings = await venuebookingModel.find({ venueownerId: venue[0].venueOwnerId }).select('date eventType')
+    const bookings = await venuebookingModel.find({ venueownerId: venue[0].venueOwnerId }).select('date eventType,bookingstatus')
       .populate('venueId', 'venuename price')
       .populate('clientId', 'firstName surname')
 
