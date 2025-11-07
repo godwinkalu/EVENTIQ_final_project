@@ -1,5 +1,5 @@
-exports.confirmedHtml = (verifyLink, firstName) => {
-    return `
+exports.confirmedHtml = (verifyLink, firstName, venueName, date) => {
+  return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -68,12 +68,11 @@ exports.confirmedHtml = (verifyLink, firstName) => {
       <body>
           <div class="container">
               <div class="header">
-                  <h1>Congratulations! Profile Approved</h1>
+                  <h1>Congratulations🎉🎉 Your booking has been approved✅</h1>
               </div>
               <div class="content">
                   <p>Hello ${firstName},</p>
-                  <p>We are excited to inform you that your profile has been approved and is now fully functional. You now have full access to perform all necessary operations as instructed by your manager.</p>
-                  <p>Please click the button below to proceed with the application:</p>
+                  <p>Congratulations — your request to book ${venueName} on ${date} has been approved by the venue owner. Please proceed to complete your payment to confirm your reservation.</p>
                   <div class="button-container">
                       <a href="${verifyLink}" class="button">Pay Now</a>
                   </div>
@@ -85,11 +84,11 @@ exports.confirmedHtml = (verifyLink, firstName) => {
           </div>
       </body>
       </html>
-    `;
-  }
-  
-exports.rejectedHtml = (reasons, firstName) => {
-    return `
+    `
+}
+
+exports.rejectedHtml = (reasons, firstName, venueName, date) => {
+  return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -158,13 +157,13 @@ exports.rejectedHtml = (reasons, firstName) => {
       <body>
           <div class="container">
               <div class="header">
-                  <h1>Oops! Profile Rejected</h1>
+                  <h1>❌ Your booking request has been declined.</h1>
               </div>
               <div class="content">
                   <p>Hi ${firstName},</p>
-                  <p>We regret to inform you that your profile was not approved. Please review the reasons below and make the necessary updates before reapplying:</p>
+                  <p>Unfortunately, your booking for ${venueName} on ${date} could not be approved by the hall owner. You may browse other available venues on Eventiq</p>
                   <div class="button-container">
-                      <h2>${reasons}</h2>
+                      <h2>Reason: ${reasons}</h2>
                   </div>
                   <p>If you have any questions or need help with your application, don't hesitate to reach out to our support team. We're here to assist you.</p>
               </div>
@@ -174,5 +173,5 @@ exports.rejectedHtml = (reasons, firstName) => {
           </div>
       </body>  
       </html>
-    `;
-  }
+    `
+}
