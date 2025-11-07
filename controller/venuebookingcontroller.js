@@ -13,10 +13,10 @@ exports.createvenuebooking = async (req, res, next) => {
     const { date, days, eventType } = req.body
     const { venueId } = req.params
     const clientId = req.user.id
-    const venue = await venueModel.findById(venueId)  
+    const venue = await venueModel.findById(venueId)
     console.log(venue.venueOwnerId);
     const venueOwner = await venueOwnerModel.findById(venue.venueOwnerId)
-    
+
     const client = await clientModel.findById(clientId)
 
     if (!client) {
@@ -40,12 +40,12 @@ exports.createvenuebooking = async (req, res, next) => {
       clientId: client._id,
       venueId: venue._id,
       bookingstatus: 'pending',
-      date:date
+      date: date
     })
 
     if (!eventType) {
       return res.status(400).json({
-        message:'Event Type is required'
+        message: 'Event Type is required'
       })
     }
     if (existingBooking) {
@@ -56,7 +56,7 @@ exports.createvenuebooking = async (req, res, next) => {
 
     // Calculate total cost
     const basePrice = venue.price * days
-    const serviceCharge = basePrice * (10/100)
+    const serviceCharge = basePrice * (10 / 100)
     const totalAmount = basePrice + serviceCharge
 
     const [day, month, year] = date.split('/')
@@ -65,8 +65,8 @@ exports.createvenuebooking = async (req, res, next) => {
       month: 'long',
       day: 'numeric',
     })
-    
-   //  Create booking
+
+    //  Create booking
     const newBooking = new venuebookingModel({
       venueId: venue._id,
       venueownerId: venueOwner._id,
@@ -102,10 +102,8 @@ exports.createvenuebooking = async (req, res, next) => {
 
 exports.acceptedBooking = async (req, res, next) => {
   try {
-    const { id } = req.user
-    const { bookingId } = req.params
-    const venueOwner = await venueOwnerModel.findById(id)
-    const venueBooking = await venuebookingModel.findById(bookingId).populate('clientId')
+    const venueOwner = await venueOwnerModel.findById(req.user.id)
+    const venueBooking = await venuebookingModel.findById(req.params.bookingId).populate('clientId')
     const client = await clientModel.findById(venueBooking.clientId)
     const venue = await venueModel.findById(venueBooking.venueId)
 
@@ -135,20 +133,21 @@ exports.acceptedBooking = async (req, res, next) => {
 
     venueBooking.bookingstatus = 'confirmed'
     await venueBooking.save()
-
     const link = `${req.protocol}://${req.get('host')}/payment`
+
     const apikey = process.env.brevo
     const apiInstance = new Brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
-
     const sendSmtpEmail = new Brevo.SendSmtpEmail()
     sendSmtpEmail.subject = 'Welcome to Eventiq'
     sendSmtpEmail.to = [{ email: client.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-
     sendSmtpEmail.htmlContent = confirmedHtml(link, client.firstName)
-
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
+    
+    res.status(200).json({
+      message: 'Booking accepted successfully'
+    })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
@@ -161,11 +160,9 @@ exports.acceptedBooking = async (req, res, next) => {
 
 exports.rejectedBooking = async (req, res, next) => {
   try {
-    const { id } = req.user
-    const { bookingId } = req.params
     const { reason } = req.body
-    const venueOwner = await venueOwnerModel.findById(id)
-    const venueBooking = await venuebookingModel.findById(bookingId).populate('clientId')
+    const venueOwner = await venueOwnerModel.findById(req.user.id)
+    const venueBooking = await venuebookingModel.findById(req.params.bookingId).populate('clientId')
     const client = await clientModel.findById(venueBooking.clientId)
     const venue = await venueModel.findById(venueBooking.venueId)
 
@@ -209,15 +206,16 @@ exports.rejectedBooking = async (req, res, next) => {
     const apikey = process.env.brevo
     const apiInstance = new Brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
-
     const sendSmtpEmail = new Brevo.SendSmtpEmail()
     sendSmtpEmail.subject = 'Welcome to Eventiq'
     sendSmtpEmail.to = [{ email: client.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-
     sendSmtpEmail.htmlContent = rejectedHtml(reason, client.firstName)
-
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
+
+      res.status(200).json({
+      message: 'Booking has been rejected'
+    })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
