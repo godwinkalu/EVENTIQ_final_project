@@ -212,6 +212,7 @@ exports.rejectedBooking = async (req, res, next) => {
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
     sendSmtpEmail.htmlContent = rejectedHtml(reason, client.firstName)
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
+    await venuebookingModel.findByIdAndDelete(venueBooking._id)
       res.status(200).json({
       message: 'Booking has been rejected'
     })
