@@ -1,3 +1,6 @@
+const venuebookingModel = require('./venuebookingModel')
+const dashboardModel = require('./dashboardModel')
+const venueOwnerModel = require('./venueOwnerModel')
 const mongoose = require('mongoose')
 
 const venueSchema = new mongoose.Schema(
@@ -114,6 +117,21 @@ const venueSchema = new mongoose.Schema(
   },
   { timestamps: true }
 )
+
+venueSchema.post('save', async function (doc, next) {
+  try {
+    const venues = await venueModel.find({ _id: doc._id });
+    const venueOwner = await venueOwnerModel.findOne({ _id: venues[0]._id })
+    const venuebookings = await venuebookingModel.find({ venueId: venues[0]?._id });
+    const dashboard = await dashboardModel.findOne({ venueOwnerId: venueOwner._id })
+    dashboard.totalVenues = venues.length
+    dashboard.activeBooking = venuebookings.length
+    await dashboard.save()
+    next();
+  } catch (error) {
+    console.log(error)
+  }
+})
 
 const venueModel = mongoose.model('venues', venueSchema)
 
