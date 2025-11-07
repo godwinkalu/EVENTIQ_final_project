@@ -23,10 +23,11 @@ exports.getClientNotifications = async (req, res, next) => {
     notifications.forEach((e) => {
       e.time = dayjs(e.createdAt).fromNow()
     })
-  
+
     return res.status(200).json({
       message: 'Notifications retrieved successfully',
       data: notifications,
+      total: notifications.length
     });
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -41,9 +42,9 @@ exports.getClientNotifications = async (req, res, next) => {
 
 exports.getVenueownerNotifications = async (req, res, next) => {
   try {
-    const { id } = req.user;    
+    const { id } = req.user;
     const venueOwner = await venueOwnerModel.findById(id);
-    
+
     if (!venueOwner) {
       return res.status(404).json({
         message: 'Venue owner not found'
@@ -55,15 +56,16 @@ exports.getVenueownerNotifications = async (req, res, next) => {
     notifications.forEach((e) => {
       e.time = dayjs(e.createdAt).fromNow()
     })
-  
+
     return res.status(200).json({
       message: 'Notifications retrieved successfully',
       data: notifications,
+      total: notifications.length
     });
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
-        message: 'Session expired, login to continue'
+        message: 'Session expired, login to continue',
       })
     }
     next(error);
