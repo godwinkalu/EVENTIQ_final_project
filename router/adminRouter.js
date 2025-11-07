@@ -805,6 +805,6 @@ router.get('/ownervenue', authentication, VenuesOwner)
  *       500:
  *         description: Internal server error
  */
-router.get('/venues', authorize, allVenues)
+router.get('/venues', allVenues)
 
 module.exports = router
