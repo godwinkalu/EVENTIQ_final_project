@@ -175,7 +175,7 @@ router.get('/acceptbooking/:bookingId', authentication, acceptedBooking)
 /**
  * @swagger
  * /rejectbooking/{bookingId}:
- *   get:
+ *   post:
  *     summary: Reject a venue booking
  *     description: Allows a venue owner to reject a client's booking and notifies the client via email and in-app notification with the reason for rejection.
  *     tags:
@@ -242,7 +242,7 @@ router.get('/acceptbooking/:bookingId', authentication, acceptedBooking)
  *             example:
  *               message: Something went wrong
  */
-router.get('/rejectbooking/:bookingId', authentication, rejectedBooking)
+router.post('/rejectbooking/:bookingId', authentication, rejectedBooking)
 
 /**
  * @swagger
