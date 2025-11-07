@@ -12,6 +12,7 @@ const {
   verifiyVenue,
   unverifiedVenue,
   VenuesOwner,
+  allVenuesForAdmin,
 } = require('../controller/adminController')
 const { authentication, authorize } = require('../middleware/authMiddleware')
 
@@ -731,17 +732,15 @@ router.get('/ownervenue', authentication, VenuesOwner)
 
 /**
  * @swagger
- * /venues:
+ * /api/v1/venues:
  *   get:
- *     summary: Get all venues
- *     description: Retrieve all venues available in the system. Only accessible by an admin.
+ *     summary: Retrieve all verified venues
+ *     description: This endpoint fetches all venues that have been verified. Venues are sorted by whether they are featured first, then by the most recently created.
  *     tags:
  *       - Admin
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: All venues listed successfully
+ *         description: Successfully retrieved all verified venues.
  *         content:
  *           application/json:
  *             schema:
@@ -752,7 +751,7 @@ router.get('/ownervenue', authentication, VenuesOwner)
  *                   example: All venues listed
  *                 total:
  *                   type: integer
- *                   example: 3
+ *                   example: 12
  *                 data:
  *                   type: array
  *                   items:
@@ -760,30 +759,31 @@ router.get('/ownervenue', authentication, VenuesOwner)
  *                     properties:
  *                       _id:
  *                         type: string
- *                         example: 671aa2c5a1b43d2d9b4e06b8
+ *                         example: "671fc8b3d3d9f1b2a8c8d923"
  *                       venuename:
  *                         type: string
- *                         example: Royal Event Center
+ *                         example: "Eventiq Grand Hall"
  *                       location:
  *                         type: string
- *                         example: Lagos, Nigeria
+ *                         example: "Victoria Island, Lagos"
  *                       capacity:
- *                         type: number
+ *                         type: integer
  *                         example: 300
  *                       price:
  *                         type: number
- *                         example: 500000
+ *                         example: 250000
  *                       status:
  *                         type: string
- *                         enum: [pending, verified, unverified]
  *                         example: verified
- *                       images:
- *                         type: array
- *                         items:
- *                           type: string
- *                           example: https://res.cloudinary.com/.../image.jpg
+ *                       isFeatured:
+ *                         type: boolean
+ *                         example: true
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2025-10-25T14:30:00.000Z"
  *       400:
- *         description: Session expired, please login to continue
+ *         description: Session expired or token invalid (if token-based access is added later).
  *         content:
  *           application/json:
  *             schema:
@@ -792,8 +792,82 @@ router.get('/ownervenue', authentication, VenuesOwner)
  *                 message:
  *                   type: string
  *                   example: session expired please login to continue
+ *       500:
+ *         description: Server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.get('/venues', allVenues)
+
+
+/**
+ * @swagger
+ * /all-listed-venues:
+ *   get:
+ *     summary: Retrieve all venues (Admin only)
+ *     description: This endpoint allows the admin to view all venues listed on the platform.
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved all venues.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All venues listed
+ *                 total:
+ *                   type: integer
+ *                   example: 5
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: "671fc8b3d3d9f1b2a8c8d923"
+ *                       venuename:
+ *                         type: string
+ *                         example: "Eventiq Grand Hall"
+ *                       location:
+ *                         type: string
+ *                         example: "Lekki Phase 1, Lagos"
+ *                       capacity:
+ *                         type: integer
+ *                         example: 300
+ *                       price:
+ *                         type: number
+ *                         example: 250000
+ *                       status:
+ *                         type: string
+ *                         example: "verified"
+ *                       isFeatured:
+ *                         type: boolean
+ *                         example: true
+ *       400:
+ *         description: Session expired or invalid token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Session expired please login to continue
  *       404:
- *         description: Admin not found
+ *         description: Admin not found.
  *         content:
  *           application/json:
  *             schema:
@@ -802,9 +876,7 @@ router.get('/ownervenue', authentication, VenuesOwner)
  *                 message:
  *                   type: string
  *                   example: admin not found
- *       500:
- *         description: Internal server error
  */
-router.get('/venues', allVenues)
+router.get('/all-listed-venues', authorize, allVenuesForAdmin)
 
 module.exports = router
