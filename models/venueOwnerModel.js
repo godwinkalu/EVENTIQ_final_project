@@ -1,7 +1,3 @@
-const venueModel = require('../models/venueModel');
-const venuebookingModel = require('../models/venuebookingModel');
-const dashboardModel = require('../models/dashboardModel');
-const moment = require('moment')
 const mongoose = require('mongoose')
 
 const venueOwnerSchema = new mongoose.Schema(
@@ -63,26 +59,6 @@ const venueOwnerSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-venueOwnerSchema.post('save', async function (doc, next) {
- try {
-   const venues = await venueModel.find({ venueOwnerId: doc._id });
-  console.log(`venues: ${venues.length}`,venues);
-  
-  const venuebookings = await venuebookingModel.find({ venueId: venues[0]?._id });
-  console.log(`venue booking: ${venuebookings.length}`,venuebookings);
-  
-  const dashboard = await dashboardModel.findOne({ venueOwnerId: this._id })
-  const now = new Date().toLocaleDateString();
-
-  dashboard.totalVenues = venues.length
-  dashboard.activeBooking = venuebookings.length
-  await dashboard.save()
-  next();
- } catch (error) {
-  console.log(error)
- }
-})
 
 const venueOwnerModel = mongoose.model('venue-owners', venueOwnerSchema)
 
