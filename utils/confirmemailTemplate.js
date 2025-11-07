@@ -5,7 +5,7 @@ exports.confirmedHtml = (verifyLink, firstName) => {
       <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Profile Approved</title>
+          <title>Booking Approved</title>
           <style>
               body {
                   font-family: Arial, sans-serif;
@@ -75,7 +75,7 @@ exports.confirmedHtml = (verifyLink, firstName) => {
                   <p>We are excited to inform you that your profile has been approved and is now fully functional. You now have full access to perform all necessary operations as instructed by your manager.</p>
                   <p>Please click the button below to proceed with the application:</p>
                   <div class="button-container">
-                      <a href="${verifyLink}" class="button">Proceed</a>
+                      <a href="${verifyLink}" class="button">Pay Now</a>
                   </div>
                   <p>If you have any questions or need further assistance, feel free to contact our support team.</p>
               </div>
@@ -95,7 +95,7 @@ exports.rejectedHtml = (reasons, firstName) => {
       <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Profile Rejected</title>
+          <title>Booking rejected<title>
           <style>
               body {
                   font-family: Arial, sans-serif;
