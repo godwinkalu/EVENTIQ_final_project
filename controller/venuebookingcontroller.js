@@ -100,7 +100,6 @@ exports.createvenuebooking = async (req, res, next) => {
     next(error)
   }
 }
-
 exports.acceptedBooking = async (req, res, next) => {
   try {
     const venueOwner = await venueOwnerModel.findById(req.user.id)
