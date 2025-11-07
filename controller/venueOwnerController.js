@@ -159,7 +159,7 @@ exports.getAllBookings = async (req, res, next) => {
 
     const venue = await venueModel.find({ venueOwnerId: venueOwner._id })
 
-    const bookings = await venuebookingModel.find({ venueownerId: venue[0].venueOwnerId }).select('date eventType bookingstatus')
+    const bookings = await venuebookingModel.find({ venueownerId: venue[0].venueOwnerId }).select('date eventTypebookingstatus')
       .populate('venueId', 'venuename price')
       .populate('clientId', 'firstName surname')
 
@@ -190,6 +190,34 @@ exports.getOneBooking = async (req, res, next) => {
         message: 'Venue owner not found',
       })
     }
+
+    if (!booking) {
+      return res.status(404).json({
+        message: 'No booking found',
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Booking retrieved successfully',
+      data: booking,
+    })
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue'
+      })
+    }
+    next(error)
+  }
+}
+
+
+exports.getpaidBooking = async (req, res, next) => {
+  try {
+    const booking = await venuebookingModel.findById(req.param.venuebookingId)
+    //.select('date eventType')
+      .populate('venueId', 'venuename price')
+      .populate('clientId', 'firstName surname')
 
     if (!booking) {
       return res.status(404).json({

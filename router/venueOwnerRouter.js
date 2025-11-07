@@ -1,4 +1,4 @@
-const { createVenueOwner, getAllVenueOwners, getVenueOwner, deleteVenueOwner, getAllBookings, getAllListed, paymentHistory } = require("../controller/venueOwnerController");
+const { createVenueOwner, getAllVenueOwners, getVenueOwner, deleteVenueOwner, getAllBookings, getAllListed, paymentHistory, getpaidBooking } = require("../controller/venueOwnerController");
 
 const { authentication } = require("../middleware/authMiddleware");
 
@@ -6,7 +6,7 @@ const router = require('express').Router();
 
 const upload = require('../middleware/multer')
 
-
+router.get('/paiddetail/:venuebookingId', getpaidBooking)
 /**
  * @swagger
  * /venueOwner:
