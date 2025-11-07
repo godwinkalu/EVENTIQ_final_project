@@ -335,20 +335,27 @@ router.put('/adminInfo/:id', authorize, updateAdminInfo)
  */
 router.delete('/deleteAdmin/:id', authorize, deleteAdmin)
 
-
 /**
  * @swagger
- * /allverified-venues:
+ * /halls:
  *   get:
- *     summary: Retrieve all verified venues
- *     description: Fetch all venues from the database that have been verified by the admin or system.
+ *     summary: Get all venues filtered by status
+ *     description: Retrieve all venues from the database filtered by their status (e.g., verified, pending, rejected). Only accessible to admin users.
  *     tags:
- *       - Admin
+ *       - [Admin]
  *     security:
- *       - bearerAuth: []     # Requires Authorization header (JWT)
+ *       - bearerAuth: []    # JWT authentication
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [verified, pending, rejected]
+ *         description: Status to filter venues by
  *     responses:
  *       200:
- *         description: All verified venues successfully retrieved.
+ *         description: List of venues filtered by status
  *         content:
  *           application/json:
  *             schema:
@@ -358,8 +365,8 @@ router.delete('/deleteAdmin/:id', authorize, deleteAdmin)
  *                   type: string
  *                   example: All venues listed
  *                 total:
- *                   type: integer
- *                   example: 3
+ *                   type: number
+ *                   example: 5
  *                 data:
  *                   type: array
  *                   items:
@@ -367,81 +374,35 @@ router.delete('/deleteAdmin/:id', authorize, deleteAdmin)
  *                     properties:
  *                       _id:
  *                         type: string
- *                         example: 67305c19bfa2f4f3a6df2320
+ *                         example: "671a1e3c6d9f5a20c0e20a47"
  *                       venuename:
  *                         type: string
- *                         example: Royal Garden Hall
- *                       description:
+ *                         example: "Luxe Event Center"
+ *                       address:
  *                         type: string
- *                         example: A modern event center for weddings and corporate gatherings.
+ *                         example: "45 Kingsway Road, Lagos"
+ *                       price:
+ *                         type: number
+ *                         example: 250000
+ *                       capacity:
+ *                         type: number
+ *                         example: 500
  *                       status:
  *                         type: string
  *                         example: verified
- *                       price:
- *                         type: number
- *                         example: 300000
- *                       type:
- *                         type: string
- *                         example: indoor
- *                       location:
- *                         type: object
- *                         properties:
- *                           street:
- *                             type: string
- *                             example: 12 Admiralty Way
- *                           city:
- *                             type: string
- *                             example: Lekki
- *                           state:
- *                             type: string
- *                             example: Lagos
- *                       amenities:
- *                         type: array
- *                         items:
- *                           type: string
- *                         example: ["Air Conditioning", "Stage Lighting", "CCTV", "Parking Space"]
- *                       capacity:
- *                         type: object
- *                         properties:
- *                           minimum:
- *                             type: integer
- *                             example: 50
- *                           maximum:
- *                             type: integer
- *                             example: 300
- *                       documents:
- *                         type: object
- *                         properties:
- *                           images:
- *                             type: array
- *                             items:
- *                               type: object
- *                               properties:
- *                                 url:
- *                                   type: string
- *                                   example: https://res.cloudinary.com/eventiq/image/upload/hall-image.jpg
- *                           cac:
- *                             type: array
- *                             items:
- *                               type: object
- *                               properties:
- *                                 url:
- *                                   type: string
- *                                   example: https://res.cloudinary.com/eventiq/image/upload/cac-cert.pdf
- *                           doc:
- *                             type: array
- *                             items:
- *                               type: object
- *                               properties:
- *                                 url:
- *                                   type: string
- *                                   example: https://res.cloudinary.com/eventiq/image/upload/land-agreement.pdf
- *       401:
- *         description: Unauthorized access — missing or invalid token.
- *       500:
- *         description: Server error.
+ *       400:
+ *         description: Session expired or bad token
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: session expired please login to continue
+ *       404:
+ *         description: Admin not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: admin not found
  */
-
 router.get('/halls', authorize, allVenueStatus)
 
 /**
