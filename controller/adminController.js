@@ -181,7 +181,8 @@ exports.allVenues = async (req, res, next) => {
         message: 'admin not found',
       })
     }
-    const venues = await venueModel.find()
+    const venues = await venueModel.find({ status: 'verified' }).sort({ isFeatured: -1, createdAt: -1 });
+
     res.status(200).json({
       message: 'All venues listed',
       data: venues,
