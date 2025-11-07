@@ -155,7 +155,7 @@ exports.VenuesOwner = async (req, res, next) => {
         message: 'venueowner not found',
       })
     }
-    const venues = await venueModel.find({venueOwnerId:venueowner._id})
+    const venues = await venueModel.find({ venueOwnerId: venueowner._id })
     res.status(200).json({
       message: 'All venues listed',
       data: venues,
@@ -251,20 +251,21 @@ exports.allVenuesFeatured = async (req, res, next) => {
 
 exports.verifiyVenue = async (req, res, next) => {
   try {
-    const adminid = req.user.id
-    const admin = await adminModel.findById(adminid)
+    const admin = await adminModel.findById(req.user.id);
+    const venue = await venueModel.findById(req.params.venueId);
+
     if (!admin) {
       return res.status(404).json({
         message: 'admin not found',
       })
     }
-    const { id } = req.params
-    const venue = await venueModel.findById(id)
+
     if (!venue) {
       return res.status(404).json({
         message: 'venue not found',
       })
     }
+
     venue.status = 'verified'
     await venue.save()
     res.status(200).json({
@@ -282,30 +283,32 @@ exports.verifiyVenue = async (req, res, next) => {
 
 exports.unverifiedVenue = async (req, res, next) => {
   try {
-    const adminid = req.user.id
-    const admin = await adminModel.findById(adminid)
+    const { reason } = req.body
+    const admin = await adminModel.findById(req.user.id);
+    const venue = await venueModel.findById(req.params.venueId);
+    const venueowner = await venueOwnerModel.findOne({ _id: venue.venueOwnerId })
+
     if (!admin) {
       return res.status(404).json({
         message: 'admin not found',
       })
     }
-    const { venueId } = req.params
-    const { reason } = req.body
-    const venue = await venueModel.findById(venueId)
-    const venueowner = await venueOwnerModel.findOne({ _id: venue.venueOwnerId })
+
     if (!venue) {
       return res.status(404).json({
         message: 'venue not found',
       })
     }
+
     if (!venueowner) {
       return res.status(404).json({
         message: 'venue owner not found',
       })
     }
+
     venue.status = 'unverified'
     await venue.save()
-
+    
     const apikey = process.env.brevo
     const apiInstance = new Brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
