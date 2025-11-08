@@ -6,6 +6,108 @@ const router = require('express').Router();
 
 const upload = require('../middleware/multer')
 
+
+/**
+ * @swagger
+ * /paiddetail/{venuebookingId}:
+ *   get:
+ *     summary: Get paid booking details
+ *     description: Retrieve full details of a paid booking by its booking ID. This includes the client details and venue information.
+ *     tags:
+ *       - Venue Owner
+ *     parameters:
+ *       - name: venuebookingId
+ *         in: path
+ *         required: true
+ *         description: The ID of the venue booking to retrieve.
+ *         schema:
+ *           type: string
+ *           example: "6721fba8c8d9f1b2a8c8d9f1"
+ *     responses:
+ *       200:
+ *         description: Booking retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Booking retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: "6721fba8c8d9f1b2a8c8d9f1"
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                       example: "2025-11-02"
+ *                     eventType:
+ *                       type: string
+ *                       example: "Wedding"
+ *                     bookingstatus:
+ *                       type: string
+ *                       example: "confirmed"
+ *                     total:
+ *                       type: number
+ *                       example: 250000
+ *                     venueId:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: "671abc9df83a4c5f3b239f6e"
+ *                         venuename:
+ *                           type: string
+ *                           example: "Eventiq Grand Hall"
+ *                         price:
+ *                           type: number
+ *                           example: 250000
+ *                     clientId:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: "671abc9df83a4c5f3b239f6f"
+ *                         firstName:
+ *                           type: string
+ *                           example: "John"
+ *                         surname:
+ *                           type: string
+ *                           example: "Doe"
+ *       404:
+ *         description: No booking found for the given ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No booking found
+ *       400:
+ *         description: Session expired or invalid token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Session expired, login to continue
+ *       500:
+ *         description: Server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
 router.get('/paiddetail/:venuebookingId', getpaidBooking)
 /**
  * @swagger
