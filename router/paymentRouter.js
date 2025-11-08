@@ -235,7 +235,57 @@ router.get('/feature-payment/:featureId', authentication, initializeFeaturePayme
  */
 router.get('/booking-payment/:id', initializeBookingPayment)
 
-
-router.get('/verify', verifyPayment)
+/**
+ * @swagger
+ * /verify/{reference}:
+ *   get:
+ *     summary: Verify payment status with KoraPay
+ *     description: >
+ *       This endpoint verifies the payment status for a booking by checking KoraPay's API.
+ *       It first checks the local database to see if payment is already marked as paid.
+ *       If not, it queries KoraPay using the provided payment reference to confirm the payment status.
+ *     tags:
+ *       - Payments
+ *     parameters:
+ *       - in: path
+ *         name: reference
+ *         required: true
+ *         description: The unique payment reference used during payment initialization.
+ *         schema:
+ *           type: string
+ *           example: "WSUv6kdPmdxw"
+ *     responses:
+ *       200:
+ *         description: Payment verification successful or already confirmed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "payment successful"
+ *       404:
+ *         description: Payment record not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "No booking found for this reference"
+ *       500:
+ *         description: Server error while verifying payment
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ */
+router.get('/verify/:reference', verifyPayment)
 
 module.exports = router;

@@ -190,7 +190,9 @@ console.log(data);
       reference: reference,
       venueId: venueBooking.venueId._id
     })
-    // await payment.save()
+    venueBooking.paymentreference = data.data.reference;
+    await venueBooking.save();
+    await payment.save()
     res.status(200).json({
       message: 'Payment initialized',
       data: data.data,
@@ -203,48 +205,39 @@ console.log(data);
 
 exports.verifyPayment = async (req, res, next) => {
   try {
-    const { event, data } = req.body
-    console.log('event:', event)
-    console.log('data:', data)
-    if (!event || !data) {
-      res.status(400).json({
-        message: 'Error retrieving response from kora pay',
-      })
+    const { reference } = req.params
+    // Option A: check your DB (if webhook already updated the order)
+    const order = await venuebookingModel.findOne({ paymentreference: reference });
+    if (order && order.paymentstatus === "paid") {
+      return res.json({ message:'payment already made' });
+    }
+// console.log(order);
+ 
+    // Option B: call Korapay API to verify (if webhook may be delayed)
+    const response = await axios.get(
+      `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
+        },
+      }
+    );
+console.log(response.data);
+
+    if (response.data.data.status === "success") {
+      console.log('game');
+      
+      const order = await venuebookingModel.findOneAndUpdate(
+        { paymentreference: reference },
+        { paymentstatus: "paid" },
+        { new: true }
+      );
+console.log(order);
+
+      return res.json({message:"payment successful" });
     }
 
-    const payment = await paymentModel.findOne({ reference: data.reference })
-    const venueBooking = await venuebookingModel.findOne({ _id: payment.venuebookingId })
-
-    if (!payment) {
-      return res.status(404).json({
-        message: 'No payment found',
-      })
-    }
-
-    if (!venueBooking) {
-      return res.status(404).json({
-        message: 'Booking not found',
-      })
-    }
-
-    if (event === 'charge.success' && data.status === 'success') {
-      payment.status = successful
-      venueBooking.paymentstatus = 'paid'
-      await payment.save()
-      await venueBooking.save()
-      res.status(200).json({
-        messagwe: 'Payment verified successful',
-      })
-    } else if (event === 'charge.failed' && data.status === 'failed') {
-      payment.status = failed
-      venueBooking.paymentstatus = 'failed'
-      await payment.save()
-      await venueBooking.save()
-      res.status(200).json({
-        messagwe: 'Payment failed via webhook',
-      })
-    } else if (event === 'charge.failed' && data.status === 'failed') {
-    }
+    res.json({ success: false, message: "Payment not confirmed yet" });
   } catch (error) {
     next(error)
   }
