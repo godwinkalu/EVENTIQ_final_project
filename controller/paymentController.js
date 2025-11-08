@@ -132,6 +132,8 @@ exports.initializeBookingPayment = async (req, res, next) => {
   try {
     const { clientId } = req.params
     const client = await clientModel.findById(clientId)
+    console.log(client);
+    
     const venueBooking = await venuebookingModel.findOne({ clientId: client._id })
     const venue = await venueModel.findOne({ _id: venueBooking.venueId })
 
