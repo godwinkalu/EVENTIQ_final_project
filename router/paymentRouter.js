@@ -233,7 +233,7 @@ router.get('/feature-payment/:featureId', authentication, initializeFeaturePayme
  *                   type: string
  *                   example: Internal Server Error
  */
-router.get('/booking-payment/:clientId', initializeBookingPayment)
+router.get('/booking-payment/:id', initializeBookingPayment)
 
 
 router.get('/verify', verifyPayment)

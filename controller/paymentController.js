@@ -130,28 +130,15 @@ exports.initializeFeaturePayment = async (req, res, next) => {
 
 exports.initializeBookingPayment = async (req, res, next) => {
   try {
-    const { clientId } = req.params
-    const client = await clientModel.findById(clientId)
-    console.log(client);
     
-    const venueBooking = await venuebookingModel.findOne({ clientId: client._id })
-    const venue = await venueModel.findOne({ _id: venueBooking.venueId })
-
-    if (!client) {
-      return res.status(404).json({
-        message: 'client not found',
-      })
-    }
-
+    
+    const venueBooking = await venuebookingModel.findById(req.params.id).populate('clientId').populate('venueId')
+    // const venue = await venueModel.findOne({ _id: venueBooking.venueId })
+   console.log(venueBooking);
+   
     if (!venueBooking) {
       return res.status(404).json({
         message: 'No booking found',
-      })
-    }
-
-    if (!venue) {
-      return res.status(404).json({
-        message: 'Venue not found',
       })
     }
 
@@ -162,34 +149,48 @@ exports.initializeBookingPayment = async (req, res, next) => {
       specialChars: false,
     })
 
-    const paymentdetails = {
-      customer: {
-        email: client.email,
-        name: client.firstName,
-      },
-      currency: 'NGN',
-      amount: venue.price,
-      reference: reference,
-      redirect_url: `${process.env.FRONTEND_BASE_URL}/payment-success`
-    }
 
+    const payload = {
+      amount: venueBooking.total,
+      currency: "NGN",
+      reference,
+      customer: { email: venueBooking.clientId.email },
+      redirect_url: `${process.env.FRONTEND_BASE_URL}/payment-success`
+    };
+    console.log('payment:',payload);
+    
+
+    // const paymentdetails = {
+    //   customer: { 
+    //     email: venueBooking.clientId.email,
+    //     name: client.firstName,
+    //   },
+    //   currency: 'NGN',
+    //   amount: venue.price,
+    //   reference: reference,
+    //   redirect_url: `${process.env.FRONTEND_BASE_URL}/payment-success`
+    // }
+    console.log(process.env.KORA_SECRET_KEY);
+    
     const { data } = await axios.post(
       'https://api.korapay.com/merchant/api/v1/charges/initialize',
-      paymentdetails,
+      payload,
       {
         headers: {
           Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
+        "Content-Type": "application/json"
         },
       }
     )
+console.log(data);
 
     const payment = new paymentModel({
-      venuebookingId: venue._id,
-      clientId: client._id,
+      venuebooking_id: venueBooking._id,
+      clientId: venueBooking.clientId._id,
       reference: reference,
-      venueId: venue._id
+      venueId: venueBooking.venueId._id
     })
-    await payment.save()
+    // await payment.save()
     res.status(200).json({
       message: 'Payment initialized',
       data: data.data,
