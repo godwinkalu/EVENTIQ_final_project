@@ -880,7 +880,97 @@ router.get('/venues', allVenues)
  */
 router.get('/all-listed-venues', authorize, allVenuesForAdmin)
 
+/**
+ * @swagger
+ * /overview:
+ *   get:
+ *     summary: Retrieve admin overview statistics
+ *     description: >
+ *       Provides overall statistics for the admin dashboard including total venues, verified users, confirmed bookings, and total revenue generated.
+ *       Only authenticated admins can access this endpoint.
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Admin overview data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Overview for admin corrolated successfully"
+ *                 totalManagement:
+ *                   type: array
+ *                   description: List of confirmed bookings
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: "674bcd8a9b1d2a00124f8e12"
+ *                       clientId:
+ *                         type: string
+ *                         example: "674bcdb39b1d2a00124f8e34"
+ *                       venueId:
+ *                         type: string
+ *                         example: "674bccff9b1d2a00124f8e78"
+ *                       bookingstatus:
+ *                         type: string
+ *                         example: "confirmed"
+ *                       total:
+ *                         type: number
+ *                         example: 150000
+ *                 analysis:
+ *                   type: object
+ *                   properties:
+ *                     totalVenues:
+ *                       type: integer
+ *                       example: 25
+ *                     totalUser:
+ *                       type: integer
+ *                       example: 40
+ *                     totalBookings:
+ *                       type: integer
+ *                       example: 18
+ *                     totalRevenue:
+ *                       type: number
+ *                       example: 2300000
+ *       401:
+ *         description: Unauthorized - Missing or invalid admin token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Auth missing or invalid"
+ *       404:
+ *         description: Admin not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Admin not found"
+ *       500:
+ *         description: Server error while retrieving overview data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ */
+router.get('/overview', authorize, getOverview);
 
-router.get('/overview', authorize, getOverview)
 
 module.exports = router
