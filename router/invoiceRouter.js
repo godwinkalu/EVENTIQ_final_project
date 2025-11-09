@@ -86,7 +86,7 @@ router.get('/invoices', authentication, getInvoice);
 
 /**
  * @swagger
- * /invoice/{invoiceId:
+ * /invoice/{invoiceId}:
  *   get:
  *     summary: Retrieve a single invoice by ID
  *     description: >
