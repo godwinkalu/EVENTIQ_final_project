@@ -13,6 +13,7 @@ const {
   unverifiedVenue,
   VenuesOwner,
   allVenuesForAdmin,
+  getOverview,
 } = require('../controller/adminController')
 const { authentication, authorize } = require('../middleware/authMiddleware')
 
@@ -878,5 +879,8 @@ router.get('/venues', allVenues)
  *                   example: admin not found
  */
 router.get('/all-listed-venues', authorize, allVenuesForAdmin)
+
+
+router.get('/overview', authorize, getOverview)
 
 module.exports = router
