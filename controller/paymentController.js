@@ -1,13 +1,13 @@
 const featureModel = require('../models/featuresModel')
 const venueOwnerModel = require('../models/venueOwnerModel')
-const clientModel = require('../models/clientModel')
 const featuresPaymentModel = require('../models/featurePayment')
-const venueModel = require('../models/venueModel')
 const jwt = require('jsonwebtoken')
 const axios = require('axios')
 const otpGen = require('otp-generator')
 const venuebookingModel = require('../models/venuebookingModel')
 const paymentModel = require('../models/bookingPayment')
+const invoiceModel = require('../models/invoiceModel')
+const venueModel = require('../models/venueModel')
 
 exports.createFeatures = async (req, res, next) => {
   try {
@@ -64,9 +64,10 @@ exports.getAllFeatures = async (req, res, next) => {
 exports.initializeFeaturePayment = async (req, res, next) => {
   try {
     const { id } = req.user
-    const { featureId } = req.params
+    const { featureId, venueId } = req.params
     const venueOwner = await venueOwnerModel.findById(id)
     const feature = await featureModel.findById(featureId)
+    const venue = await venueModel.findById(venueId)
 
     if (!venueOwner) {
       res.status(404).json({
@@ -77,6 +78,12 @@ exports.initializeFeaturePayment = async (req, res, next) => {
     if (!feature) {
       res.status(404).json({
         message: 'Feature not found',
+      })
+    }
+
+    if (!venue) {
+      res.status(404).json({
+        message: 'Venue not found',
       })
     }
 
@@ -95,6 +102,7 @@ exports.initializeFeaturePayment = async (req, res, next) => {
       currency: 'NGN',
       amount: feature.amount,
       reference: reference,
+      redirect_url: `${process.env.FRONTEND_BASE_URL}/payment-success`
     }
 
     const { data } = await axios.post(
@@ -112,6 +120,7 @@ exports.initializeFeaturePayment = async (req, res, next) => {
       featureId: feature._id,
       reference: data.reference,
       subscriptionType: `${feature.duration} month(s)`,
+      venueId: venue._id
     })
 
     res.status(200).json({
@@ -130,12 +139,8 @@ exports.initializeFeaturePayment = async (req, res, next) => {
 
 exports.initializeBookingPayment = async (req, res, next) => {
   try {
-    
-    
-    const venueBooking = await venuebookingModel.findById(req.params.id).populate('clientId').populate('venueId')
-    // const venue = await venueModel.findOne({ _id: venueBooking.venueId })
-   console.log(venueBooking);
-   
+    const venueBooking = await venuebookingModel.findById(req.params.bookingId).populate('clientId').populate('venueId')
+
     if (!venueBooking) {
       return res.status(404).json({
         message: 'No booking found',
@@ -149,50 +154,31 @@ exports.initializeBookingPayment = async (req, res, next) => {
       specialChars: false,
     })
 
-
     const payload = {
       amount: venueBooking.total,
       currency: "NGN",
       reference,
-      customer: { email: venueBooking.clientId.email },
+      customer: { email: venueBooking.clientId.email, name: venueBooking.clientId.firstName },
       redirect_url: `${process.env.FRONTEND_BASE_URL}/payment-success`
     };
-    console.log('payment:',payload);
-    
 
-    // const paymentdetails = {
-    //   customer: { 
-    //     email: venueBooking.clientId.email,
-    //     name: client.firstName,
-    //   },
-    //   currency: 'NGN',
-    //   amount: venue.price,
-    //   reference: reference,
-    //   redirect_url: `${process.env.FRONTEND_BASE_URL}/payment-success`
-    // }
-    console.log(process.env.KORA_SECRET_KEY);
-    
     const { data } = await axios.post(
       'https://api.korapay.com/merchant/api/v1/charges/initialize',
       payload,
       {
         headers: {
           Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
-        "Content-Type": "application/json"
         },
       }
     )
-console.log(data);
 
-    const payment = new paymentModel({
-      venuebooking_id: venueBooking._id,
+    const payment = paymentModel.create({
+      venuebookingId: venueBooking._id,
       clientId: venueBooking.clientId._id,
       reference: reference,
       venueId: venueBooking.venueId._id
     })
-    venueBooking.paymentreference = data.data.reference;
-    await venueBooking.save();
-    await payment.save()
+
     res.status(200).json({
       message: 'Payment initialized',
       data: data.data,
@@ -205,39 +191,82 @@ console.log(data);
 
 exports.verifyPayment = async (req, res, next) => {
   try {
-    const { reference } = req.params
-    // Option A: check your DB (if webhook already updated the order)
-    const order = await venuebookingModel.findOne({ paymentreference: reference });
-    if (order && order.paymentstatus === "paid") {
-      return res.json({ message:'payment already made' });
-    }
-// console.log(order);
- 
-    // Option B: call Korapay API to verify (if webhook may be delayed)
-    const response = await axios.get(
-      `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
-        },
+    const { reference } = req.query;
+    const payment = await paymentModel.findOne({ reference: reference }) || await featuresPaymentModel.findOne({ reference: reference });
+
+    if (payment.type === 'venuebooking') {
+      const booking = await venuebookingModel.findById(payment.venuebookingId).populate('clientId').populate('venueId')
+
+      if (!payment) {
+        return res.json({ message: 'payment not found' });
       }
-    );
-console.log(response.data);
 
-    if (response.data.data.status === "success") {
-      console.log('game');
-      
-      const order = await venuebookingModel.findOneAndUpdate(
-        { paymentreference: reference },
-        { paymentstatus: "paid" },
-        { new: true }
+      if (!booking) {
+        return res.json({ message: 'booking not found' });
+      }
+
+      const { data } = await axios.get(
+        `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
+          },
+        }
       );
-console.log(order);
 
-      return res.json({message:"payment successful" });
+      if (data.status === true && data.data.status === 'success') {
+        payment.status = 'successful'
+        booking.paymentstatus = 'paid'
+        await payment.save()
+        await booking.save()
+        const invoice = await invoiceModel.create({
+          clientId: booking.clientId._id,
+          venueId: booking.venueId._id,
+          venuebookingId: booking._id
+        })
+        res.json({ message: "payment verified successful" });
+      } else if (data.status === true && data.data.status === 'failed') {
+        payment.status = 'failed'
+        booking.paymentstatus = 'failed'
+        await payment.save()
+        await booking.save()
+        res.json({ message: "payment verified successful" });
+      }
+    } else if (payment.type === 'feature') {
+      const venue = await venueModel.findById(payment.venueId);
+
+      if (!venue) {
+        return res.status(404).json({
+          message: 'Venue not found'
+        })
+      }
+
+      const { data } = await axios.get(
+        `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
+          },
+        }
+      );
+
+      if (data.status === true && data.data.status === 'success') {
+        payment.paymentstatus = 'successful'
+        venue.isFeatured = true
+        await payment.save()
+        await venue.save()
+        const invoice = await invoiceModel.create({
+          clientId: booking.clientId._id,
+          venueId: booking.venueId._id,
+          venuebookingId: booking._id
+        })
+        res.json({ message: "payment verified successful" });
+      } else if (data.status === true && data.data.status === 'failed') {
+        payment.paymentStatus = 'failed'
+        await payment.save()
+        res.json({ message: "payment verified successful" });
+      }
     }
-
-    res.json({ success: false, message: "Payment not confirmed yet" });
   } catch (error) {
     next(error)
   }

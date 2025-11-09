@@ -38,10 +38,6 @@ const venuebookingSchema = new mongoose.Schema(
       enum: ['pending', 'refunded'],
       default: 'pending',
     },
-    paymentreference: {
-      type: String,
-      default: false,
-    },
     paymentstatus: {
       type: String,
       enum: ['pending', 'paid', 'failed'],

@@ -6,10 +6,18 @@ const subscriptionSchema = new mongoose.Schema({
     ref: 'venue-owners',
     required: true
   },
+  venueId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'venues'
+  },
   featureId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'features',
     required: true
+  },
+  type: {
+    type: String,
+    default: 'feature'
   },
   reference: {
     type: String,

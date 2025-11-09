@@ -173,7 +173,7 @@ router.get('/feature-payment/:featureId', authentication, initializeFeaturePayme
 
 /**
  * @swagger
- * /booking-payment/{clientId}:
+ * /booking-payment/{bookingId}:
  *   get:
  *     summary: Initialize booking payment
  *     description: Initializes a payment for a venue booking using KoraPay. The client must already have a booking before payment can be initialized.
@@ -182,7 +182,7 @@ router.get('/feature-payment/:featureId', authentication, initializeFeaturePayme
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - name: clientId
+ *       - name: bookingId
  *         in: path
  *         required: true
  *         description: ID of the client making the payment
@@ -233,7 +233,7 @@ router.get('/feature-payment/:featureId', authentication, initializeFeaturePayme
  *                   type: string
  *                   example: Internal Server Error
  */
-router.get('/booking-payment/:id', initializeBookingPayment)
+router.get('/booking-payment/:bookingId', initializeBookingPayment)
 
 /**
  * @swagger
@@ -286,6 +286,6 @@ router.get('/booking-payment/:id', initializeBookingPayment)
  *                   type: string
  *                   example: "Internal Server Error"
  */
-router.get('/verify/:reference', verifyPayment)
+router.get('/verify', verifyPayment)
 
 module.exports = router;
