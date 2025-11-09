@@ -1,10 +1,13 @@
 const adminModel = require('../models/adminModel')
-const bcrypt = require('bcrypt')
-const venueOwnerModel = require('../models/venueOwnerModel')
 const venueModel = require('../models/venueModel')
+const venueOwnerModel = require('../models/venueOwnerModel')
+const venueBookingModel = require('../models/venuebookingModel')
+const clientModel = require('../models/clientModel')
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const Brevo = require('@getbrevo/brevo')
 const { signUpTemplate } = require('../utils/emailTemplate')
+const venuebookingModel = require('../models/venuebookingModel')
 
 exports.signUp = async (req, res, next) => {
   const { firstName, surname, phoneNumber, email, password } = req.body
@@ -302,7 +305,7 @@ exports.unverifiedVenue = async (req, res, next) => {
 
     venue.status = 'unverified'
     await venue.save()
-    
+
     const apikey = process.env.brevo
     const apiInstance = new Brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
@@ -352,6 +355,40 @@ exports.allVenuesForAdmin = async (req, res, next) => {
         message: 'session expired please login to continue',
       })
     }
+    next(error)
+  }
+}
+
+
+exports.getOverview = async (req, res, next) => {
+  try {
+    const admin = await adminModel.findById(req.user.id);
+
+    if (!admin) {
+      return res.status(404).json({
+        message: 'Admin not found'
+      })
+    }
+
+    const totalVenues = await venueModel.find();
+    const totalVenueOwners = await venueOwnerModel.find({ isVerified: true });
+    const totalClients = await clientModel.find({ isVerified: true })
+    const totalBookings = await venuebookingModel.find({ bookingstatus: 'confirmed' });
+    const totalRevenue = await venueBookingModel.find({ paymentstatus: 'paid' })
+
+    const data = {
+      totalVenues: totalVenues.length,
+      totalUser: totalVenueOwners.length + totalClients.length,
+      totalBookings: totalBookings.length,
+      totalRevenue: totalRevenue.reduce((a, c)=> a + c.total, 0)
+    }
+
+    res.status(200).json({
+      message: 'Overview for admin corrolated successfully',
+      totalManagement: totalBookings,
+      analysis: data
+    })
+  } catch (error) {
     next(error)
   }
 }
