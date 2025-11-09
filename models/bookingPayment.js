@@ -14,6 +14,10 @@ const paymentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'clients',
     },
+    type: {
+      type: String,
+      default: 'venuebooking'
+    },
     reference: {
       type: String
     },
@@ -22,14 +26,7 @@ const paymentSchema = new mongoose.Schema(
       enum: ['pending', 'processing', 'successful', 'failed'],
       lowercase: true,
       default: 'pending',
-    },
-    paymentStatus: { 
-      type: String,
-       enum: ["pending","paid","shipped","cancelled"],
-       default: "pending",
-     },
-     paymentRef: String
-
+    }
   },
   { timestamps: true }
 )
