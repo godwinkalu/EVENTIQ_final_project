@@ -45,10 +45,17 @@ exports.verify = async (req, res, next) => {
       otp: null,
       otpExpiredat: null,
     })
-
+      const token = jwt.sign(
+      { id: user._id, isLoggedIn: user.isLoggedIn, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '1d',
+      }
+    ) 
     await user.save()
     res.status(200).json({
       message: 'User verified Successfully',
+      token
     })
   } catch (error) {
     next(error)
