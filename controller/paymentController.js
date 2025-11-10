@@ -260,6 +260,18 @@ exports.verifyPayment = async (req, res, next) => {
           venueId: booking.venueId._id,
           venuebookingId: booking._id
         })
+         const link = `https://event-app-theta-seven.vercel.app/#/IndividualPayment/${venueBooking._id}`
+        
+            const apikey = process.env.brevo
+            const apiInstance = new Brevo.TransactionalEmailsApi()
+            apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
+            const sendSmtpEmail = new Brevo.SendSmtpEmail()
+            sendSmtpEmail.subject = 'Venue Invoice '
+            sendSmtpEmail.to = [{ email: client.email }]
+            sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
+            sendSmtpEmail.htmlContent = confirmedHtml(link, client.firstName, venue.venuename, venueBooking.date)
+            const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
+
         res.json({ message: "payment verified successful" });
       } else if (data.status === true && data.data.status === 'failed') {
         payment.paymentStatus = 'failed'
