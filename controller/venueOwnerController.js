@@ -101,7 +101,7 @@ exports.getVenueOwner = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const owner = await venueOwnerModel.findById(id).select('-password -otp -password  -isVerified -isLoggedIn');
+    const owner = await venueOwnerModel.findById(id)
 
     console.log(owner);
 

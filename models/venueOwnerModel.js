@@ -23,12 +23,12 @@ const venueOwnerSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      select:false
+      
     },
     phoneNumber: {
       type: String,
       default: '',
-      select:false
+     
     },
     profilePicture: {
       url: {
