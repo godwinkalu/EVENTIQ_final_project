@@ -133,7 +133,7 @@ exports.acceptedBooking = async (req, res, next) => {
 
     venueBooking.bookingstatus = 'confirmed'
     await venueBooking.save()
-    const link = `${req.protocol}://${req.get('host')}/payment`
+    const link = `https://event-app-theta-seven.vercel.app/#/IndividualPayment/${venueBooking._id}`
 
     const apikey = process.env.brevo
     const apiInstance = new Brevo.TransactionalEmailsApi()
