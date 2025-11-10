@@ -86,7 +86,7 @@ exports.getClients = async (req, res, next) => {
   try {
     const clients = await clientModel
       .find()
-      .select('-isVerified -otp -otpExpiredat -__v -isLoggedIn')
+      
 
     res.status(200).json({
       message: 'Clients fetched',
