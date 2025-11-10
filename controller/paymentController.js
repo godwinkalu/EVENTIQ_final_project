@@ -159,7 +159,7 @@ exports.initializeBookingPayment = async (req, res, next) => {
       currency: "NGN",
       reference,
       customer: { email: venueBooking.clientId.email, name: venueBooking.clientId.firstName },
-      redirect_url: `${process.env.FRONTEND_BASE_URL}/payment-success`
+      redirect_url: `${process.env.FRONTEND_BASE_URL}/#/payment-success`
     };
 
     const { data } = await axios.post(
