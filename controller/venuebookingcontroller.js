@@ -111,8 +111,6 @@ exports.acceptedBooking = async (req, res, next) => {
     const venueOwner = await venueOwnerModel.findById(req.user.id)
     const venueBooking = await venuebookingModel.findById(req.params.bookingId).populate('clientId')
     const client = await clientModel.findById(venueBooking.clientId._id)
-    console.log('client:', client);
-    
     const venue = await venueModel.findById(venueBooking.venueId)
 
     if (!venueOwner) {
@@ -150,7 +148,7 @@ exports.acceptedBooking = async (req, res, next) => {
     sendSmtpEmail.subject = 'Venue Approval'
     sendSmtpEmail.to = [{ email: client.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-    sendSmtpEmail.htmlContent = confirmedHtml(link, client.firstName, venue.venuename,venueBooking.date)
+    sendSmtpEmail.htmlContent = confirmedHtml(link, client.firstName, venue.venuename,date)
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     
     res.status(200).json({
@@ -218,7 +216,7 @@ exports.rejectedBooking = async (req, res, next) => {
     sendSmtpEmail.subject = 'Venue Rejected'
     sendSmtpEmail.to = [{ email: client.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-    sendSmtpEmail.htmlContent = rejectedHtml(reason, client.firstName, venue.venuename, venueBooking.date)
+    sendSmtpEmail.htmlContent = rejectedHtml(reason, client.firstName, venue.venuename,venueBooking.date)
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     await venuebookingModel.findByIdAndDelete(venueBooking._id)
       res.status(200).json({
