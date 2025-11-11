@@ -271,7 +271,7 @@ exports.verifyPayment = async (req, res, next) => {
       } else if (data.status === true && data.data.status === 'failed') {
         payment.paymentStatus = 'failed'
         await payment.save()
-        res.json({ message: 'payment verified successful' })
+        res.json({ message: 'payment verified successful' ,data})
       }
     }
   } catch (error) {
