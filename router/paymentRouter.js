@@ -235,28 +235,27 @@ router.get('/feature-payment/:featureId', authentication, initializeFeaturePayme
  */
 router.get('/booking-payment/:bookingId', initializeBookingPayment)
 
+
 /**
  * @swagger
- * /verify/{reference}:
+ * /verify:
  *   get:
- *     summary: Verify payment status with KoraPay
+ *     summary: Verify a payment using the reference code
  *     description: >
- *       This endpoint verifies the payment status for a booking by checking KoraPay's API.
- *       It first checks the local database to see if payment is already marked as paid.
- *       If not, it queries KoraPay using the provided payment reference to confirm the payment status.
+ *       This endpoint verifies a payment for either a **venue booking** or a **featured venue** using the payment reference.
+ *       It checks the payment status from KoraPay and updates the database accordingly (booking or venue status + invoice creation).
  *     tags:
- *       - Payments
+ *       - Payment
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: reference
  *         required: true
- *         description: The unique payment reference used during payment initialization.
  *         schema:
  *           type: string
- *           example: "WSUv6kdPmdxw"
+ *         description: The unique payment reference to verify (from KoraPay)
  *     responses:
  *       200:
- *         description: Payment verification successful or already confirmed
+ *         description: Payment verification completed successfully
  *         content:
  *           application/json:
  *             schema:
@@ -264,9 +263,19 @@ router.get('/booking-payment/:bookingId', initializeBookingPayment)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "payment successful"
+ *                   example: payment verified successful
+ *       400:
+ *         description: Invalid or incomplete verification response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid verification response
  *       404:
- *         description: Payment record not found
+ *         description: Payment or related record not found
  *         content:
  *           application/json:
  *             schema:
@@ -274,9 +283,9 @@ router.get('/booking-payment/:bookingId', initializeBookingPayment)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "No booking found for this reference"
+ *                   example: Booking not found
  *       500:
- *         description: Server error while verifying payment
+ *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
@@ -284,8 +293,9 @@ router.get('/booking-payment/:bookingId', initializeBookingPayment)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Internal Server Error"
+ *                   example: An unexpected error occurred
  */
-router.get('/verify', verifyPayment)
+router.get('/verify', verifyPayment);
+
 
 module.exports = router;

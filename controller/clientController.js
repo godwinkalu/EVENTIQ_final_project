@@ -5,10 +5,8 @@ const notificationclientModel = require('../models/notificationclientModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const cloudinary = require('../config/cloudinary')
-const { signUpTemplate } = require('../utils/emailTemplate')
-const { emailSender } = require('../middleware/nodemalier')
-const Brevo = require('@getbrevo/brevo')
 const venueModel = require('../models/venueModel')
+const { emailSender } = require('../middleware/brevo')
 
 exports.signUp = async (req, res, next) => {
   const { firstName, surname, email, password } = req.body
@@ -52,18 +50,14 @@ exports.signUp = async (req, res, next) => {
       },
     })
 
-    const apikey = process.env.brevo
-    const apiInstance = new Brevo.TransactionalEmailsApi()
-    apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
+    const details = {
+      otp: client.otp,
+      firstName: client.firstName,
+      email: client.email,
+      subject: 'Welcome To Eventiq'
+    }
 
-    const sendSmtpEmail = new Brevo.SendSmtpEmail()
-    sendSmtpEmail.subject = 'Welcome to Eventiq'
-    sendSmtpEmail.to = [{ email: client.email }]
-    sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-
-    sendSmtpEmail.htmlContent = signUpTemplate(otp, client.firstName)
-
-    const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
+   await emailSender(details)
     await client.save()
     const notification = await notificationclientModel.create({
       clientId: client._id,

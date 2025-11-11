@@ -148,7 +148,6 @@ exports.deleteAdmin = async (req, res) => {
   }
 }
 
-
 exports.VenuesOwner = async (req, res, next) => {
   try {
     const id = req.user.id
@@ -174,10 +173,9 @@ exports.VenuesOwner = async (req, res, next) => {
   }
 }
 
-
 exports.allVenues = async (req, res, next) => {
   try {
-    const venues = await venueModel.find({ status: 'verified' }).sort({ isFeatured: -1, createdAt: -1 });
+    const venues = await venueModel.find({ status: 'verified' }).sort({ isFeatured: -1, createdAt: -1 })
 
     res.status(200).json({
       message: 'All venues listed',
@@ -196,7 +194,7 @@ exports.allVenues = async (req, res, next) => {
 
 exports.allVenueStatus = async (req, res, next) => {
   try {
-    const status = req.query.status;
+    const status = req.query.status
     const adminid = req.user.id
     const admin = await adminModel.findById(adminid)
     if (!admin) {
@@ -219,7 +217,6 @@ exports.allVenueStatus = async (req, res, next) => {
     next(error)
   }
 }
-
 
 exports.allVenuesFeatured = async (req, res, next) => {
   try {
@@ -248,8 +245,9 @@ exports.allVenuesFeatured = async (req, res, next) => {
 
 exports.verifiyVenue = async (req, res, next) => {
   try {
-    const admin = await adminModel.findById(req.user.id);
-    const venue = await venueModel.findById(req.params.venueId);
+    const admin = await adminModel.findById(req.user.id)
+    const venue = await venueModel.findById(req.params.venueId)
+    const venueOwner = await venueOwnerModel.findById(venue.venueOwnerId)
 
     if (!admin) {
       return res.status(404).json({
@@ -263,7 +261,22 @@ exports.verifiyVenue = async (req, res, next) => {
       })
     }
 
+    if (!venueOwner) {
+      return res.status(404).json({
+        message: 'venueowner not found',
+      })
+    }
+
     venue.status = 'verified'
+
+    const details = {
+      otp: client.otp,
+      firstName: client.firstName,
+      email: client.email,
+      subject: 'Welcome To Eventiq',
+    }
+
+    await emailSender(details)
     await venue.save()
     res.status(200).json({
       message: 'venue verified  successfully',
@@ -281,8 +294,8 @@ exports.verifiyVenue = async (req, res, next) => {
 exports.unverifiedVenue = async (req, res, next) => {
   try {
     const { reason } = req.body
-    const admin = await adminModel.findById(req.user.id);
-    const venue = await venueModel.findById(req.params.venueId);
+    const admin = await adminModel.findById(req.user.id)
+    const venue = await venueModel.findById(req.params.venueId)
     const venueowner = await venueOwnerModel.findOne({ _id: venue.venueOwnerId })
 
     if (!admin) {
@@ -331,8 +344,6 @@ exports.unverifiedVenue = async (req, res, next) => {
   }
 }
 
-
-
 exports.allVenuesForAdmin = async (req, res, next) => {
   try {
     const adminid = req.user.id
@@ -342,7 +353,7 @@ exports.allVenuesForAdmin = async (req, res, next) => {
         message: 'admin not found',
       })
     }
-    const venues = await venueModel.find();
+    const venues = await venueModel.find()
 
     res.status(200).json({
       message: 'All venues listed',
@@ -359,34 +370,33 @@ exports.allVenuesForAdmin = async (req, res, next) => {
   }
 }
 
-
 exports.getOverview = async (req, res, next) => {
   try {
-    const admin = await adminModel.findById(req.user.id);
+    const admin = await adminModel.findById(req.user.id)
 
     if (!admin) {
       return res.status(404).json({
-        message: 'Admin not found'
+        message: 'Admin not found',
       })
     }
 
-    const totalVenues = await venueModel.find();
-    const totalVenueOwners = await venueOwnerModel.find({ isVerified: true });
+    const totalVenues = await venueModel.find()
+    const totalVenueOwners = await venueOwnerModel.find({ isVerified: true })
     const totalClients = await clientModel.find({ isVerified: true })
-    const totalBookings = await venuebookingModel.find({ bookingstatus: 'confirmed' });
+    const totalBookings = await venuebookingModel.find({ bookingstatus: 'confirmed' })
     const totalRevenue = await venueBookingModel.find({ paymentstatus: 'paid' })
 
     const data = {
       totalVenues: totalVenues.length,
       totalUser: totalVenueOwners.length + totalClients.length,
       totalBookings: totalBookings.length,
-      totalRevenue: totalRevenue.reduce((a, c)=> a + c.total, 0)
+      totalRevenue: totalRevenue.reduce((a, c) => a + c.total, 0),
     }
 
     res.status(200).json({
       message: 'Overview for admin corrolated successfully',
       totalManagement: totalBookings,
-      analysis: data
+      analysis: data,
     })
   } catch (error) {
     next(error)

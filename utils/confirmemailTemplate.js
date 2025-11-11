@@ -176,7 +176,7 @@ exports.rejectedHtml = (reasons, firstName, venueName, date) => {
     `
 }
 
-exports.VenueOwnerInvoiceHtml = (invoiceLink, ownerName, venueName, clientName, bookingDate, totalAmount, invoiceNumber) => {
+exports.VenueOwnerInvoiceHtml = (invoiceLink, ) => {
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -285,7 +285,7 @@ exports.VenueOwnerInvoiceHtml = (invoiceLink, ownerName, venueName, clientName, 
 };
 
 
-exports.ClientInvoiceHtml = (invoiceLink, firstName, venueName, totalAmount, bookingDate, invoiceNumber) => {
+exports.ClientInvoiceHtml = (invoiceLink,firstName ) => {
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -377,12 +377,7 @@ exports.ClientInvoiceHtml = (invoiceLink, firstName, venueName, totalAmount, boo
               <p>Hello ${firstName},</p>
               <p>Thank you for booking with <strong>Orangefield</strong>! Below are the details of your recent booking invoice.</p>
 
-              <div class="details">
-                  <p><strong>Invoice Number:</strong> ${invoiceNumber}</p>
-                  <p><strong>Venue:</strong> ${venueName}</p>
-                  <p><strong>Booking Date:</strong> ${bookingDate}</p>
-                  <p><strong>Total Amount:</strong> ₦${Number(totalAmount).toLocaleString()}</p>
-              </div>
+             
 
               <div class="button-container">
                   <a href="${invoiceLink}" class="button">View Invoice</a>
