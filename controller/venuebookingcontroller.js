@@ -150,7 +150,7 @@ exports.acceptedBooking = async (req, res, next) => {
     sendSmtpEmail.subject = 'Venue Approval'
     sendSmtpEmail.to = [{ email: client.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-    sendSmtpEmail.htmlContent = confirmedHtml(link, client.firstName)
+    sendSmtpEmail.htmlContent = confirmedHtml(link, client.firstName, venue.venuename,)
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     
     res.status(200).json({
