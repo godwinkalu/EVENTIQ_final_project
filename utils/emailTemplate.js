@@ -90,6 +90,7 @@ exports.signUpTemplate=(otp,firstName)=>{
   
     `
 }
+
 exports.resendOtpTemplate = (newOtp, firstName) => {
   return `
     <!DOCTYPE html>
@@ -185,7 +186,7 @@ exports.resendOtpTemplate = (newOtp, firstName) => {
 }
 
 
-exports.forgotPasswordTemplate = (verifyLink, firstName) => {
+exports.forgotPasswordTemplate = (otp, firstName) => {
   return `
     <!DOCTYPE html>
     <html lang="en">
@@ -261,10 +262,8 @@ exports.forgotPasswordTemplate = (verifyLink, firstName) => {
             <div class="content">
                 <p>Hello ${firstName},</p>
                  <p>A reset password was requested on your account</p>
-                <p>Please click the button below to reset your password</p>
-               <div class="button-container">
-               <a href="${verifyLink}" class="button">Reset password</a>
-                </div>
+                <p>Here is your one-time password to complete your verification</p>
+               <p>${otp}</p>
                 <p>If you did not request to reset your password, kindly ignore this email.</p>
                 <p>Best regards,<br>Eventiq</p>
             </div>

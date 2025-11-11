@@ -3,11 +3,13 @@ const venueOwnerModel = require('../models/venueOwnerModel')
 const featuresPaymentModel = require('../models/featurePayment')
 const jwt = require('jsonwebtoken')
 const axios = require('axios')
+const Brevo = require('@getbrevo/brevo')
 const otpGen = require('otp-generator')
 const venuebookingModel = require('../models/venuebookingModel')
 const paymentModel = require('../models/bookingPayment')
 const invoiceModel = require('../models/invoiceModel')
 const venueModel = require('../models/venueModel')
+const { ClientInvoiceHtml } = require('../utils/confirmemailTemplate')
 
 exports.createFeatures = async (req, res, next) => {
   try {
@@ -102,7 +104,7 @@ exports.initializeFeaturePayment = async (req, res, next) => {
       currency: 'NGN',
       amount: feature.amount,
       reference: reference,
-      redirect_url: `${process.env.FRONTEND_BASE_URL}/payment-success`
+      redirect_url: `${process.env.FRONTEND_BASE_URL}/payment-success`,
     }
 
     const { data } = await axios.post(
@@ -120,7 +122,7 @@ exports.initializeFeaturePayment = async (req, res, next) => {
       featureId: feature._id,
       reference: data.reference,
       subscriptionType: `${feature.duration} month(s)`,
-      venueId: venue._id
+      venueId: venue._id,
     })
 
     res.status(200).json({
@@ -139,7 +141,10 @@ exports.initializeFeaturePayment = async (req, res, next) => {
 
 exports.initializeBookingPayment = async (req, res, next) => {
   try {
-    const venueBooking = await venuebookingModel.findById(req.params.bookingId).populate('clientId').populate('venueId')
+    const venueBooking = await venuebookingModel
+      .findById(req.params.bookingId)
+      .populate('clientId')
+      .populate('venueId')
 
     if (!venueBooking) {
       return res.status(404).json({
@@ -156,27 +161,23 @@ exports.initializeBookingPayment = async (req, res, next) => {
 
     const payload = {
       amount: venueBooking.total,
-      currency: "NGN",
+      currency: 'NGN',
       reference,
       customer: { email: venueBooking.clientId.email, name: venueBooking.clientId.firstName },
-      redirect_url: `${process.env.FRONTEND_BASE_URL}/#/payment-success`
-    };
+      redirect_url: `${process.env.FRONTEND_BASE_URL}/#/payment-success`,
+    }
 
-    const { data } = await axios.post(
-      'https://api.korapay.com/merchant/api/v1/charges/initialize',
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
-        },
-      }
-    )
+    const { data } = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', payload, {
+      headers: {
+        Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
+      },
+    })
 
     const payment = paymentModel.create({
       venuebookingId: venueBooking._id,
       clientId: venueBooking.clientId._id,
       reference: reference,
-      venueId: venueBooking.venueId._id
+      venueId: venueBooking.venueId._id,
     })
 
     res.status(200).json({
@@ -188,32 +189,36 @@ exports.initializeBookingPayment = async (req, res, next) => {
   }
 }
 
-
 exports.verifyPayment = async (req, res, next) => {
   try {
-    const { reference } = req.query;
-    const payment = await paymentModel.findOne({ reference: reference }) || await featuresPaymentModel.findOne({ reference: reference });
+    const { reference } = req.query
+    
+    const payment =
+      (await paymentModel.findOne({ reference: reference })) ||
+      (await featuresPaymentModel.findOne({ reference: reference }))
+
+         if (!payment) {
+        return res.json({ message: 'payment not found' })
+      }
 
     if (payment.type === 'venuebooking') {
-      const booking = await venuebookingModel.findById(payment.venuebookingId).populate('clientId').populate('venueId')
-
-      if (!payment) {
-        return res.json({ message: 'payment not found' });
-      }
-
+      const booking = await venuebookingModel
+        .findById(payment.venuebookingId)
+        .populate('clientId')
+        .populate('venueId')
+            console.log(booking.clientId);
+            
       if (!booking) {
-        return res.json({ message: 'booking not found' });
+        return res.json({ message: 'booking not found' })
       }
 
-      const { data } = await axios.get(
-        `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
-          },
-        }
-      );
-
+      const { data } = await axios.get(`https://api.korapay.com/merchant/api/v1/charges/${reference}`, {
+        headers: {
+          Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
+        },
+      })
+       console.log('email:', booking.clientId.email);
+       
       if (data.status === true && data.data.status === 'success') {
         payment.status = 'successful'
         booking.paymentstatus = 'paid'
@@ -222,64 +227,56 @@ exports.verifyPayment = async (req, res, next) => {
         const invoice = await invoiceModel.create({
           clientId: booking.clientId._id,
           venueId: booking.venueId._id,
-          venuebookingId: booking._id
+          venuebookingId: booking._id,
         })
-        res.json({ message: "payment verified successful" });
+        const link = `https://event-app-theta-seven.vercel.app/#/IndividualPayment/${booking._id}`
+        const apikey = process.env.brevo
+        const apiInstance = new Brevo.TransactionalEmailsApi()
+        apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
+        const sendSmtpEmail = new Brevo.SendSmtpEmail()
+        sendSmtpEmail.subject = 'Venue Invoice '
+        sendSmtpEmail.to = [{ email: booking.clientId.email }]
+        sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
+        sendSmtpEmail.htmlContent = ClientInvoiceHtml(link, booking.clientId.firstName)
+        const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
+        res.json({ message: 'payment verified successful' })
       } else if (data.status === true && data.data.status === 'failed') {
         payment.status = 'failed'
         booking.paymentstatus = 'failed'
         await payment.save()
         await booking.save()
-        res.json({ message: "payment verified successful" });
+        res.json({ message: 'payment verified successful' })
       }
     } else if (payment.type === 'feature') {
-      const venue = await venueModel.findById(payment.venueId);
+      const venue = await venueModel.findById(payment.venueId)
 
       if (!venue) {
         return res.status(404).json({
-          message: 'Venue not found'
+          message: 'Venue not found',
         })
       }
 
-      const { data } = await axios.get(
-        `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
-          },
-        }
-      );
+      const { data } = await axios.get(`https://api.korapay.com/merchant/api/v1/charges/${reference}`, {
+        headers: {
+          Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
+        },
+      })
 
       if (data.status === true && data.data.status === 'success') {
         payment.paymentstatus = 'successful'
         venue.isFeatured = true
         await payment.save()
         await venue.save()
-        const invoice = await invoiceModel.create({
-          clientId: booking.clientId._id,
-          venueId: booking.venueId._id,
-          venuebookingId: booking._id
-        })
-         const link = `https://event-app-theta-seven.vercel.app/#/IndividualPayment/${venueBooking._id}`
-        
-            const apikey = process.env.brevo
-            const apiInstance = new Brevo.TransactionalEmailsApi()
-            apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
-            const sendSmtpEmail = new Brevo.SendSmtpEmail()
-            sendSmtpEmail.subject = 'Venue Invoice '
-            sendSmtpEmail.to = [{ email: client.email }]
-            sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-            sendSmtpEmail.htmlContent = confirmedHtml(link, client.firstName, venue.venuename, venueBooking.date)
-            const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
-
-        res.json({ message: "payment verified successful" });
+        res.json({ message: 'payment verified successful' })
       } else if (data.status === true && data.data.status === 'failed') {
         payment.paymentStatus = 'failed'
         await payment.save()
-        res.json({ message: "payment verified successful" });
+        res.json({ message: 'payment verified successful' })
       }
     }
   } catch (error) {
+    console.log('error:',error);
+    
     next(error)
   }
 }
