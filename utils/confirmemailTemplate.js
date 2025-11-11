@@ -1,4 +1,4 @@
-exports.confirmedHtml = (verifyLink, firstName, venueName, date) => {
+exports.confirmedHtml = (verifyLink, firstName, venueName,date) => {
   return `
       <!DOCTYPE html>
       <html lang="en">
