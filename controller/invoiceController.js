@@ -1,49 +1,61 @@
-const invoiceModel = require('../models/invoiceModel');
-const clientModel = require('../models/clientModel');
-
+const invoiceModel = require('../models/invoiceModel')
+const clientModel = require('../models/clientModel')
 
 exports.getInvoice = async (req, res, next) => {
   try {
-    const client = await clientModel.findById(req.user.id);
+    const client = await clientModel.findById(req.user.id)
 
     if (!client) {
       return res.status(404).json({
-        message: 'Client not found'
+        message: 'Client not found',
       })
     }
 
-    const invoice = await invoiceModel.find({clientId: client._id})
+    const invoice = await invoiceModel
+      .find({ clientId: client._id })
+      .populate('clientId')
+      .populate('venueId')
+      .populate('venuebookingId')
+      .sort({ createdAt: -1 })
     res.status(200).json({
       message: 'Invoice generated successfully',
-      data: invoice
+      data: invoice,
     })
   } catch (error) {
     next(error)
   }
 }
 
-exports.getOneInvoice = async (req ,res,next) =>{
- try {
-  const {id} = req.params
-  const client = await clientModel.findById(req.user.id)
-  
-  const Invoice = await invoiceModel.findById(id)
-  if (!Invoice) {
-    return res.status(404).json({
-      message: 'Invoice Not Found'
+exports.getOneInvoice = async (req, res, next) => {
+  try {
+    const client = await clientModel.findById(req.user.id)
+    const { invoiceId } = req.params
+
+    if (!client) {
+      return res.status(404).json({
+        message: 'Client Not Found',
+      })
+    }
+
+    const invoice = await invoiceModel
+      .findOne({
+        clientId: client._id,
+      })
+      .populate('clientId')
+      .populate('venueId')
+      .populate('venuebookingId')
+
+    if (!invoice) {
+      return res.status(404).json({
+        message: 'Invoice Not Found',
+      })
+    }
+
+    res.status(200).json({
+      message: 'invoice Data',
+      data: invoice,
     })
+  } catch (error) {
+    next(error)
   }
-  if (!client) {
-    return res.status(404).json({
-      message: 'Client Not Found'
-    })
-  }
-  res.status(200).json({
-    message:'Invoice Data',
-    data: Invoice
-  })
-  
- } catch (error) {
-  next(error)
- }
 }
