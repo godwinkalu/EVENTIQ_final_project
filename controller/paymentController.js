@@ -246,7 +246,7 @@ exports.verifyPayment = async (req, res, next) => {
         });
 
         // Send email notification
-        const link = `https://event-app-theta-seven.vercel.app/#/IndividualPayment/${booking._id}`;
+        const link = `https://event-app-theta-seven.vercel.app/#/invoice/${invoice._id}`;
         const apikey = process.env.brevo;
         const apiInstance = new Brevo.TransactionalEmailsApi();
         apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey);
@@ -255,7 +255,7 @@ exports.verifyPayment = async (req, res, next) => {
         sendSmtpEmail.subject = "Venue Invoice";
         sendSmtpEmail.to = [{ email: booking.clientId.email }];
         sendSmtpEmail.sender = { name: "Eventiq", email: "udumag51@gmail.com" };
-        sendSmtpEmail.htmlContent = ClientInvoiceHtml(link, booking.clientId.firstName);
+        sendSmtpEmail.htmlContent = ClientInvoiceHtml(link, booking.clientId.firstName,booking.venueId.venuename.toUpperCase());
 
         try {
           await apiInstance.sendTransacEmail(sendSmtpEmail);
