@@ -188,95 +188,131 @@ exports.initializeBookingPayment = async (req, res, next) => {
     next(error)
   }
 }
-
 exports.verifyPayment = async (req, res, next) => {
   try {
-    const { reference } = req.query
-    
+    const { reference } = req.query;
+
+    if (!reference) {
+      return res.status(400).json({ message: "Reference is required" });
+    }
+
+    // Check both models for matching reference
     const payment =
-      (await paymentModel.findOne({ reference: reference })) ||
-      (await featuresPaymentModel.findOne({ reference: reference }))
+      (await paymentModel.findOne({ reference })) ||
+      (await featuresPaymentModel.findOne({ reference }));
 
-         if (!payment) {
-        return res.json({ message: 'payment not found' })
-      }
+    if (!payment) {
+      return res.status(404).json({ message: "Payment not found" });
+    }
 
-    if (payment.type === 'venuebooking') {
-      const booking = await venuebookingModel
-        .findById(payment.venuebookingId)
-        .populate('clientId')
-        .populate('venueId')
-            console.log(booking.clientId);
-            
-      if (!booking) {
-        return res.json({ message: 'booking not found' })
-      }
-
-      const { data } = await axios.get(`https://api.korapay.com/merchant/api/v1/charges/${reference}`, {
+    // Verify payment with KoraPay API
+    const { data: koraResponse } = await axios.get(
+      `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
+      {
         headers: {
           Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
         },
-      })
-       console.log('email:', booking.clientId.email);
-       
-      if (data.status === true && data.data.status === 'success') {
-        payment.status = 'successful'
-        booking.paymentstatus = 'paid'
-        await payment.save()
-        await booking.save()
+      }
+    );
+
+    if (!koraResponse?.data) {
+      return res.status(500).json({ message: "Invalid KoraPay response" });
+    }
+
+    const paymentStatus = koraResponse.data.status;
+
+    // Handle venue booking payments
+    if (payment.type === "venuebooking") {
+      const booking = await venuebookingModel
+        .findById(payment.venuebookingId)
+        .populate("clientId")
+        .populate("venueId");
+
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      if (paymentStatus === "success") {
+        payment.status = "successful";
+        booking.paymentstatus = "paid";
+
+        await Promise.all([payment.save(), booking.save()]);
+
+        // Create invoice
         const invoice = await invoiceModel.create({
           clientId: booking.clientId._id,
           venueId: booking.venueId._id,
           venuebookingId: booking._id,
-        })
-        const link = `https://event-app-theta-seven.vercel.app/#/IndividualPayment/${booking._id}`
-        const apikey = process.env.brevo
-        const apiInstance = new Brevo.TransactionalEmailsApi()
-        apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
-        const sendSmtpEmail = new Brevo.SendSmtpEmail()
-        sendSmtpEmail.subject = 'Venue Invoice '
-        sendSmtpEmail.to = [{ email: booking.clientId.email }]
-        sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-        sendSmtpEmail.htmlContent = ClientInvoiceHtml(link, booking.clientId.firstName)
-        const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
-        res.json({ message: 'payment verified successful' })
-      } else if (data.status === true && data.data.status === 'failed') {
-        payment.status = 'failed'
-        booking.paymentstatus = 'failed'
-        await payment.save()
-        await booking.save()
-        res.json({ message: 'payment verified successful' })
+        });
+
+        // Send email notification
+        const link = `https://event-app-theta-seven.vercel.app/#/IndividualPayment/${booking._id}`;
+        const apikey = process.env.brevo;
+        const apiInstance = new Brevo.TransactionalEmailsApi();
+        apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey);
+
+        const sendSmtpEmail = new Brevo.SendSmtpEmail();
+        sendSmtpEmail.subject = "Venue Invoice";
+        sendSmtpEmail.to = [{ email: booking.clientId.email }];
+        sendSmtpEmail.sender = { name: "Eventiq", email: "udumag51@gmail.com" };
+        sendSmtpEmail.htmlContent = ClientInvoiceHtml(link, booking.clientId.firstName);
+
+        try {
+          await apiInstance.sendTransacEmail(sendSmtpEmail);
+        } catch (emailError) {
+          console.error("Email sending failed:", emailError.message);
+        }
+
+        return res.status(200).json({
+          message: "Payment verified successfully",
+          data: koraResponse.data,
+          invoice,
+        });
       }
-    } else if (payment.type === 'feature') {
-      const venue = await venueModel.findById(payment.venueId)
 
-      if (!venue) {
-        return res.status(404).json({
-          message: 'Venue not found',
-        })
-      }
-
-      const { data } = await axios.get(`https://api.korapay.com/merchant/api/v1/charges/${reference}`, {
-        headers: {
-          Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
-        },
-      })
-
-      if (data.status === true && data.data.status === 'success') {
-        payment.paymentstatus = 'successful'
-        venue.isFeatured = true
-        await payment.save()
-        await venue.save()
-        res.json({ message: 'payment verified successful' })
-      } else if (data.status === true && data.data.status === 'failed') {
-        payment.paymentStatus = 'failed'
-        await payment.save()
-        res.json({ message: 'payment verified successful' ,data})
+      if (paymentStatus === "failed") {
+        payment.status = "failed";
+        booking.paymentstatus = "failed";
+        await Promise.all([payment.save(), booking.save()]);
+        return res.status(400).json({ message: "Payment failed" });
       }
     }
+
+    // Handle feature payments
+    if (payment.type === "feature") {
+      const venue = await venueModel.findById(payment.venueId);
+      if (!venue) {
+        return res.status(404).json({ message: "Venue not found" });
+      }
+
+      if (paymentStatus === "success") {
+        payment.status = "successful";
+        venue.isFeatured = true;
+        await Promise.all([payment.save(), venue.save()]);
+
+        return res.status(200).json({
+          message: "Venue feature payment verified successfully",
+          data: koraResponse.data,
+        });
+      }
+
+      if (paymentStatus === "failed") {
+        payment.status = "failed";
+        await payment.save();
+
+        return res.status(400).json({
+          message: "Venue feature payment failed",
+          data: koraResponse.data,
+        });
+      }
+    }
+
+    // If payment type is unknown
+    return res.status(400).json({
+      message: "Invalid payment type or unrecognized payment status",
+    });
   } catch (error) {
-    console.log('error:',error);
-    
-    next(error)
+    console.error("Payment verification error:", error);
+    next(error);
   }
-}
+};
