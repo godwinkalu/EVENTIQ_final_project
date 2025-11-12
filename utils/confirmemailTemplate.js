@@ -1,4 +1,4 @@
-exports.confirmedHtml = (verifyLink, firstName, venueName,date) => {
+exports.confirmedHtml = (verifyLink, firstName, venueName,mydate) => {
   return `
       <!DOCTYPE html>
       <html lang="en">
@@ -72,7 +72,7 @@ exports.confirmedHtml = (verifyLink, firstName, venueName,date) => {
               </div>
               <div class="content">
                   <p>Hello ${firstName},</p>
-                  <p>Congratulations — your request to book ${venueName} on ${date} has been approved by the venue owner. Please proceed to complete your payment to confirm your reservation.</p>
+                  <p>Congratulations — your request to book ${venueName} on ${mydate} has been approved by the venue owner. Please proceed to complete your payment to confirm your reservation.</p>
                   <div class="button-container">
                       <a href="${verifyLink}" class="button">Pay Now</a>
                   </div>
@@ -87,7 +87,7 @@ exports.confirmedHtml = (verifyLink, firstName, venueName,date) => {
     `
 }
 
-exports.rejectedHtml = (reasons, firstName, venueName, date) => {
+exports.rejectedHtml = (reasons, firstName, venueName, mydate) => {
   return `
       <!DOCTYPE html>
       <html lang="en">
@@ -161,7 +161,7 @@ exports.rejectedHtml = (reasons, firstName, venueName, date) => {
               </div>
               <div class="content">
                   <p>Hi ${firstName},</p>
-                  <p>Unfortunately, your booking for ${venueName} on ${date} could not be approved by the hall owner. You may browse other available venues on Eventiq</p>
+                  <p>Unfortunately, your booking for ${venueName} on ${mydate} could not be approved by the hall owner. You may browse other available venues on Eventiq</p>
                   <div class="button-container">
                       <h2>Reason: ${reasons}</h2>
                   </div>
@@ -285,7 +285,7 @@ exports.VenueOwnerInvoiceHtml = (invoiceLink, ) => {
 };
 
 
-exports.ClientInvoiceHtml = (invoiceLink,firstName ) => {
+exports.ClientInvoiceHtml = (invoiceLink,firstName ,venue) => {
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -375,7 +375,7 @@ exports.ClientInvoiceHtml = (invoiceLink,firstName ) => {
           </div>
           <div class="content">
               <p>Hello ${firstName},</p>
-              <p>Thank you for booking with <strong>Orangefield</strong>! Below are the details of your recent booking invoice.</p>
+              <p>Thank you for booking with ${venue} Below are the details of your recent booking invoice.</p>
 
              
 
