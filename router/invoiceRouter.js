@@ -168,7 +168,7 @@ router.get('/invoices', authentication, getInvoice);
  *                   type: string
  *                   example: "Internal Server Error"
  */
-router.get('/invoice/:invoiceId', authentication, getOneInvoice);
+router.get('/invoice/:invoiceId', getOneInvoice);
 
 
 module.exports = router

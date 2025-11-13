@@ -246,6 +246,8 @@ exports.verifyPayment = async (req, res, next) => {
 
           // Send email notification
           const link = `https://event-app-theta-seven.vercel.app/#/invoice/${invoice._id}`
+          console.log(link);
+          
           const apikey = process.env.brevo
           const apiInstance = new Brevo.TransactionalEmailsApi()
           apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
