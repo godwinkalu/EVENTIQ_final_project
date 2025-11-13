@@ -302,14 +302,10 @@ router.get('/verify', verifyPayment);
  * @swagger
  * /withdrawal:
  *   post:
- *     summary: Request a withdrawal of earnings as a venue owner
- *     description: >
- *       Allows a venue owner to withdraw funds from their available balance.  
- *       The withdrawal request will only be accepted if the venue owner has
- *       sufficient balance. The amount requested will be deducted immediately
- *       and stored in the bankModel collection with status "pending".
+ *     summary: Request a withdrawal as a venue owner
+ *     description: Allows a verified venue owner to request a withdrawal from their available balance. The request will be reviewed by the admin.
  *     tags:
- *       - Venue Owner
+ *       - Withdrawals
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -328,21 +324,26 @@ router.get('/verify', verifyPayment);
  *               amount:
  *                 type: number
  *                 example: 50000
+ *                 description: The amount the venue owner wants to withdraw.
  *               bankName:
  *                 type: string
- *                 example: "Access Bank"
+ *                 example: Access Bank
+ *                 description: The name of the bank where funds will be sent.
  *               accountType:
  *                 type: string
- *                 example: "Savings"
+ *                 example: Savings
+ *                 description: Type of bank account (Savings or Current).
  *               accountName:
  *                 type: string
- *                 example: "John Doe"
+ *                 example: John Doe
+ *                 description: The full name on the bank account.
  *               accountNumber:
  *                 type: string
  *                 example: "0123456789"
+ *                 description: The 10-digit account number.
  *     responses:
  *       200:
- *         description: Withdrawal request submitted successfully.
+ *         description: Withdrawal request created successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -356,7 +357,7 @@ router.get('/verify', verifyPayment);
  *                   properties:
  *                     withdrawalId:
  *                       type: string
- *                       example: 6759f7a13b25b2e91c41a2d9
+ *                       example: 6714c08a3b4f410269e3813f
  *                     amount:
  *                       type: number
  *                       example: 50000
@@ -367,25 +368,13 @@ router.get('/verify', verifyPayment);
  *                       type: number
  *                       example: 150000
  *       400:
- *         description: Invalid or insufficient balance.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Insufficient balance.
- *                 availableBalance:
- *                   type: number
- *                   example: 20000
- *                 requestedAmount:
- *                   type: number
- *                   example: 50000
+ *         description: Invalid request (e.g. missing fields or insufficient balance).
+ *       401:
+ *         description: Unauthorized – missing or invalid token.
  *       404:
  *         description: Venue owner not found.
  *       500:
- *         description: Server error.
+ *         description: Internal server error.
  */
 router.post('/withdrawal', authentication, withdrawEarnings)
 
