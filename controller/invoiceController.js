@@ -30,9 +30,7 @@ exports.getOneInvoice = async (req, res, next) => {
   try {
     const { invoiceId } = req.params
     const invoice = await invoiceModel
-      .findOne({
-        clientId: client._id,
-      })
+      .findById(invoiceId)
       .populate('clientId')
       .populate('venueId')
       .populate('venuebookingId')
@@ -48,6 +46,8 @@ exports.getOneInvoice = async (req, res, next) => {
       data: invoice,
     })
   } catch (error) {
+    console.log(error);
+    
     next(error)
   }
 }
