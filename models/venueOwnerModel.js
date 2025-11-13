@@ -57,10 +57,6 @@ const venueOwnerSchema = new mongoose.Schema(
       default: false,
      
     },
-     availableBalance:{
-      type: Number,
-      default:0,
-    },
     role: {
       type: String,
       default: 'venue-owner'

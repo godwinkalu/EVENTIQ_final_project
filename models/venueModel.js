@@ -103,6 +103,10 @@ const venueSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+     availableBalance:{
+      type: Number,
+      default:0,
+    },
     featuredExpireAt: {
       type: Number,
       required: true,

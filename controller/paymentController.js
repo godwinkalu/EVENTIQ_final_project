@@ -10,7 +10,7 @@ const paymentModel = require('../models/bookingPayment')
 const invoiceModel = require('../models/invoiceModel')
 const venueModel = require('../models/venueModel')
 const { ClientInvoiceHtml } = require('../utils/confirmemailTemplate')
-const bankModel = require('../models/bankDetailModel')
+const withdrawalModel = require('../models/withdrawalModel')
 
 exports.createFeatures = async (req, res, next) => {
   try {
@@ -241,7 +241,8 @@ exports.verifyPayment = async (req, res, next) => {
         booking.paymentstatus = 'paid'
         await Promise.all([payment.save(), booking.save()])
         const venue = await venueModel.findById(booking.venueId._id)
-        venue.availableBalance = (10 / 100) * booking.total
+        const per = (10 / 100) * booking.total;
+        venue.availableBalance = booking.total - per;
         await venue.save()
         // Create invoice
         const invoice = await invoiceModel.create({
@@ -315,10 +316,13 @@ exports.verifyPayment = async (req, res, next) => {
         })
       }
     }
-
+    console.log(paymentStatus);
+    
     // If payment type is unknown
     return res.status(400).json({
-      message: 'Invalid payment type or unrecognized payment status',
+      message: 'PAYMENT SUCCESSFUL',       
+         data: koraResponse.data,
+
     })
   } catch (error) {
     console.error('Payment verification error:', error)
@@ -329,59 +333,52 @@ exports.verifyPayment = async (req, res, next) => {
 exports.withdrawEarnings = async (req, res, next) => {
   try {
     const { amount, bankName, accountType, accountName, accountNumber } = req.body;
-    const venueOwnerId = req.user.id;
 
-        if (!amount || !bankName || !accountType || !accountName || !accountNumber) {
+   const venueOwner = await venueOwnerModel.findById(req.user.id)
+   const venue = await venueModel.findOne({venueOwnerId:venueOwner._id})
+   const venueBooking = await venueOwnerModel.findOne({venueId:venue._id})
+
+   if (!venueOwner) {
+     return res.status(404).json({
+      message:'venue Owner not found'
+     })
+   }
+   if (!venue) {
+     return res.status(404).json({
+      message:'venue  not found'
+     })
+   }
+   if (!venueBooking) {
+     return res.status(404).json({
+      message:'venueBooking  not found'
+     })
+   }
+    
+
+    if (amount < venue.availableBalance) {
       return res.status(400).json({
-        message: "All fields are required: amount, bankName, accountType, accountName, accountNumber.",
+        message: "insuffeint Available Balance",
       });
     }
 
-    if (amount <= 0) {
-      return res.status(400).json({
-        message: "Invalid withdrawal amount. Amount must be greater than zero.",
-      });
-    }
-
-    
-    const owner = await venueOwnerModel.findById(venueOwnerId);
-    if (!owner) {
-      return res.status(404).json({ message: "Venue owner not found." });
-    }
-    
-    if (amount > owner.availableBalance) {
-      return res.status(400).json({
-        message: "Insufficient balance.",
-        availableBalance: owner.availableBalance,
-        requestedAmount: amount,
-      });
-    }
-    console.log(owner.availableBalance);
-    
-
-   
-    owner.availableBalance -= amount;
-    owner.totalWithdrawn = (owner.totalWithdrawn || 0) + amount;
-
-    const withdrawal = await bankModel.create({
-      venueOwnerId: owner._id,
+    const withdrawal = await withdrawalModel.create({
+      venueOwnerId: venueOwner._id,
+      venuebookingId:venueBooking._id,
+      venueId:venue._id,
       amount,
       bankName,
-      accountType,
       accountName,
-      accountNumber,
-      status: "pending", // or "processing"
+      accountType,
+      accountNumber  
     });
-
-    await owner.save();
-
+    
     return res.status(200).json({
       message: "Withdrawal request submitted successfully.",
       data: {
         withdrawalId: withdrawal._id,
         amount: withdrawal.amount,
         status: withdrawal.status,
-        availableBalance: owner.availableBalance,
+        availableBalance: venue.availableBalance,
       },
     });
 
@@ -389,4 +386,3 @@ exports.withdrawEarnings = async (req, res, next) => {
     next(error);
   }
 };
-
