@@ -1,4 +1,4 @@
-const { createFeatures, getAllFeatures, initializeFeaturePayment, verifyPayment, initializeBookingPayment } = require('../controller/paymentController');
+const { createFeatures, getAllFeatures, initializeFeaturePayment, verifyPayment, initializeBookingPayment, withdrawEarnings } = require('../controller/paymentController');
 const { authentication } = require('../middleware/authMiddleware');
 
 const router = require('express').Router();
@@ -296,6 +296,98 @@ router.get('/booking-payment/:bookingId', initializeBookingPayment)
  *                   example: An unexpected error occurred
  */
 router.get('/verify', verifyPayment);
+
+
+/**
+ * @swagger
+ * /withdrawal:
+ *   post:
+ *     summary: Request a withdrawal of earnings as a venue owner
+ *     description: >
+ *       Allows a venue owner to withdraw funds from their available balance.  
+ *       The withdrawal request will only be accepted if the venue owner has
+ *       sufficient balance. The amount requested will be deducted immediately
+ *       and stored in the bankModel collection with status "pending".
+ *     tags:
+ *       - Venue Owner
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - amount
+ *               - bankName
+ *               - accountType
+ *               - accountName
+ *               - accountNumber
+ *             properties:
+ *               amount:
+ *                 type: number
+ *                 example: 50000
+ *               bankName:
+ *                 type: string
+ *                 example: "Access Bank"
+ *               accountType:
+ *                 type: string
+ *                 example: "Savings"
+ *               accountName:
+ *                 type: string
+ *                 example: "John Doe"
+ *               accountNumber:
+ *                 type: string
+ *                 example: "0123456789"
+ *     responses:
+ *       200:
+ *         description: Withdrawal request submitted successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Withdrawal request submitted successfully.
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     withdrawalId:
+ *                       type: string
+ *                       example: 6759f7a13b25b2e91c41a2d9
+ *                     amount:
+ *                       type: number
+ *                       example: 50000
+ *                     status:
+ *                       type: string
+ *                       example: pending
+ *                     availableBalance:
+ *                       type: number
+ *                       example: 150000
+ *       400:
+ *         description: Invalid or insufficient balance.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Insufficient balance.
+ *                 availableBalance:
+ *                   type: number
+ *                   example: 20000
+ *                 requestedAmount:
+ *                   type: number
+ *                   example: 50000
+ *       404:
+ *         description: Venue owner not found.
+ *       500:
+ *         description: Server error.
+ */
+router.post('/withdrawal', authentication, withdrawEarnings)
 
 
 module.exports = router;

@@ -10,6 +10,7 @@ const paymentModel = require('../models/bookingPayment')
 const invoiceModel = require('../models/invoiceModel')
 const venueModel = require('../models/venueModel')
 const { ClientInvoiceHtml } = require('../utils/confirmemailTemplate')
+const bankModel = require('../models/bankDetailModel')
 
 exports.createFeatures = async (req, res, next) => {
   try {
@@ -190,19 +191,22 @@ exports.initializeBookingPayment = async (req, res, next) => {
 }
 exports.verifyPayment = async (req, res, next) => {
   try {
-    const { reference } = req.query;
+    const { reference } = req.query
 
     if (!reference) {
-      return res.status(400).json({ message: "Reference is required" });
+      return res.status(400).json({ message: 'Reference is required' })
     }
 
     // Check both models for matching reference
     const payment =
-      (await paymentModel.findOne({ reference })) ||
-      (await featuresPaymentModel.findOne({ reference }));
+      (await (await paymentModel.findOne({ reference })).populate('venueId')).populate('venuebookingId') ||
+      (await featuresPaymentModel.findOne({ reference }))
+        .populate('venueId')
+        .po(await (await paymentModel.findOne({ reference })).populate('venueId'))
+        .populate('venuebookingId')
 
     if (!payment) {
-      return res.status(404).json({ message: "Payment not found" });
+      return res.status(404).json({ message: 'Payment not found' })
     }
 
     // Verify payment with KoraPay API
@@ -213,106 +217,176 @@ exports.verifyPayment = async (req, res, next) => {
           Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
         },
       }
-    );
+    )
 
     if (!koraResponse?.data) {
-      return res.status(500).json({ message: "Invalid KoraPay response" });
+      return res.status(500).json({ message: 'Invalid KoraPay response' })
     }
 
-    const paymentStatus = koraResponse.data.status;
+    const paymentStatus = koraResponse.data.status
 
     // Handle venue booking payments
-    if (payment.type === "venuebooking") {
+    if (payment.type === 'venuebooking') {
       const booking = await venuebookingModel
         .findById(payment.venuebookingId)
-        .populate("clientId")
-        .populate("venueId");
+        .populate('clientId')
+        .populate('venueId')
 
       if (!booking) {
-        return res.status(404).json({ message: "Booking not found" });
+        return res.status(404).json({ message: 'Booking not found' })
       }
 
-      if (paymentStatus === "success") {
-        payment.status = "successful";
-        booking.paymentstatus = "paid";
-
-        await Promise.all([payment.save(), booking.save()]);
-
+      if (paymentStatus === 'success') {
+        payment.status = 'successful'
+        booking.paymentstatus = 'paid'
+        await Promise.all([payment.save(), booking.save()])
+        const venue = await venueModel.findById(booking.venueId._id)
+        venue.availableBalance = (10 / 100) * booking.total
+        await venue.save()
         // Create invoice
         const invoice = await invoiceModel.create({
           clientId: booking.clientId._id,
           venueId: booking.venueId._id,
           venuebookingId: booking._id,
-        });
+        })
 
         // Send email notification
-        const link = `https://event-app-theta-seven.vercel.app/#/invoice/${invoice._id}`;
-        const apikey = process.env.brevo;
-        const apiInstance = new Brevo.TransactionalEmailsApi();
-        apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey);
+        const link = `https://event-app-theta-seven.vercel.app/#/invoice/${invoice._id}`
+        const apikey = process.env.brevo
+        const apiInstance = new Brevo.TransactionalEmailsApi()
+        apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
 
-        const sendSmtpEmail = new Brevo.SendSmtpEmail();
-        sendSmtpEmail.subject = "Venue Invoice";
-        sendSmtpEmail.to = [{ email: booking.clientId.email }];
-        sendSmtpEmail.sender = { name: "Eventiq", email: "udumag51@gmail.com" };
-        sendSmtpEmail.htmlContent = ClientInvoiceHtml(link, booking.clientId.firstName,booking.venueId.venuename.toUpperCase());
+        const sendSmtpEmail = new Brevo.SendSmtpEmail()
+        sendSmtpEmail.subject = 'Venue Invoice'
+        sendSmtpEmail.to = [{ email: booking.clientId.email }]
+        sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
+        sendSmtpEmail.htmlContent = ClientInvoiceHtml(
+          link,
+          booking.clientId.firstName,
+          booking.venueId.venuename.toUpperCase()
+        )
 
         try {
-          await apiInstance.sendTransacEmail(sendSmtpEmail);
+          await apiInstance.sendTransacEmail(sendSmtpEmail)
         } catch (emailError) {
-          console.error("Email sending failed:", emailError.message);
+          console.error('Email sending failed:', emailError.message)
         }
 
         return res.status(200).json({
-          message: "Payment verified successfully",
+          message: 'Payment verified successfully',
           data: koraResponse.data,
           invoice,
-        });
+        })
       }
 
-      if (paymentStatus === "failed") {
-        payment.status = "failed";
-        booking.paymentstatus = "failed";
-        await Promise.all([payment.save(), booking.save()]);
-        return res.status(400).json({ message: "Payment failed" });
+      if (paymentStatus === 'failed') {
+        payment.status = 'failed'
+        booking.paymentstatus = 'failed'
+        await Promise.all([payment.save(), booking.save()])
+        return res.status(400).json({ message: 'Payment failed' })
       }
     }
 
     // Handle feature payments
-    if (payment.type === "feature") {
-      const venue = await venueModel.findById(payment.venueId);
+    if (payment.type === 'feature') {
+      const venue = await venueModel.findById(payment.venueId)
       if (!venue) {
-        return res.status(404).json({ message: "Venue not found" });
+        return res.status(404).json({ message: 'Venue not found' })
       }
 
-      if (paymentStatus === "success") {
-        payment.status = "successful";
-        venue.isFeatured = true;
-        await Promise.all([payment.save(), venue.save()]);
+      if (paymentStatus === 'success') {
+        payment.status = 'successful'
+        venue.isFeatured = true
+        await Promise.all([payment.save(), venue.save()])
 
         return res.status(200).json({
-          message: "Venue feature payment verified successfully",
+          message: 'Venue feature payment verified successfully',
           data: koraResponse.data,
-        });
+        })
       }
 
-      if (paymentStatus === "failed") {
-        payment.status = "failed";
-        await payment.save();
+      if (paymentStatus === 'failed') {
+        payment.status = 'failed'
+        await payment.save()
 
         return res.status(400).json({
-          message: "Venue feature payment failed",
+          message: 'Venue feature payment failed',
           data: koraResponse.data,
-        });
+        })
       }
     }
 
     // If payment type is unknown
     return res.status(400).json({
-      message: "Invalid payment type or unrecognized payment status",
-    });
+      message: 'Invalid payment type or unrecognized payment status',
+    })
   } catch (error) {
-    console.error("Payment verification error:", error);
+    console.error('Payment verification error:', error)
+    next(error)
+  }
+}
+
+exports.withdrawEarnings = async (req, res, next) => {
+  try {
+    const { amount, bankName, accountType, accountName, accountNumber } = req.body;
+    const venueOwnerId = req.user.id;
+
+        if (!amount || !bankName || !accountType || !accountName || !accountNumber) {
+      return res.status(400).json({
+        message: "All fields are required: amount, bankName, accountType, accountName, accountNumber.",
+      });
+    }
+
+    if (amount <= 0) {
+      return res.status(400).json({
+        message: "Invalid withdrawal amount. Amount must be greater than zero.",
+      });
+    }
+
+    
+    const owner = await venueOwnerModel.findById(venueOwnerId);
+    if (!owner) {
+      return res.status(404).json({ message: "Venue owner not found." });
+    }
+    
+    if (amount > owner.availableBalance) {
+      return res.status(400).json({
+        message: "Insufficient balance.",
+        availableBalance: owner.availableBalance,
+        requestedAmount: amount,
+      });
+    }
+    console.log(owner.availableBalance);
+    
+
+   
+    owner.availableBalance -= amount;
+    owner.totalWithdrawn = (owner.totalWithdrawn || 0) + amount;
+
+    const withdrawal = await bankModel.create({
+      venueOwnerId: owner._id,
+      amount,
+      bankName,
+      accountType,
+      accountName,
+      accountNumber,
+      status: "pending", // or "processing"
+    });
+
+    await owner.save();
+
+    return res.status(200).json({
+      message: "Withdrawal request submitted successfully.",
+      data: {
+        withdrawalId: withdrawal._id,
+        amount: withdrawal.amount,
+        status: withdrawal.status,
+        availableBalance: owner.availableBalance,
+      },
+    });
+
+  } catch (error) {
     next(error);
   }
 };
+
