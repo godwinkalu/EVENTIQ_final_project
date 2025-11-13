@@ -319,7 +319,7 @@ exports.verifyPayment = async (req, res, next) => {
     console.log(paymentStatus);
     
     // If payment type is unknown
-    return res.status(400).json({
+    return res.status(200).json({
       message: 'PAYMENT SUCCESSFUL',       
          data: koraResponse.data,
 
@@ -336,7 +336,8 @@ exports.withdrawEarnings = async (req, res, next) => {
 
    const venueOwner = await venueOwnerModel.findById(req.user.id)
    const venue = await venueModel.findOne({venueOwnerId:venueOwner._id})
-   const venueBooking = await venueOwnerModel.findOne({venueId:venue._id})
+   const venueBooking = await venuebookingModel.findOne({venueId:venue._id})
+console.log(venueBooking);
 
    if (!venueOwner) {
      return res.status(404).json({
