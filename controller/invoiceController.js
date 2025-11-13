@@ -28,15 +28,7 @@ exports.getInvoice = async (req, res, next) => {
 
 exports.getOneInvoice = async (req, res, next) => {
   try {
-    const client = await clientModel.findById(req.user.id)
     const { invoiceId } = req.params
-
-    if (!client) {
-      return res.status(404).json({
-        message: 'Client Not Found',
-      })
-    }
-
     const invoice = await invoiceModel
       .findOne({
         clientId: client._id,
