@@ -89,24 +89,19 @@ router.get('/invoices', authentication, getInvoice);
  * /invoice/{invoiceId}:
  *   get:
  *     summary: Retrieve a single invoice by ID
- *     description: >
- *       This endpoint retrieves a specific invoice belonging to the authenticated client using the invoice ID.
- *       A valid Bearer token must be provided in the Authorization header.
- *     tags:
- *       - Invoices
- *     security:
- *       - bearerAuth: []
+ *     description: Fetches detailed information about a specific invoice, including related client, venue, and booking data.
+ *     tags: [Invoices]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: invoiceId
  *         required: true
- *         description: The unique ID of the invoice to retrieve.
+ *         description: The unique ID of the invoice to retrieve
  *         schema:
  *           type: string
- *           example: "674bcd8a9b1d2a00124f8e12"
+ *           example: 6743a8c56e2bdf7c3d1b0b21
  *     responses:
  *       200:
- *         description: Invoice retrieved successfully
+ *         description: Invoice data retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -114,41 +109,38 @@ router.get('/invoices', authentication, getInvoice);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Invoice Data"
+ *                   example: invoice Data
  *                 data:
  *                   type: object
  *                   properties:
  *                     _id:
  *                       type: string
- *                       example: "674bcf9d9b1d2a00124f8e56"
+ *                       example: 6743a8c56e2bdf7c3d1b0b21
  *                     clientId:
- *                       type: string
- *                       example: "674bcd8a9b1d2a00124f8e12"
- *                     bookingId:
- *                       type: string
- *                       example: "674bcdb39b1d2a00124f8e34"
- *                     amount:
+ *                       type: object
+ *                       description: Details of the client who made the booking
+ *                     venueId:
+ *                       type: object
+ *                       description: Details of the venue associated with the invoice
+ *                     venuebookingId:
+ *                       type: object
+ *                       description: Details of the booking associated with the invoice
+ *                     totalAmount:
  *                       type: number
- *                       example: 50000
+ *                       example: 150000
  *                     status:
  *                       type: string
- *                       example: "paid"
+ *                       example: paid
  *                     createdAt:
  *                       type: string
  *                       format: date-time
- *                       example: "2025-11-08T10:23:45.123Z"
- *       401:
- *         description: Unauthorized - missing or invalid token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "Auth missing or invalid"
+ *                       example: 2025-11-12T10:23:45.000Z
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-11-12T11:00:00.000Z
  *       404:
- *         description: Invoice or client not found
+ *         description: Invoice not found
  *         content:
  *           application/json:
  *             schema:
@@ -156,9 +148,9 @@ router.get('/invoices', authentication, getInvoice);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Invoice Not Found"
+ *                   example: Invoice Not Found
  *       500:
- *         description: Server error
+ *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
@@ -166,7 +158,7 @@ router.get('/invoices', authentication, getInvoice);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Internal Server Error"
+ *                   example: Internal Server Error
  */
 router.get('/invoice/:invoiceId', getOneInvoice);
 
