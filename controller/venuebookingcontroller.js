@@ -152,23 +152,16 @@ exports.acceptedBooking = async (req, res, next) => {
 exports.rejectedBooking = async (req, res, next) => {
   try {
     const venueOwner = await venueOwnerModel.findById(req.user.id)
+    const venueBooking = await venuebookingModel.findById(req.params.bookingId).populate('clientId')
+    const client = await clientModel.findById(venueBooking.clientId._id)
+    const venue = await venueModel.findById(venueBooking.venueId)
     const { reason } = req.body
-    const { bookingId } = req.params
-    const venueBooking = await venuebookingModel.findById({ bookingId }).populate('clientId')
+    
     console.log('venue booking:', venueBooking)
-
-    const venue = await venueModel.findOne({ venueOwnerId: venueOwner._id })
-    console.log('booking:', venueBooking)
 
     if (!venueOwner) {
       return res.status(404).json({
         message: 'venue owner not found',
-      })
-    }
-
-    if (!venue) {
-      return res.status(404).json({
-        message: 'venue not found',
       })
     }
 
@@ -202,14 +195,17 @@ exports.rejectedBooking = async (req, res, next) => {
       reason,
       venueBooking.clientId.firstName,
       venue.venuename,
-      venueBooking.dat
+      venueBooking.date
     )
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
+
     await venuebookingModel.findByIdAndDelete(venueBooking._id)
     res.status(200).json({
       message: 'Booking has been rejected',
     })
   } catch (error) {
+    console.log(error)
+
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
         message: 'Session expired, login to continue',
