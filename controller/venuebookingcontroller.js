@@ -15,7 +15,6 @@ exports.createvenuebooking = async (req, res, next) => {
     const { venueId } = req.params
     const clientId = req.user.id
     const venue = await venueModel.findById(venueId)
-
     const client = await clientModel.findById(clientId)
 
     if (!client) {
@@ -51,11 +50,8 @@ exports.createvenuebooking = async (req, res, next) => {
 
     // Calculate total cost
     const basePrice = venue.price * days
-
     const serviceCharge = basePrice * (5 / 100)
-
     const totalAmount = basePrice + serviceCharge + venue.cautionfee
-
     const [day, month, year] = date.split('/')
     const jsDate = new Date(`${month} ${day}, ${year}`).toLocaleDateString('en-US', {
       year: 'numeric',
