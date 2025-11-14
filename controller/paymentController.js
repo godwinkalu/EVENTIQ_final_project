@@ -216,7 +216,6 @@ exports.verifyPayment = async (req, res, next) => {
       },
     })
 
-    console.log('kora res:', data)
 
     if (data.status === true && data.data.status === 'success') {
       if (payment.type === 'venuebooking') {
@@ -243,7 +242,11 @@ exports.verifyPayment = async (req, res, next) => {
             venueId: booking.venueId._id,
             venuebookingId: booking._id,
           })
+          
+          const booking = await venuebookingModel.findById(payment.venuebookingId._id);
 
+          booking.invoceId = invoice._id
+          await booking.save()
           // Send email notification
           const link = `https://event-app-theta-seven.vercel.app/#/invoice/${invoice._id}`
           console.log(link);

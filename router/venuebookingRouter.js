@@ -176,71 +176,73 @@ router.get('/acceptbooking/:bookingId', authentication, acceptedBooking)
  * @swagger
  * /rejectbooking/{bookingId}:
  *   post:
- *     summary: Reject a venue booking
- *     description: Allows a venue owner to reject a client's booking and notifies the client via email and in-app notification with the reason for rejection.
  *     tags:
  *       - Venue Owner
+ *     summary: Reject a booking as a venue owner
+ *     description: This endpoint allows a venue owner to reject a booking and notify the client via email.
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: bookingId
  *         required: true
- *         description: The unique ID of the booking to be rejected.
  *         schema:
  *           type: string
- *           example: 6532e9c94c1234567890abcd
+ *         description: The ID of the booking to reject
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - reason
  *             properties:
  *               reason:
  *                 type: string
- *                 description: The reason why the booking was rejected.
- *                 example: The venue is not available on the selected date.
+ *                 example: "The hall is no longer available on this date."
  *     responses:
  *       200:
- *         description: Booking rejected successfully, and client notified via email and in-app notification.
+ *         description: Booking has been rejected successfully
  *         content:
  *           application/json:
- *             example:
- *               message: Booking has been rejected
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Booking has been rejected
+ *
  *       400:
- *         description: Invalid or expired session token.
+ *         description: Invalid request or session expired
  *         content:
  *           application/json:
- *             example:
- *               message: Session expired, login to continue
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Session expired, login to continue
+ *
  *       404:
- *         description: Venue owner, booking, client, or venue not found.
+ *         description: Booking or venue not found
  *         content:
  *           application/json:
- *             examples:
- *               VenueOwnerNotFound:
- *                 summary: Venue owner not found
- *                 value:
- *                   message: venue owner not found
- *               BookingNotFound:
- *                 summary: Booking not found
- *                 value:
- *                   message: Venue not booked
- *               ClientNotFound:
- *                 summary: Client not found
- *                 value:
- *                   message: Client not found
- *               VenueNotFound:
- *                 summary: Venue not found
- *                 value:
- *                   message: venue not found
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   examples:
+ *                     venueOwnerNotFound:
+ *                       value: venue owner not found
+ *                     venueNotFound:
+ *                       value: venue not found
+ *                     bookingNotFound:
+ *                       value: Venue not booked
+ *
  *       500:
- *         description: Internal server error.
- *         content:
- *           application/json:
- *             example:
- *               message: Something went wrong
+ *         description: Server error
  */
 router.post('/rejectbooking/:bookingId', authentication, rejectedBooking)
 
