@@ -17,11 +17,6 @@ const venuebookingSchema = new mongoose.Schema(
       ref: 'clients',
       required: true,
     },
-    invoceId:{
-      type:mongoose.Schema.Types.ObjectId,
-      ref: 'invoices',
-      default: ''
-    },
     date: {
       type: String,
       required: true,

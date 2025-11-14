@@ -179,8 +179,7 @@ exports.getOneBooking = async (req, res, next) => {
       .findById(req.param.venuebookingId)
       .select('date eventType')
       .populate('venueId', 'venuename price')
-      .populate('invoiceId')
-      .populate('clientId', 'firstName surname')
+     .populate('clientId', 'firstName surname')
 
     if (!venueOwner) {
       return res.status(404).json({

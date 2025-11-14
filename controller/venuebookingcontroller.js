@@ -134,7 +134,7 @@ exports.acceptedBooking = async (req, res, next) => {
     const apiInstance = new Brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
     const sendSmtpEmail = new Brevo.SendSmtpEmail()
-    sendSmtpEmail.subject = 'Venue Approval';
+    sendSmtpEmail.subject = 'Venue Approval'
     sendSmtpEmail.to = [{ email: client.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
     sendSmtpEmail.htmlContent = confirmedHtml(link, client.firstName, venue.venuename, venueBooking.date)
@@ -159,8 +159,8 @@ exports.rejectedBooking = async (req, res, next) => {
     const { reason } = req.body
     const { bookingId } = req.params
     const venueBooking = await venuebookingModel.findById({ bookingId }).populate('clientId')
-    console.log("venue booking:",venueBooking);
-    
+    console.log('venue booking:', venueBooking)
+
     const venue = await venueModel.findOne({ venueOwnerId: venueOwner._id })
     console.log('booking:', venueBooking)
 
@@ -199,14 +199,14 @@ exports.rejectedBooking = async (req, res, next) => {
     const apiInstance = new Brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
     const sendSmtpEmail = new Brevo.SendSmtpEmail()
-    sendSmtpEmail.subject = 'Venue Rejected'
-    sendSmtpEmail.to = [{ email: venueBooking.clientId.email }]
+    sendSmtpEmail.subject = 'Payment Invoice'
+    sendSmtpEmail.to = [{ email: client.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-    sendSmtpEmail.htmlContent = await rejectedHtml(
+    sendSmtpEmail.htmlContent = sendSmtpEmail.htmlContent = await rejectedHtml(
       reason,
       venueBooking.clientId.firstName,
       venue.venuename,
-      venueBooking.date
+      venueBooking.dat
     )
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     await venuebookingModel.findByIdAndDelete(venueBooking._id)
