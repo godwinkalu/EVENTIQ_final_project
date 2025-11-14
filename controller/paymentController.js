@@ -209,7 +209,7 @@ exports.verifyPayment = async (req, res, next) => {
     }
 
     // Verify payment with KoraPay API
-    const { data } = await axios.get(`https://api.korapay.com/merchant/api/v1/charges/${reference}`, {
+  const { data } = await axios.get(`https://api.korapay.com\/merchant/api/v1/charges/${reference}`, {
       headers: {
         Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
       },
