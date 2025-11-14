@@ -261,8 +261,6 @@ exports.deleteVenue = async (req, res, next) => {
 
     if (deleted) {
       for (path of venue.image) {
-        console.log(path)
-
         await cloudinary.uploader.destroy(path.publicId)
       }
     }

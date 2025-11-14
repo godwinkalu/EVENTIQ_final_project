@@ -213,8 +213,6 @@ exports.forgotPassword = async (req, res, next) => {
     user.otpExpiredat = Date.now() + 2 * 60 * 1000
     await user.save()
 
-    console.log('Hosted url', `${req.protocol}://${req.get('host')}`)
-
     if (`${req.protocol}://${req.get('host')}`.startsWith('http://localhost')) {
       const emailOptions = {
         email: user.email,

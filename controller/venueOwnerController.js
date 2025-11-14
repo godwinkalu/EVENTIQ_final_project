@@ -94,8 +94,6 @@ exports.getVenueOwner = async (req, res, next) => {
 
     const owner = await venueOwnerModel.findById(id)
 
-    console.log(owner)
-
     if (!owner) {
       return res.status(404).json({
         message: 'Venue owner not found',
@@ -152,8 +150,6 @@ exports.getAllBookings = async (req, res, next) => {
       .find({ venueOwnerId: venue[0].venueOwnerId })
       .populate('venueId', 'venuename price')
       .populate('clientId', 'firstName surname')
-
-    console.log('bookings:',bookings)
 
     return res.status(200).json({
       message: 'All bookings retrieved successfully',
