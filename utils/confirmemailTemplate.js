@@ -87,7 +87,7 @@ exports.confirmedHtml = (verifyLink, firstName, venueName,mydate) => {
     `
 }
 
-exports.rejected = (reasons, firstName, venueName, mydate) => {
+exports.rejectedHtml = (reasons, firstName, venueName, mydate) => {
   return `
       <!DOCTYPE html>
       <html lang="en">

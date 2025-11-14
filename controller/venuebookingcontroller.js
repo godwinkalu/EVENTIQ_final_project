@@ -4,7 +4,7 @@ const venueModel = require('../models/venueModel')
 const venueOwnerModel = require('../models/venueOwnerModel')
 const notificationvenueownerModel = require('../models/notificationvenueOwnerModel')
 const notificationclientModel = require('../models/notificationclientModel')
-const { confirmedHtml, rejected } = require('../utils/confirmemailTemplate')
+const { confirmedHtml, rejectedHtml } = require('../utils/confirmemailTemplate')
 const jwt = require('jsonwebtoken')
 const Brevo = require('@getbrevo/brevo')
 const { date } = require('joi')
@@ -188,15 +188,16 @@ exports.rejectedBooking = async (req, res, next) => {
     const apiInstance = new Brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
     const sendSmtpEmail = new Brevo.SendSmtpEmail()
-    sendSmtpEmail.subject = 'Venue Approval'
+    sendSmtpEmail.subject = 'Booking Rejected'
     sendSmtpEmail.to = [{ email: client.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-    sendSmtpEmail.htmlContent = sendSmtpEmail.htmlContent = rejected(
+    sendSmtpEmail.htmlContent = await rejectedHtml(
       reason,
       venueBooking.clientId.firstName,
       venue.venuename,
       venueBooking.date
     )
+
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
 
     await venuebookingModel.findByIdAndDelete(venueBooking._id)
