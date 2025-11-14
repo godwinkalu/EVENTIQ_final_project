@@ -10,7 +10,7 @@ exports.getOverview = async (req, res, next) => {
     const { id } = req.user
     const venueOwner = await venueOwnerModel.findById(id)
     const dashboard = await dashboardModel.findOne({ venueOwnerId: venueOwner._id})
-    const bookings = await venuebookingModel.find({venueownerId: venueOwner._id})
+    const bookings = await venuebookingModel.find({venueOwnerId: venueOwner._id})
     const venues = await venueModel.find({venueOwnerId: venueOwner._id})
 
     if (!venueOwner) {
