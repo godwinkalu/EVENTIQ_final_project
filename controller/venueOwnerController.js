@@ -53,17 +53,17 @@ exports.createVenueOwner = async (req, res, next) => {
         publicId: response.public_id,
       },
     })
-    
+
     const details = {
       otp: venueOwner.otp,
       firstName: venueOwner.firstName,
       email: venueOwner.email,
       subject: 'Welcome To Eventiq',
     }
-    
+
     await emailSender(details)
     await venueOwner.save()
-    
+
     const dashboard = await dashboardModel.create({
       venueOwnerId: venueOwner._id,
     })
@@ -149,11 +149,11 @@ exports.getAllBookings = async (req, res, next) => {
     const venue = await venueModel.find({ venueOwnerId: venueOwner._id })
 
     const bookings = await venuebookingModel
-      .find({ venueownerId: venue[0].venueOwnerId })
-      .select('date eventType bookingstatus')
+      .find({ venueOwnerId: venue[0].venueOwnerId })
       .populate('venueId', 'venuename price')
       .populate('clientId', 'firstName surname')
-      .populate('invoiceId')
+
+    console.log('bookings:',bookings)
 
     return res.status(200).json({
       message: 'All bookings retrieved successfully',
@@ -176,7 +176,7 @@ exports.getOneBooking = async (req, res, next) => {
       .findById(req.param.venuebookingId)
       .select('date eventType')
       .populate('venueId', 'venuename price')
-     .populate('clientId', 'firstName surname')
+      .populate('clientId', 'firstName surname')
 
     if (!venueOwner) {
       return res.status(404).json({
@@ -276,9 +276,9 @@ exports.paymentHistory = async (req, res, next) => {
     }
     const venueBooking = await venuebookingModel.findOne({ venueId: venue._id })
 
-    if (!venueowner) {
+    if (!venueBooking) {
       return res.status(404).json({
-        message: 'venueowner not found',
+        message: 'Booking not found',
       })
     }
 
