@@ -156,6 +156,7 @@ exports.getAllBookings = async (req, res, next) => {
       .select('date eventType bookingstatus')
       .populate('venueId', 'venuename price')
       .populate('clientId', 'firstName surname')
+      .populate('invoiceId')
 
     return res.status(200).json({
       message: 'All bookings retrieved successfully',
@@ -178,6 +179,7 @@ exports.getOneBooking = async (req, res, next) => {
       .findById(req.param.venuebookingId)
       .select('date eventType')
       .populate('venueId', 'venuename price')
+      .populate('invoiceId')
       .populate('clientId', 'firstName surname')
 
     if (!venueOwner) {
