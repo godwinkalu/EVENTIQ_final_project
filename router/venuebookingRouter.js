@@ -248,67 +248,51 @@ router.post('/rejectbooking/:bookingId', authentication, rejectedBooking)
 
 /**
  * @swagger
- * /booking/{venuebookingId}:
- *   get:
- *     summary: Get details of a specific booking
- *     description: Allows a venue owner to retrieve detailed information about a specific venue booking, including event type, date, client, and venue details.
+ * /reject-booking/{venuebookingId}:
+ *   post:
+ *     summary: Reject a venue booking
+ *     description: Venue owner rejects a booking request and sends notification + email to the client.
  *     tags:
- *       - Venue Owner
+ *       - Booking
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: venuebookingId
  *         required: true
- *         description: The unique ID of the booking to retrieve.
  *         schema:
  *           type: string
- *           example: 6532e9c94c1234567890abcd
+ *         description: ID of the venue booking to reject
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - reason
+ *             properties:
+ *               reason:
+ *                 type: string
+ *                 example: "The selected date is no longer available."
  *     responses:
  *       200:
- *         description: Booking retrieved successfully.
+ *         description: Booking rejected successfully
  *         content:
  *           application/json:
- *             example:
- *               message: Booking retrieved successfully
- *               data:
- *                 _id: 6532e9c94c1234567890abcd
- *                 date: "2025-12-15T00:00:00.000Z"
- *                 eventType: "Wedding Reception"
- *                 venueId:
- *                   _id: 652e8b7f4c1234567890abcd
- *                   venuename: "The Grand Hall"
- *                   price: 200000
- *                 clientId:
- *                   _id: 651d9a3b4a234567890bcdef
- *                   firstName: "John"
- *                   surname: "Doe"
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Booking has been rejected
  *       400:
- *         description: Invalid or expired session token.
- *         content:
- *           application/json:
- *             example:
- *               message: Session expired, login to continue
+ *         description: Invalid token or session expired
  *       404:
- *         description: Venue owner or booking not found.
- *         content:
- *           application/json:
- *             examples:
- *               VenueOwnerNotFound:
- *                 summary: Venue owner not found
- *                 value:
- *                   message: Venue owner not found
- *               BookingNotFound:
- *                 summary: No booking found
- *                 value:
- *                   message: No booking found
+ *         description: Venue owner or booking not found
  *       500:
- *         description: Internal server error.
- *         content:
- *           application/json:
- *             example:
- *               message: Something went wrong
+ *         description: Internal server error
  */
-router.get('/booking/:venuebookingId', authentication, getOneBooking)
+router.post('/reject-booking/:bookingId', authentication, rejectedBooking)
 
 module.exports = router 
