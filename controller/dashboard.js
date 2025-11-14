@@ -32,7 +32,7 @@ exports.getOverview = async (req, res, next) => {
     Object.assign(dashboard, {
       totalVenues: venues.length,
       activeBooking: bookings.length,
-      revenue: venueBooking.reduce((a,c)=> a + c.total)
+      revenue: bookings.reduce((a,c)=> a + c.total)
     })
     await dashboard.save();
     res.status(200).json({
