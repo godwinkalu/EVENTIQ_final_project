@@ -4,7 +4,7 @@ const venueModel = require('../models/venueModel')
 const venueOwnerModel = require('../models/venueOwnerModel')
 const notificationvenueownerModel = require('../models/notificationvenueOwnerModel')
 const notificationclientModel = require('../models/notificationclientModel')
-const { confirmedHtml, rejectedHtml } = require('../utils/confirmemailTemplate')
+const { confirmedHtml, rejected } = require('../utils/confirmemailTemplate')
 const jwt = require('jsonwebtoken')
 const Brevo = require('@getbrevo/brevo')
 const { date } = require('joi')
@@ -156,7 +156,7 @@ exports.rejectedBooking = async (req, res, next) => {
     const client = await clientModel.findById(venueBooking.clientId._id)
     const venue = await venueModel.findById(venueBooking.venueId)
     const { reason } = req.body
-    
+
     console.log('venue booking:', venueBooking)
 
     if (!venueOwner) {
@@ -191,7 +191,7 @@ exports.rejectedBooking = async (req, res, next) => {
     sendSmtpEmail.subject = 'Payment Invoice'
     sendSmtpEmail.to = [{ email: client.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-    sendSmtpEmail.htmlContent = sendSmtpEmail.htmlContent = await rejectedHtml(
+    sendSmtpEmail.htmlContent = sendSmtpEmail.htmlContent = await rejected(
       reason,
       venueBooking.clientId.firstName,
       venue.venuename,
