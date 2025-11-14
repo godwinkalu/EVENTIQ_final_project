@@ -204,8 +204,6 @@ exports.rejectedBooking = async (req, res, next) => {
       message: 'Booking has been rejected',
     })
   } catch (error) {
-    console.log(error)
-
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
         message: 'Session expired, login to continue',

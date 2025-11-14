@@ -46,7 +46,6 @@ exports.registerBank = async (req, res, next) => {
       message: 'Bank details registered successfully'
     })
   } catch (error) {
-    console.log(error);
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
         message: 'Session expire, login to continue'
@@ -80,7 +79,6 @@ exports.getBankDetail = async (req, res, next) => {
       data: bankDetail
     })
   } catch (error) {
-    console.log(error);
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
         message: 'Session expire, login to continue'
@@ -133,7 +131,6 @@ exports.updateBank = async (req, res, next) => {
       message: 'Bank details updated successfully'
     })
   } catch (error) {
-    console.log(error);
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(400).json({
         message: 'Session expire, login to continue'

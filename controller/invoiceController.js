@@ -46,8 +46,6 @@ exports.getOneInvoice = async (req, res, next) => {
       data: invoice,
     })
   } catch (error) {
-    console.log(error)
-
     next(error)
   }
 }

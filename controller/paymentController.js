@@ -197,7 +197,6 @@ exports.verifyPayment = async (req, res, next) => {
     if (!reference) {
       return res.status(400).json({ message: 'Reference is required' })
     }
-    console.log('reference:', reference)
 
     // Check both models for matching reference
     const payment =
@@ -233,7 +232,6 @@ exports.verifyPayment = async (req, res, next) => {
         const per = (10 / 100) * booking.total
         venue.availableBalance = booking.total - per
         await venue.save()
-        console.log('client:', booking.clientId)
 
         // Create invoice
         const invoice = await invoiceModel.create({
@@ -313,7 +311,6 @@ exports.withdrawEarnings = async (req, res, next) => {
     const venueOwner = await venueOwnerModel.findById(req.user.id)
     const venue = await venueModel.findOne({ venueOwnerId: venueOwner._id })
     const venueBooking = await venuebookingModel.findOne({ venueId: venue._id })
-    console.log(venueBooking)
 
     if (!venueOwner) {
       return res.status(404).json({

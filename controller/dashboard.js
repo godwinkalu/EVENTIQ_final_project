@@ -29,8 +29,6 @@ exports.getOverview = async (req, res, next) => {
     const venues = await venueModel.find({ venueOwnerId: venueOwner._id })
     const venueBooking = await venuebookingModel.find({venueOwnerId: dashboard.venueOwnerId, paymentstatus: 'paid'})
 
-    console.log('venue booking:', venueBooking)
-
     Object.assign(dashboard, {
       totalVenues: venues.length,
       activeBooking: bookings.length,
@@ -50,18 +48,3 @@ exports.getOverview = async (req, res, next) => {
     next(error)
   }
 }
-
-// venueSchema.post('save', async function (doc, next) {
-//   try {
-//     const venues = await venueModel.find({ _id: doc._id })
-//     const venueOwner = await venueOwnerModel.findOne({ _id: venues[0].venueOwnerId })
-//     const venuebookings = await venuebookingModel.find({ venueId: venues[0]?._id })
-//     const dashboard = await dashboardModel.findOne({ venueOwnerId: venueOwner._id })
-//     dashboard.totalVenues = venues.length
-//     dashboard.activeBooking = venuebookings.length
-//     await dashboard.save()
-//     next()
-//   } catch (error) {
-//     console.log(error)
-//   }
-// })

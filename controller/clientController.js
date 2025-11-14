@@ -71,7 +71,6 @@ exports.signUp = async (req, res, next) => {
       message: 'Client created successfully',
     })
   } catch (error) {
-    console.log(error)
     next(error)
   }
 }
@@ -243,8 +242,6 @@ exports.getAllVerifiedOutdoor = async (req, res, next) => {
   try {
     const { id } = req.user
     const city = req.query.city
-    console.log(city)
-
     const user = await clientModel.findById(id)
 
     if (!user) {
