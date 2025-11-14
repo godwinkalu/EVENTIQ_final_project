@@ -73,7 +73,7 @@ const venueSchema = new mongoose.Schema(
     },
     amenities: {
       type: [String],
-      required: true
+      required: true,
     },
     documents: {
       images: [
@@ -103,9 +103,9 @@ const venueSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-     availableBalance:{
+    availableBalance: {
       type: Number,
-      default:0,
+      default: 0,
     },
     featuredExpireAt: {
       type: Number,
@@ -116,7 +116,7 @@ const venueSchema = new mongoose.Schema(
       type: String,
       enum: ['pending', 'unverified', 'verified'],
       default: 'pending',
-      lowercase: true
+      lowercase: true,
     },
   },
   { timestamps: true }
@@ -124,14 +124,14 @@ const venueSchema = new mongoose.Schema(
 
 venueSchema.post('save', async function (doc, next) {
   try {
-    const venues = await venueModel.find({ _id: doc._id });
-    const venueOwner = await venueOwnerModel.findOne({ _id: venues[0]._id })
-    const venuebookings = await venuebookingModel.find({ venueId: venues[0]?._id });
+    const venues = await venueModel.find({ _id: doc._id })
+    const venueOwner = await venueOwnerModel.findOne({ _id: venues[0].venueOwnerId })
+    const venuebookings = await venuebookingModel.find({ venueId: venues[0]?._id })
     const dashboard = await dashboardModel.findOne({ venueOwnerId: venueOwner._id })
     dashboard.totalVenues = venues.length
     dashboard.activeBooking = venuebookings.length
     await dashboard.save()
-    next();
+    next()
   } catch (error) {
     console.log(error)
   }

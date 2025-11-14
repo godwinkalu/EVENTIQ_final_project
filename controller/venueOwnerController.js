@@ -53,21 +53,18 @@ exports.createVenueOwner = async (req, res, next) => {
         publicId: response.public_id,
       },
     })
-
-    const dashboard = await dashboardModel.create({
-      venueOwnerId: venueOwner._id,
-    })
-
+    
     const details = {
       otp: venueOwner.otp,
       firstName: venueOwner.firstName,
       email: venueOwner.email,
       subject: 'Welcome To Eventiq',
     }
-
+    
     await emailSender(details)
     await venueOwner.save()
-    const businessInfo = await businessinfomationModel.create({
+    
+    const dashboard = await dashboardModel.create({
       venueOwnerId: venueOwner._id,
     })
     res.status(201).json({

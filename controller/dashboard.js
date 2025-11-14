@@ -3,16 +3,21 @@ const venueModel = require('../models/venueModel');
 const venuebookingModel = require('../models/venuebookingModel');
 const venueOwnerModel = require('../models/venueOwnerModel')
 const moment = require('moment')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { VenuesOwner } = require('./adminController');
 
 exports.getOverview = async (req, res, next) => {
   try {
     const { id } = req.user
+
     const venueOwner = await venueOwnerModel.findById(id)
     const dashboard = await dashboardModel.findOne({ venueOwnerId: venueOwner._id})
     const bookings = await venuebookingModel.find({venueOwnerId: venueOwner._id})
     const venues = await venueModel.find({venueOwnerId: venueOwner._id})
-
+console.log('venueOwner:', venueOwner)
+console.log('dashbord:',dashboard);
+console.log("booking:",bookings);
+console.log('venues:',venues);
     if (!venueOwner) {
       return res.status(404).json({
         message: 'Venue owner not found',
