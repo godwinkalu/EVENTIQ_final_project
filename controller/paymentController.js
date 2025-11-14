@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 const axios = require('axios')
 const Brevo = require('@getbrevo/brevo')
 const otpGen = require('otp-generator')
+const clientModel = require('../models/clientModel')
 const venuebookingModel = require('../models/venuebookingModel')
 const paymentModel = require('../models/bookingPayment')
 const invoiceModel = require('../models/invoiceModel')
@@ -203,8 +204,6 @@ exports.verifyPayment = async (req, res, next) => {
       (await paymentModel.findOne({ reference }).populate('venueId').populate('venuebookingId')) ||
       (await featuresPaymentModel.findOne({ reference }).populate('venueId').populate('venuebookingId'))
 
-    console.log('Payment:', payment)
-
     if (!payment) {
       return res.status(404).json({ message: 'Payment not found' })
     }
@@ -216,69 +215,53 @@ exports.verifyPayment = async (req, res, next) => {
       },
     })
 
+    if (payment.type === 'venuebooking') {
+      const booking = await venuebookingModel
+        .findById(payment.venuebookingId)
+        .populate('clientId')
+        .populate('venueId')
 
-    if (data.status === true && data.data.status === 'success') {
-      if (payment.type === 'venuebooking') {
-        const booking = await venuebookingModel
-          .findById(payment.venuebookingId)
-          .populate('clientId')
-          .populate('venueId')
-
-        if (!booking) {
-          return res.status(404).json({ message: 'Booking not found' })
-        }
-
-        if (data.status === true && data.data.status === 'success') {
-          payment.status = 'successful'
-          booking.paymentstatus = 'paid'
-          await Promise.all([payment.save(), booking.save()])
-          const venue = await venueModel.findById(booking.venueId._id)
-          const per = (10 / 100) * booking.total
-          venue.availableBalance = booking.total - per
-          await venue.save()
-          // Create invoice
-          const invoice = await invoiceModel.create({
-            clientId: booking.clientId._id,
-            venueId: booking.venueId._id,
-            venuebookingId: booking._id,
-          })
-          
-          const booking = await venuebookingModel.findById(payment.venuebookingId._id);
-
-          booking.invoceId = invoice._id
-          await booking.save()
-          // Send email notification
-          const link = `https://event-app-theta-seven.vercel.app/#/invoice/${invoice._id}`
-          console.log(link);
-          
-          const apikey = process.env.brevo
-          const apiInstance = new Brevo.TransactionalEmailsApi()
-          apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
-
-          const sendSmtpEmail = new Brevo.SendSmtpEmail()
-          sendSmtpEmail.subject = 'Venue Invoice'
-          sendSmtpEmail.to = [{ email: booking.clientId.email }]
-          sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-          sendSmtpEmail.htmlContent = ClientInvoiceHtml(
-            link,
-            booking.clientId.firstName,
-            booking.venueId.venuename.toUpperCase()
-          )
-
-          try {
-            await apiInstance.sendTransacEmail(sendSmtpEmail)
-          } catch (emailError) {
-            console.error('Email sending failed:', emailError.message)
-          }
-
-          return res.status(200).json({
-            message: 'Payment verified successfully',
-            data: data,
-            invoice,
-          })
-        }
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' })
       }
 
+      if (data.status === true && data.data.status === 'success') {
+        payment.status = 'successful'
+        booking.paymentstatus = 'paid'
+        await Promise.all([payment.save(), booking.save()])
+        const venue = await venueModel.findById(booking.venueId._id)
+        const per = (10 / 100) * booking.total
+        venue.availableBalance = booking.total - per
+        await venue.save()
+        console.log('client:', booking.clientId)
+
+        // Create invoice
+        const invoice = await invoiceModel.create({
+          clientId: booking.clientId._id,
+          venueId: booking.venueId._id,
+          venuebookingId: booking._id,
+        })
+
+        // Send email notification
+        const link = `https://event-app-theta-seven.vercel.app/#/invoice/${invoice._id}`
+        const client = await clientModel.findById(invoice.clientId);
+        if(!client) return res.status(404).json({message: 'Client not found'})
+
+        const apikey = process.env.brevo
+        const apiInstance = new Brevo.TransactionalEmailsApi()
+        apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
+        const sendSmtpEmail = new Brevo.SendSmtpEmail()
+        sendSmtpEmail.subject = 'Payment Invoice'
+        sendSmtpEmail.to = [{ email: client.email}]
+        sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
+        sendSmtpEmail.htmlContent = sendSmtpEmail.htmlContent = await ClientInvoiceHtml(link, client.firstName, booking.venueId.venuename)
+        const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
+
+        return res.status(200).json({
+          message: 'Payment verified successfully',
+          invoice,
+        })
+      }
       // Handle venue booking payments
       else if (data.status === true && data.data.status === 'failed') {
         payment.status = 'failed'

@@ -33,8 +33,7 @@ exports.getOneInvoice = async (req, res, next) => {
       .findById(invoiceId)
       .populate('clientId')
       .populate('venueId')
-      .populate('venuebookingId')
-
+      
     if (!invoice) {
       return res.status(404).json({
         message: 'Invoice Not Found',

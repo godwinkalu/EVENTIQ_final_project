@@ -88,17 +88,17 @@ router.get('/invoices', authentication, getInvoice);
  * @swagger
  * /invoice/{invoiceId}:
  *   get:
- *     summary: Retrieve a single invoice by ID
- *     description: Fetches detailed information about a specific invoice, including related client, venue, and booking data.
- *     tags: [Invoices]
+ *     summary: Get a single invoice by ID
+ *     description: Retrieve full invoice details including client and venue information.
+ *     tags:
+ *       - Invoice
  *     parameters:
  *       - in: path
  *         name: invoiceId
  *         required: true
- *         description: The unique ID of the invoice to retrieve
  *         schema:
  *           type: string
- *           example: 6743a8c56e2bdf7c3d1b0b21
+ *         description: The ID of the invoice to retrieve
  *     responses:
  *       200:
  *         description: Invoice data retrieved successfully
@@ -112,55 +112,14 @@ router.get('/invoices', authentication, getInvoice);
  *                   example: invoice Data
  *                 data:
  *                   type: object
- *                   properties:
- *                     _id:
- *                       type: string
- *                       example: 6743a8c56e2bdf7c3d1b0b21
- *                     clientId:
- *                       type: object
- *                       description: Details of the client who made the booking
- *                     venueId:
- *                       type: object
- *                       description: Details of the venue associated with the invoice
- *                     venuebookingId:
- *                       type: object
- *                       description: Details of the booking associated with the invoice
- *                     totalAmount:
- *                       type: number
- *                       example: 150000
- *                     status:
- *                       type: string
- *                       example: paid
- *                     createdAt:
- *                       type: string
- *                       format: date-time
- *                       example: 2025-11-12T10:23:45.000Z
- *                     updatedAt:
- *                       type: string
- *                       format: date-time
- *                       example: 2025-11-12T11:00:00.000Z
+ *                   $ref: '#/components/schemas/Invoice'
+ *       400:
+ *         description: Invalid invoice ID
  *       404:
  *         description: Invoice not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Invoice Not Found
  *       500:
  *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal Server Error
  */
 router.get('/invoice/:invoiceId', getOneInvoice);
-
 
 module.exports = router
