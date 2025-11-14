@@ -21,7 +21,8 @@ const bankDetailRouter = require('./router/bankDetails')
 const businessinfoRouter = require('./router/businessinformationModel')
 const dashboardRouter = require('./router/dashboard')
 const notificationRouter = require('./router/notificationRouter')
-const invoiceRouter = require('./router/invoiceRouter')
+const invoiceRouter = require('./router/invoiceRouter');
+const { rejectedHtml } = require('./utils/confirmemailTemplate');
 
 app.use('/api/v1', clientRouter)
 app.use('/api/v1', adminRouter)

@@ -199,7 +199,6 @@ exports.rejectedBooking = async (req, res, next) => {
     )
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
-
     await venuebookingModel.findByIdAndDelete(venueBooking._id)
     res.status(200).json({
       message: 'Booking has been rejected',
