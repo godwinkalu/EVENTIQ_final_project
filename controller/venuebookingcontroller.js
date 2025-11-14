@@ -188,7 +188,7 @@ exports.rejectedBooking = async (req, res, next) => {
     const apiInstance = new Brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
     const sendSmtpEmail = new Brevo.SendSmtpEmail()
-    sendSmtpEmail.subject = 'Payment Invoice'
+    sendSmtpEmail.subject = 'Booking Rejected'
     sendSmtpEmail.to = [{ email: client.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
     sendSmtpEmail.htmlContent = sendSmtpEmail.htmlContent = await rejected(
