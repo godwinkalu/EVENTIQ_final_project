@@ -299,6 +299,8 @@ exports.verifyPayment = async (req, res, next) => {
       }
     }
   } catch (error) {
+    console.log(error);
+    
     console.error('Payment verification error:', error)
     next(error)
   }

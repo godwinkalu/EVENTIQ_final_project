@@ -184,20 +184,20 @@ exports.rejectedHtml = (reasons, firstName, venueName, mydate) => {
 }
 
 
-exports.ClientInvoiceHtml = (invoiceLink,firstName ,venue) => {
+exports.ClientInvoiceHtml = (invoiceLink, firstName, venue) => {
   return `
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking rejected</title>
+    <title>Your Invoice</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
             color: #333333;
-            background-color: #2c2c2c; /* Dark background */
+            background-color: #2c2c2c;
             margin: 0;
             padding: 0;
         }
@@ -208,7 +208,7 @@ exports.ClientInvoiceHtml = (invoiceLink,firstName ,venue) => {
             border: 1px solid #ddd;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #f4f4f4; /* Light grey background */
+            background-color: #f4f4f4;
         }
         .header {
             background: #333333;
@@ -226,10 +226,10 @@ exports.ClientInvoiceHtml = (invoiceLink,firstName ,venue) => {
             text-align: center;
             margin: 20px 0;
         }
-        h2 {
+        a.invoice-btn {
             display: inline-block;
-            background-color: #a72828; /* Red background */
-            color: #ffffff;
+            background-color: #a72828;
+            color: #ffffff !important;
             padding: 15px 30px;
             font-size: 18px;
             text-decoration: none;
@@ -237,8 +237,8 @@ exports.ClientInvoiceHtml = (invoiceLink,firstName ,venue) => {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s ease;
         }
-        .button:hover {
-            background-color: #218838;
+        a.invoice-btn:hover {
+            background-color: #8b1f1f;
         }
         .footer {
             background: #333333;
@@ -255,18 +255,20 @@ exports.ClientInvoiceHtml = (invoiceLink,firstName ,venue) => {
 <body>
     <div class="container">
         <div class="header">
-            <h1>❌ Your booking request has been declined.</h1>
+            <h1>Your Booking Invoice is Ready</h1>
         </div>
 
         <div class="content">
             <p>Hi ${firstName},</p>
-            <p>Unfortunately, your booking for <b>${venueName}</b> on <b>${mydate}</b> could not be approved by the hall owner. You may browse other available venues on Eventiq.</p>
+            <p>Your invoice for <b>${venue}</b> is now available. Please click the button below to view it.</p>
 
             <div class="button-container">
-                <h2>Reason: ${reasons}</h2>
+                <a class="invoice-btn" href="${invoiceLink}" target="_blank">
+                    View Invoice
+                </a>
             </div>
 
-            <p>If you have any questions or need help with your application, don't hesitate to reach out to our support team. We're here to assist you.</p>
+            <p>If you have any questions or need assistance, our support team is here to help.</p>
         </div>
 
         <div class="footer">
@@ -276,6 +278,5 @@ exports.ClientInvoiceHtml = (invoiceLink,firstName ,venue) => {
 </body>
 
 </html>
-
   `;
 };
