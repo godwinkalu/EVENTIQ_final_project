@@ -79,7 +79,7 @@ exports.confirmedHtml = (verifyLink, firstName, venueName,mydate) => {
                   <p>If you have any questions or need further assistance, feel free to contact our support team.</p>
               </div>
               <div class="footer">
-                  <p>&copy; Orangefieldteam. All rights reserved.</p>
+                  <p>&copy;  All rights reserved.</p>
               </div>
           </div>
       </body>
@@ -173,7 +173,7 @@ exports.rejectedHtml = (reasons, firstName, venueName, mydate) => {
         </div>
 
         <div class="footer">
-            <p>&copy; 2024 Orangefieldteam. All rights reserved.</p>
+            <p>&copy; All rights reserved.</p>
         </div>
     </div>
 </body>
@@ -272,7 +272,7 @@ exports.ClientInvoiceHtml = (invoiceLink, firstName, venue) => {
         </div>
 
         <div class="footer">
-            <p>&copy; 2024 Orangefieldteam. All rights reserved.</p>
+            <p>&copy;  All rights reserved.</p>
         </div>
     </div>
 </body>
