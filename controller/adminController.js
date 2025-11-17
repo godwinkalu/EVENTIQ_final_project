@@ -247,7 +247,7 @@ exports.verifiyVenue = async (req, res, next) => {
   try {
     const admin = await adminModel.findById(req.user.id)
     const venue = await venueModel.findById(req.params.venueId)
-    const venueOwner = await venueOwnerModel.findById(venue.venueOwnerId)
+    const venueowner = await venueOwnerModel.findOne({ _id: venue.venueOwnerId })
 
     if (!admin) {
       return res.status(404).json({
@@ -261,23 +261,27 @@ exports.verifiyVenue = async (req, res, next) => {
       })
     }
 
-    if (!venueOwner) {
+    if (!venueowner) {
       return res.status(404).json({
-        message: 'venueowner not found',
+        message: 'venue owner not found',
       })
     }
 
     venue.status = 'verified'
-
-    const details = {
-      otp: client.otp,
-      firstName: client.firstName,
-      email: client.email,
-      subject: 'Welcome To Eventiq',
-    }
-
-    await emailSender(details)
     await venue.save()
+
+    const apikey = process.env.brevo
+    const apiInstance = new Brevo.TransactionalEmailsApi()
+    apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
+
+    const sendSmtpEmail = new Brevo.SendSmtpEmail()
+    sendSmtpEmail.subject = 'Welcome to Eventiq'
+    sendSmtpEmail.to = [{ email: venueowner.email }]
+    sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
+
+    sendSmtpEmail.htmlContent = signUpTemplate(venueowner.firstName)
+
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     res.status(200).json({
       message: 'venue verified  successfully',
     })

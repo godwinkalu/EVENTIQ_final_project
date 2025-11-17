@@ -124,7 +124,8 @@ exports.getAllClientBooking = async (req, res, next) => {
     const bookings = await venuebookingModel.find({
       clientId: client._id,
       bookingstatus: { $in: ['confirmed', 'pending'] },
-    })
+    }).populate('venueId')
+
     res.status(200).json({
       message: 'All client bookings',
       data: bookings,
