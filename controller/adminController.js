@@ -246,7 +246,7 @@ exports.allVenuesFeatured = async (req, res, next) => {
 exports.verifiyVenue = async (req, res, next) => {
   try {
     const admin = await adminModel.findById(req.user.id)
-    const venue = await venueModel.findById(req.params.venueId)
+    const venue = await venueModel.findById(req.params.venueId).populate('venueOwnerId')
     const venueowner = await venueOwnerModel.findOne({ _id: venue.venueOwnerId })
 
     if (!admin) {
@@ -284,6 +284,7 @@ exports.verifiyVenue = async (req, res, next) => {
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     res.status(200).json({
       message: 'venue verified  successfully',
+      data:venue
     })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -299,7 +300,7 @@ exports.unverifiedVenue = async (req, res, next) => {
   try {
     const { reason } = req.body
     const admin = await adminModel.findById(req.user.id)
-    const venue = await venueModel.findById(req.params.venueId)
+    const venue = await venueModel.findById(req.params.venueId).populate('venueOwner')
     const venueowner = await venueOwnerModel.findOne({ _id: venue.venueOwnerId })
 
     if (!admin) {
@@ -337,6 +338,7 @@ exports.unverifiedVenue = async (req, res, next) => {
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     res.status(200).json({
       message: 'venue unverified  successfully',
+      data:venue
     })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {

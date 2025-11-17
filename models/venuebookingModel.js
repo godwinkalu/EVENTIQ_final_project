@@ -21,10 +21,6 @@ const venuebookingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    servicecharge: {
-      type: Number,
-      default: 0,
-    },
     eventType:{
       type: String,
       required: true,
