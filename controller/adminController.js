@@ -280,7 +280,7 @@ exports.verifiyVenue = async (req, res, next) => {
     sendSmtpEmail.to = [{ email: venueowner.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
 
-    sendSmtpEmail.htmlContent = venueVerification(venueowner.firstName)
+    sendSmtpEmail.htmlContent = venueVerification(venueowner.firstName, venue.name)
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     res.status(200).json({
@@ -334,7 +334,7 @@ exports.unverifiedVenue = async (req, res, next) => {
     sendSmtpEmail.to = [{ email: venueowner.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
 
-    sendSmtpEmail.htmlContent = venueUnverifiedTemplate (reason, venueowner.firstName)
+    sendSmtpEmail.htmlContent = venueUnverifiedTemplate (venueowner.firstName, venue.name, reason)
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     res.status(200).json({
