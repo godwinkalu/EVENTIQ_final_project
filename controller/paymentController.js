@@ -162,7 +162,7 @@ exports.initializeBookingPayment = async (req, res, next) => {
     })
 
     const payload = {
-      amount: venueBooking.total,
+      amount: venueBooking.total + venueBooking.vat,
       currency: 'NGN',
       reference,
       customer: { email: venueBooking.clientId.email, name: venueBooking.clientId.firstName },

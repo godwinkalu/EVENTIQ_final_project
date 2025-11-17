@@ -21,6 +21,10 @@ const venuebookingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    vat: {
+      type: Number,
+      required: true,
+    },
     eventType:{
       type: String,
       required: true,

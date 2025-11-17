@@ -56,7 +56,8 @@ exports.createvenuebooking = async (req, res, next) => {
       month: 'long',
       day: 'numeric',
     })
-
+    // calculare vat
+    const vat = (7.5/100) * venue.price
     //  Create booking
     const newBooking = new venuebookingModel({
       venueId: venue._id,
@@ -65,6 +66,7 @@ exports.createvenuebooking = async (req, res, next) => {
       date: jsDate,
       total: totalAmount,
       eventType,
+      vat: vat
     })
 
     await newBooking.save()
