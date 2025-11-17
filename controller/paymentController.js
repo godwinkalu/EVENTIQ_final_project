@@ -168,7 +168,7 @@ exports.initializeBookingPayment = async (req, res, next) => {
       customer: { email: venueBooking.clientId.email, name: venueBooking.clientId.firstName },
       redirect_url: `${process.env.FRONTEND_BASE_URL}/#/payment-success`,
     }
-
+ 
     const { data } = await axios.post('https://api.korapay.com/merchant/api/v1/charges/initialize', payload, {
       headers: {
         Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
@@ -208,7 +208,7 @@ exports.verifyPayment = async (req, res, next) => {
     }
 
     // Verify payment with KoraPay API
-  const { data } = await axios.get(`https://api.korapay.com\/merchant/api/v1/charges/${reference}`, {
+    const { data } = await axios.get(`https://api.korapay.com\/merchant/api/v1/charges/${reference}`, {
       headers: {
         Authorization: `Bearer ${process.env.KORA_SECRET_KEY}`,
       },
@@ -242,17 +242,21 @@ exports.verifyPayment = async (req, res, next) => {
 
         // Send email notification
         const link = `https://event-app-theta-seven.vercel.app/#/invoice/${invoice._id}`
-        const client = await clientModel.findById(invoice.clientId);
-        if(!client) return res.status(404).json({message: 'Client not found'})
+        const client = await clientModel.findById(invoice.clientId)
+        if (!client) return res.status(404).json({ message: 'Client not found' })
 
         const apikey = process.env.brevo
         const apiInstance = new Brevo.TransactionalEmailsApi()
         apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
         const sendSmtpEmail = new Brevo.SendSmtpEmail()
         sendSmtpEmail.subject = 'Payment Invoice'
-        sendSmtpEmail.to = [{ email: client.email}]
+        sendSmtpEmail.to = [{ email: client.email }]
         sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
-        sendSmtpEmail.htmlContent = sendSmtpEmail.htmlContent = await ClientInvoiceHtml(link, client.firstName, booking.venueId.venuename)
+        sendSmtpEmail.htmlContent = sendSmtpEmail.htmlContent = await ClientInvoiceHtml(
+          link,
+          client.firstName,
+          booking.venueId.venuename
+        )
         const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
 
         return res.status(200).json({
@@ -299,8 +303,8 @@ exports.verifyPayment = async (req, res, next) => {
       }
     }
   } catch (error) {
-    console.log(error);
-    
+    console.log(error)
+
     console.error('Payment verification error:', error)
     next(error)
   }
