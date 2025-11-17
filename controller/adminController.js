@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken')
 const Brevo = require('@getbrevo/brevo')
 const { signUpTemplate } = require('../utils/emailTemplate')
 const venuebookingModel = require('../models/venuebookingModel')
+const { venueVerification } = require('../utils/confirmemailTemplate')
 
 exports.signUp = async (req, res, next) => {
   const { firstName, surname, phoneNumber, email, password } = req.body
@@ -246,7 +247,7 @@ exports.allVenuesFeatured = async (req, res, next) => {
 exports.verifiyVenue = async (req, res, next) => {
   try {
     const admin = await adminModel.findById(req.user.id)
-    const venue = await venueModel.findById(req.params.venueId)
+    const venue = await venueModel.findById(req.params.venueId).populate('venueOwnerId')
     const venueowner = await venueOwnerModel.findOne({ _id: venue.venueOwnerId })
 
     if (!admin) {
@@ -275,15 +276,16 @@ exports.verifiyVenue = async (req, res, next) => {
     apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
 
     const sendSmtpEmail = new Brevo.SendSmtpEmail()
-    sendSmtpEmail.subject = 'Welcome to Eventiq'
+    sendSmtpEmail.subject = 'Your Venue is Now Verified 🎉'
     sendSmtpEmail.to = [{ email: venueowner.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
 
-    sendSmtpEmail.htmlContent = signUpTemplate(venueowner.firstName)
+    sendSmtpEmail.htmlContent = venueVerification(venueowner.firstName)
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     res.status(200).json({
       message: 'venue verified  successfully',
+      data:venue
     })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -299,7 +301,7 @@ exports.unverifiedVenue = async (req, res, next) => {
   try {
     const { reason } = req.body
     const admin = await adminModel.findById(req.user.id)
-    const venue = await venueModel.findById(req.params.venueId)
+    const venue = await venueModel.findById(req.params.venueId).populate('venueOwner')
     const venueowner = await venueOwnerModel.findOne({ _id: venue.venueOwnerId })
 
     if (!admin) {
@@ -328,15 +330,16 @@ exports.unverifiedVenue = async (req, res, next) => {
     apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apikey)
 
     const sendSmtpEmail = new Brevo.SendSmtpEmail()
-    sendSmtpEmail.subject = 'Welcome to Eventiq'
+    sendSmtpEmail.subject = 'Your Venue Could Not Be Verified'
     sendSmtpEmail.to = [{ email: venueowner.email }]
     sendSmtpEmail.sender = { name: 'Eventiq', email: 'udumag51@gmail.com' }
 
-    sendSmtpEmail.htmlContent = signUpTemplate(reason, venueowner.firstName)
+    sendSmtpEmail.htmlContent = venueUnverifiedTemplate (reason, venueowner.firstName)
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail)
     res.status(200).json({
       message: 'venue unverified  successfully',
+      data:venue
     })
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
