@@ -140,6 +140,42 @@ exports.getAllClientBooking = async (req, res, next) => {
   }
 }
 
+exports.getOneClientBooking = async (req, res, next) => {
+  try {
+    const { id } = req.user
+    const {bookingId} = req.params;
+    const client = await clientModel.findById(id)
+
+    if (!client) {
+      return res.status(404).json({
+        message: 'Client not found',
+      })
+    }
+
+    const booking = await venuebookingModel.findById(bookingId).populate('venueId')
+
+    
+    if (!booking) {
+      return res.status(404).json({
+        message: 'Booking not found',
+      })
+    }
+
+
+    res.status(200).json({
+      message: 'All client bookings',
+      data: booking,
+    })
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({
+        message: 'Session expired, login to continue',
+      })
+    }
+    next(error)
+  }
+}
+
 exports.deleteClient = async (req, res, next) => {
   try {
     const { id } = req.params

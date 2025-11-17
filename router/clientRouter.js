@@ -1,4 +1,5 @@
-const {signUp, getClients, getClient, deleteClient, getAllClientBooking, getAllVerifiedVenues, getAllVerifiedIndoors, getAllVerifiedOutdoor, getAllVerifiedMulti, search} = require('../controller/clientController');
+const {signUp, getClients, getClient, deleteClient, getAllClientBooking, getAllVerifiedVenues, getAllVerifiedIndoors, getAllVerifiedOutdoor, getAllVerifiedMulti, search, getOneClientBooking} = require('../controller/clientController');
+const { getOnevenue } = require('../controller/venueController');
 const { authentication } = require('../middleware/authMiddleware');
 
 const router = require('express').Router();
@@ -573,5 +574,66 @@ router.get('/allvenues-outdoor', authentication, getAllVerifiedOutdoor)
 router.get('/allvenues-multipurpose', authentication, getAllVerifiedMulti)
 
 router.get('/search', search)
+
+/**
+ * @swagger
+ * /get-booking/{bookingId}:
+ *   get:
+ *     summary: Get a single booking made by the authenticated client
+ *     description: Retrieves details of a specific booking using the booking ID.
+ *     tags:
+ *       - Client Booking
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: bookingId
+ *         required: true
+ *         description: The unique ID of the booking.
+ *         schema:
+ *           type: string
+ *           example: 675a1f3c98c4c15d9a8e2b44
+ *     responses:
+ *       200:
+ *         description: Booking retrieved successfully.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: All client bookings
+ *               data:
+ *                 _id: 675a1f3c98c4c15d9a8e2b44
+ *                 venueId:
+ *                   _id: 675a1d5598c4c15d9a8e2b00
+ *                   name: Grand Event Hall
+ *                   location: Lagos
+ *                 date: 2025-01-12T10:00:00.000Z
+ *                 status: confirmed
+ *       400:
+ *         description: Invalid or expired session token.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Session expired, login to continue
+ *       404:
+ *         description: Client or booking not found.
+ *         content:
+ *           application/json:
+ *             examples:
+ *               ClientNotFound:
+ *                 summary: Client not found
+ *                 value:
+ *                   message: Client not found
+ *               BookingNotFound:
+ *                 summary: Booking not found
+ *                 value:
+ *                   message: Booking not found
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Something went wrong
+ */
+router.get('/get-booking/:bookingId', authentication, getOneClientBooking)
 
 module.exports = router
