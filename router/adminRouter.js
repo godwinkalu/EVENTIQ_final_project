@@ -522,7 +522,7 @@ router.get('/allfeatured-venues', authorize, allVenuesFeatured)
  * /venue-verifiy/{venueId}:
  *   get:
  *     summary: Verify a venue
- *     description: Allows an admin to verify a venue by its ID.
+ *     description: Allows an admin to verify a venue by its ID and sends a verification email to the venue owner.
  *     tags:
  *       - Admin
  *     security:
@@ -534,7 +534,7 @@ router.get('/allfeatured-venues', authorize, allVenuesFeatured)
  *         description: The unique ID of the venue to be verified.
  *         schema:
  *           type: string
- *           example: 652e8b7f4c1234567890abcd
+ *           example: 67c0132aa9e51234bb98de77
  *     responses:
  *       200:
  *         description: Venue verified successfully.
@@ -549,7 +549,7 @@ router.get('/allfeatured-venues', authorize, allVenuesFeatured)
  *             example:
  *               message: session expired please login to continue
  *       404:
- *         description: Admin or venue not found.
+ *         description: Admin or venue or venue owner not found.
  *         content:
  *           application/json:
  *             examples:
@@ -561,6 +561,10 @@ router.get('/allfeatured-venues', authorize, allVenuesFeatured)
  *                 summary: Venue not found
  *                 value:
  *                   message: venue not found
+ *               VenueOwnerNotFound:
+ *                 summary: Venue owner not found
+ *                 value:
+ *                   message: venue owner not found
  *       500:
  *         description: Internal server error.
  *         content:
@@ -568,7 +572,7 @@ router.get('/allfeatured-venues', authorize, allVenuesFeatured)
  *             example:
  *               message: Something went wrong
  */
-router.get('/venue-verifiy/:venueId', authorize, verifiyVenue)
+router.get('/venue-verifiy/:venueId', authorize, verifiyVenue);
 
 
 /**

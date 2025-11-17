@@ -179,7 +179,7 @@ exports.rejectedBooking = async (req, res, next) => {
       BookingId: venueBooking._id,
       venueId: venue._id,
       notificationTitle: 'Booking Rejected',
-      notificationMsg: `Your booking request at ${venue.venuename} has been confirmed for ${venueBooking.date}.`,
+      notificationMsg: `Your booking request at ${venue.venuename} has been Rejected for ${venueBooking.date}.`,
       dot: '#ff0000',
       time: new Date(),
     })
