@@ -17,7 +17,7 @@ const dashboardSchema = new mongoose.Schema({
       type: Number,
       default: 0
   },
-  occupancyRate: {
+  availableBalance: {
       type: Number,
       default: 0
   }

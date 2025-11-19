@@ -21,11 +21,15 @@ const venuebookingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    dateChecker: {
+      type: String,
+      required: true,
+    },
     vat: {
       type: Number,
       required: true,
     },
-    eventType:{
+    eventType: {
       type: String,
       required: true,
     },

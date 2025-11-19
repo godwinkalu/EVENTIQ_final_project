@@ -49,13 +49,15 @@ exports.createvenuebooking = async (req, res, next) => {
     }
 
     // Calculate total cost
-    const totalAmount =  venue.price 
+    const totalAmount =  venue.price + ((7.5/100) * venue.price)
+
     const [day, month, year] = date.split('/')
     const jsDate = new Date(`${month} ${day}, ${year}`).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     })
+    const rawDate = new Date(`${year}/${month}/${day}`);
     // calculare vat
     const vat = (7.5/100) * venue.price
     //  Create booking
@@ -66,11 +68,11 @@ exports.createvenuebooking = async (req, res, next) => {
       date: jsDate,
       total: totalAmount,
       eventType,
+      dateChecker: rawDate.toISOString(),
       vat: vat
     })
 
-    await newBooking.save()
-
+    await newBooking.save();
     const notification = await notificationvenueownerModel.create({
       venueOwnerId: venue.venueOwnerId,
       BookingId: newBooking._id,
