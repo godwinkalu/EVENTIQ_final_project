@@ -44,10 +44,6 @@ const venueSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    cautionfee: {
-      type: Number,
-      required: true,
-    },
     capacity: {
       minimum: {
         type: String,
