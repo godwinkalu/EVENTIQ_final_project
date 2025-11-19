@@ -5,6 +5,7 @@ const venueOwnerModel = require('../models/venueOwnerModel')
 const moment = require('moment')
 const jwt = require('jsonwebtoken')
 const { VenuesOwner } = require('./adminController')
+const { login } = require('./general')
 
 
 exports.getOverview = async (req, res, next) => {
@@ -27,6 +28,7 @@ exports.getOverview = async (req, res, next) => {
 
     const bookings = await venuebookingModel.find({ venueOwnerId: venueOwner._id })
     const venues = await venueModel.find({ venueOwnerId: venueOwner._id })
+    const venueBooking = await venuebookingModel.find({venueOwnerId: dashboard.venueOwnerId, paymentstatus: 'paid'})
 
     Object.assign(dashboard, {
       totalVenues: venues.length,
