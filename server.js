@@ -1,6 +1,6 @@
-require('dotenv').config();
+require('dotenv').config()
 const express = require('express')
-const mongoose = require("mongoose")
+const mongoose = require('mongoose')
 const DB = process.env.MONGO_URL
 const PORT = process.env.PORT || 5677
 const swaggerJSDoc = require('swagger-jsdoc')
@@ -10,7 +10,7 @@ const app = express()
 
 app.use(express.json())
 app.use(cors({ origin: '*' }))
-const clientRouter = require('./router/clientRouter');
+const clientRouter = require('./router/clientRouter')
 const adminRouter = require('./router/adminRouter')
 const generalRouter = require('./router/general')
 const venueRouter = require('./router/venueRouter')
@@ -21,8 +21,8 @@ const bankDetailRouter = require('./router/bankDetails')
 const businessinfoRouter = require('./router/businessinformationModel')
 const dashboardRouter = require('./router/dashboard')
 const notificationRouter = require('./router/notificationRouter')
-const invoiceRouter = require('./router/invoiceRouter');
-const { rejectedHtml } = require('./utils/confirmemailTemplate');
+const invoiceRouter = require('./router/invoiceRouter')
+const { rejectedHtml } = require('./utils/confirmemailTemplate')
 
 app.use('/api/v1', clientRouter)
 app.use('/api/v1', adminRouter)
@@ -63,7 +63,7 @@ const swaggerDefinition = {
     {
       url: 'http://localhost:5677/api/v1',
       description: 'Development server',
-    }
+    },
   ],
   components: {
     securitySchemes: {
@@ -94,12 +94,11 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 mongoose
   .connect(DB)
   .then(() => {
-    console.log('Database Connected Successfully');
+    console.log('Database Connected Successfully')
     app.listen(PORT, () => {
       console.log(`My server is running on port:${PORT}`)
     })
   })
   .catch((err) => {
-    console.log(`Error connecting to database ${err.message}`);
+    console.log(`Error connecting to database ${err.message}`)
   })
-
