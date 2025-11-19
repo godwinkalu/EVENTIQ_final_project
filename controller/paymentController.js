@@ -340,6 +340,9 @@ exports.withdrawEarnings = async (req, res, next) => {
       })
     }
 
+    venue.availableBalance = venue.availableBalance - amount;
+    await venue.save();
+    
     const withdrawal = await withdrawalModel.create({
       venueOwnerId: venueOwner._id,
       venuebookingId: venueBooking._id,
