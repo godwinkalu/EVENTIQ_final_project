@@ -394,3 +394,31 @@ exports.search = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getAllCities = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+
+    const user = await clientModel.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    let cities = await venueModel.distinct('location.city', { status: 'verified' });
+
+    cities = cities.map(city => city.charAt(0).toUpperCase() + city.slice(1));
+
+    cities.sort();
+
+    res.status(200).json({
+      message: 'All cities retrieved successfully',
+      data: cities,
+      total: cities.length,
+    });
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(400).json({ message: 'Session expired, login to continue' });
+    }
+    next(error);
+  }
+};
