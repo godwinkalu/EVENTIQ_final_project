@@ -27,12 +27,11 @@ exports.getOverview = async (req, res, next) => {
 
     const bookings = await venuebookingModel.find({ venueOwnerId: venueOwner._id })
     const venues = await venueModel.find({ venueOwnerId: venueOwner._id })
-    const venueBooking = await venuebookingModel.find({venueOwnerId: dashboard.venueOwnerId, paymentstatus: 'paid'})
 
     Object.assign(dashboard, {
       totalVenues: venues.length,
       activeBooking: bookings.length,
-      revenue: venueBooking.reduce((a,c)=> a + c.total, 0)
+      revenue: venues.reduce((a,c)=> a + c.availableBalance, 0)
     })
     await dashboard.save();
     res.status(200).json({
