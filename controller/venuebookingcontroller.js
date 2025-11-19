@@ -49,7 +49,7 @@ exports.createvenuebooking = async (req, res, next) => {
     }
 
     // Calculate total cost
-    const totalAmount =  venue.price + venue.cautionfee
+    const totalAmount =  venue.price 
     const [day, month, year] = date.split('/')
     const jsDate = new Date(`${month} ${day}, ${year}`).toLocaleDateString('en-US', {
       year: 'numeric',

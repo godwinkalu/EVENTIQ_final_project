@@ -1,4 +1,4 @@
-const {signUp, getClients, getClient, deleteClient, getAllClientBooking, getAllVerifiedVenues, getAllVerifiedIndoors, getAllVerifiedOutdoor, getAllVerifiedMulti, search, getOneClientBooking} = require('../controller/clientController');
+const {signUp, getClients, getClient, deleteClient, getAllClientBooking, getAllVerifiedVenues, getAllVerifiedIndoors, getAllVerifiedOutdoor, getAllVerifiedMulti, search, getOneClientBooking, getAllCities} = require('../controller/clientController');
 const { getOnevenue } = require('../controller/venueController');
 const { authentication } = require('../middleware/authMiddleware');
 
@@ -635,5 +635,74 @@ router.get('/search', search)
  *               message: Something went wrong
  */
 router.get('/get-booking/:bookingId', authentication, getOneClientBooking)
+
+
+/**
+ * @swagger
+ * /cities:
+ *   get:
+ *     summary: Retrieve all verified venues by city
+ *     description: Returns a list of all verified venues. You can filter by a specific city using the `city` query parameter.
+ *     tags:
+ *       - Client
+ *     security:
+ *       - bearerAuth: []   # Requires JWT authentication
+ *     parameters:
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Optional city name to filter venues. Leave empty to get all venues.
+ *         example: Lagos
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved all verified venues by city
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All venues retrieved successfully
+ *                 total:
+ *                   type: integer
+ *                   example: 12
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 6734bcf89110a328f3240a99
+ *                       name:
+ *                         type: string
+ *                         example: Supreme Banquet Hall
+ *                       status:
+ *                         type: string
+ *                         example: verified
+ *                       type:
+ *                         type: string
+ *                         example: event hall
+ *                       location:
+ *                         type: object
+ *                         properties:
+ *                           city:
+ *                             type: string
+ *                             example: Lagos
+ *                           address:
+ *                             type: string
+ *                             example: 22 Admiralty Way, Lekki
+ *       400:
+ *         description: Session expired, login to continue
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/cities', authentication, getAllCities)
+
 
 module.exports = router
