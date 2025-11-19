@@ -364,3 +364,29 @@ exports.withdrawEarnings = async (req, res, next) => {
     next(error)
   }
 }
+
+
+exports.getAllWithdrawals = async (req, res, next) => {
+  try {
+    const venueOwner = await venueOwnerModel.findById(req.user.id);
+
+    if (!venueOwner) {
+      return res.status(404).json({
+        message: "Venue Owner not found",
+      });
+    }
+
+    
+    const withdrawals = await withdrawalModel
+      .find({ venueOwnerId: venueOwner._id })
+      .sort({ createdAt: -1 }); 
+
+    return res.status(200).json({
+      message: "All withdrawals retrieved successfully",
+      total: withdrawals.length,
+      data: withdrawals,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

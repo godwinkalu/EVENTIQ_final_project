@@ -9,6 +9,8 @@ const Brevo = require('@getbrevo/brevo')
 const { signUpTemplate } = require('../utils/emailTemplate')
 const venuebookingModel = require('../models/venuebookingModel')
 const { venueVerification } = require('../utils/confirmemailTemplate')
+const withdrawal = require('../models/withdrawalModel')
+const withdrawalModel = require('../models/withdrawalModel')
 
 exports.signUp = async (req, res, next) => {
   const { firstName, surname, phoneNumber, email, password } = req.body
