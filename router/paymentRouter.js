@@ -1,4 +1,4 @@
-const { createFeatures, getAllFeatures, initializeFeaturePayment, verifyPayment, initializeBookingPayment, withdrawEarnings } = require('../controller/paymentController');
+const { createFeatures, getAllFeatures, initializeFeaturePayment, verifyPayment, initializeBookingPayment, withdrawEarnings, getAllWithdrawals } = require('../controller/paymentController');
 const { authentication } = require('../middleware/authMiddleware');
 
 const router = require('express').Router();
@@ -377,6 +377,78 @@ router.get('/verify', verifyPayment);
  *         description: Internal server error.
  */
 router.post('/withdrawal', authentication, withdrawEarnings)
+
+
+/**
+ * @swagger
+ * /withdrawal:
+ *   get:
+ *     summary: Get all withdrawals for the logged-in venue owner
+ *     description: Retrieves all withdrawal requests made by the authenticated venue owner, sorted from newest to oldest.
+ *     tags:
+ *       - Withdrawals
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All withdrawals retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: All withdrawals retrieved successfully
+ *                 total:
+ *                   type: number
+ *                   example: 4
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 6750c10aa3bf410289e3813f
+ *                       venueOwnerId:
+ *                         type: string
+ *                         example: 674a9d43b29f5b447bed6999
+ *                       venuebookingId:
+ *                         type: string
+ *                         example: 674aa50bb29f5b447bed8123
+ *                       venueId:
+ *                         type: string
+ *                         example: 674aa0e6b29f5b447bed7123
+ *                       amount:
+ *                         type: number
+ *                         example: 35000
+ *                       bankName:
+ *                         type: string
+ *                         example: Access Bank
+ *                       accountName:
+ *                         type: string
+ *                         example: John Doe
+ *                       accountType:
+ *                         type: string
+ *                         example: Savings
+ *                       accountNumber:
+ *                         type: string
+ *                         example: "0123456789"
+ *                       status:
+ *                         type: string
+ *                         example: pending
+ *                       createdAt:
+ *                         type: string
+ *                         example: 2025-01-15T10:22:00.000Z
+ *       401:
+ *         description: Unauthorized – missing or invalid token.
+ *       404:
+ *         description: Venue Owner not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get('/withdrawal', authentication, getAllWithdrawals)
 
 
 module.exports = router;

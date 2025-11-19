@@ -33,11 +33,6 @@ const venuebookingSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    cautionfeestatus: {
-      type: String,
-      enum: ['pending', 'refunded'],
-      default: 'pending',
-    },
     paymentstatus: {
       type: String,
       enum: ['pending', 'paid', 'failed'],
