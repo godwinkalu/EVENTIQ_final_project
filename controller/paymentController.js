@@ -334,7 +334,7 @@ exports.withdrawEarnings = async (req, res, next) => {
       })
     }
 
-    if (amount < venue.availableBalance) {
+    if (amount > venue.availableBalance) {
       return res.status(400).json({
         message: 'insuffeint Available Balance',
       })
