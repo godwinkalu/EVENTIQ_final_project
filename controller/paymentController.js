@@ -382,6 +382,7 @@ exports.getAllWithdrawals = async (req, res, next) => {
     
     const withdrawals = await withdrawalModel
       .find({ venueOwnerId: venueOwner._id })
+      .populate('venueOwnerId')
       .sort({ createdAt: -1 }); 
 
     return res.status(200).json({
