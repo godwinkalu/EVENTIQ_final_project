@@ -45,7 +45,7 @@ exports.getOverview = async (req, res, next) => {
         total.push(p)
       })
     })
-log
+
     console.log('total:',total.reduce((a, c) => a + c.availableBalance, 0));
     
 
