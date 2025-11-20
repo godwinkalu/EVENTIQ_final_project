@@ -31,6 +31,7 @@ exports.getOverview = async (req, res, next) => {
       venueOwnerId: dashboard.venueOwnerId,
       paymentstatus: 'paid',
     })
+    const vat = venueBooking.reduce((a, c) => a + c.vat, 0)
 
     const today = new Date()
     const passedBookingdate = bookings.filter((e) => {
@@ -38,22 +39,19 @@ exports.getOverview = async (req, res, next) => {
       return booking < today
     })
 
-    let total = [];
+    let total = []
     passedBookingdate.forEach((e) => {
-    const venue = venues.find((p) => {
+      const venue = venues.find((p) => {
         p._id === e.venueId
         total.push(p)
       })
     })
 
-    console.log('total:',total.reduce((a, c) => a + c.availableBalance, 0));
-    
-
     Object.assign(dashboard, {
-      totalVenues: venues.length ?? 0,
-      activeBooking: bookings.length ?? 0,
-      revenue: venues.reduce((a, c) => a + c.availableBalance, 0) ?? 0,
-      availableBalance: total.reduce((a, c) => a + c.availableBalance, 0) ?? 0
+      totalVenues: venues.length,
+      activeBooking: bookings.length,
+      revenue: venueBooking.reduce((a, c) => a + c.total, 0) - vat,
+      availableBalance: total.reduce((a, c) => a + c.availableBalance, 0),
     })
     await dashboard.save()
     res.status(200).json({

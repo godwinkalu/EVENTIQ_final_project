@@ -229,8 +229,8 @@ exports.verifyPayment = async (req, res, next) => {
         booking.paymentstatus = 'paid'
         await Promise.all([payment.save(), booking.save()])
         const venue = await venueModel.findById(booking.venueId._id)
-        const per = (10 / 100) * booking.total
-        venue.availableBalance = booking.total - per
+        const per = (10 / 100) * venue.price
+        venue.availableBalance = venue.price - per
         await venue.save()
 
         // Create invoice
@@ -342,7 +342,7 @@ exports.withdrawEarnings = async (req, res, next) => {
 
     venue.availableBalance = venue.availableBalance - amount;
     await venue.save();
-    
+
     const withdrawal = await withdrawalModel.create({
       venueOwnerId: venueOwner._id,
       venuebookingId: venueBooking._id,
